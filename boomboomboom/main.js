@@ -120,6 +120,55 @@ Guy.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     Entity.prototype.draw.call(this);
 }
+// inheritance
+function Bomberman(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
+    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 24, true, 1);
+    this.speed = 200;
+    this.ctx = game.ctx;
+    Entity.call(this, game, 0, 350);
+}
+
+Bomberman.prototype = new Entity();
+Bomberman.prototype.constructor = Bomberman;
+
+Bomberman.prototype.update = function () {
+    this.x += this.game.clockTick * this.speed;
+    if (this.x > 800) this.x = -230;
+    Entity.prototype.update.call(this);
+}
+
+Bomberman.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+    console.log("GG");
+}
+
+// inheritance
+function Ugly(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
+    this.animation = new Animation(spritesheet, 64, 64, 7, 0.05, 19, true, 1);
+    this.speed = 200;
+    this.ctx = game.ctx;
+    Entity.call(this, game, 0, 250);
+}
+
+Ugly.prototype = new Entity();
+Ugly.prototype.constructor = Ugly;
+
+Ugly.prototype.update = function () {
+    this.x += this.game.clockTick * this.speed;
+    if (this.x > 800) this.x = -230;
+    Entity.prototype.update.call(this);
+}
+
+Ugly.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+    console.log("GG");
+}
 
 
 AM.queueDownload("./img/RobotUnicorn.png");
@@ -127,6 +176,11 @@ AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
 AM.queueDownload("./img/runningcat.png");
 AM.queueDownload("./img/background.jpg");
+AM.queueDownload("./img/farback.gif");
+AM.queueDownload("./img/starfield.png");
+AM.queueDownload("./img/bomberman.png");
+AM.queueDownload("./img/SideSprite.png");
+AM.queueDownload("./img/ugly.png");
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
@@ -136,10 +190,14 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
 
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
+    // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/starfield.png")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
+    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
 });
