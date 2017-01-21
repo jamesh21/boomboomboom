@@ -182,3 +182,16 @@ Entity.prototype.rotateAndCache = function (image, angle) {
     //offscreenCtx.strokeRect(0,0,size,size);
     return offscreenCanvas;
 }
+
+// added this method for easy horizontal flip
+Entity.prototype.flip = function (image) {
+    var offscreenCanvas = document.createElement('canvas');
+    var size = Math.max(image.width, image.height);
+    offscreenCanvas.width = size;
+    offscreenCanvas.height = size;
+    var offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCtx.translate(size, 0);
+    offscreenCtx.scale(-1, 1);
+    offscreenCtx.drawImage(image, 0, 0);
+    return offscreenCanvas;
+}

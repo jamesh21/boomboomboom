@@ -1,6 +1,6 @@
 var AM = new AssetManager();
 
-function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, startrow) {
+function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, startrow, reverse) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -12,6 +12,7 @@ function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDurati
     this.loop = loop;
     this.scale = scale;
     this.startrow = startrow;
+    this.re = reverse;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
@@ -22,6 +23,15 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     var frame = this.currentFrame();
     var xindex = 0;
     var yindex = 0;
+    // this code is because in the beginning after i flipped the image,
+    // when the direction toward left, it seems like moon walk so
+    // i reverse the x index count. However, it looks totally same.
+    // so i comment it out and using old method......
+    // if (this.re) {
+    //     xindex = this.sheetWidth - 1 - (frame % this.sheetWidth);
+    // } else {
+    //     xindex = frame % this.sheetWidth;
+    // }
     xindex = frame % this.sheetWidth;
     if (this.startrow === 0) {
         yindex = Math.floor(frame / this.sheetWidth);
@@ -72,6 +82,7 @@ function BackgroundStars(game, spritesheet) {
 };
 
 BackgroundStars.prototype.draw = function () {
+    // after I added '!' in the if statement, star go completely black.
     if (!this.starsOn) {
         this.ctx.drawImage(this.spritesheet,
             this.x, this.y);
@@ -184,13 +195,14 @@ BackgroundStars.prototype.update = function () {
 
 // inheritance
 function Bomberman(game, spritesheet) {
+    this.sprite = spritesheet;
+    this.leftsprite = this.flip(spritesheet);
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
-    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 8, true, 0.5, 0);
-    this.sprite = spritesheet;
+    this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, false);
     this.speed = 200;
     this.ctx = game.ctx;
-    Entity.call(this, game, 0, 350);
+    Entity.call(this, game, 0, 0);
 }
 
 Bomberman.prototype = new Entity();
@@ -198,21 +210,22 @@ Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.update = function () {
     if (this.game.chars['ArrowUp']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2);
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
         this.y-=2 ;
     }
     if (this.game.chars['ArrowRight']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0);
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
             this.x+=2 ;
     }
     if (this.game.chars['ArrowDown']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1);
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
         this.y+=2;
     }
     if (this.game.chars['ArrowLeft']) {
+        this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
         this.x-=2;
     }
-    // Entity.prototype.update.call(this);
+    Entity.prototype.update.call(this);
 }
 
 Bomberman.prototype.draw = function () {
