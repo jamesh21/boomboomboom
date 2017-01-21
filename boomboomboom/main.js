@@ -1,6 +1,6 @@
 var AM = new AssetManager();
 
-function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
+function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, startrow) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -11,6 +11,7 @@ function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDurati
     this.elapsedTime = 0;
     this.loop = loop;
     this.scale = scale;
+    this.startrow = startrow;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
@@ -22,7 +23,11 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     var xindex = 0;
     var yindex = 0;
     xindex = frame % this.sheetWidth;
-    yindex = Math.floor(frame / this.sheetWidth);
+    if (this.startrow === 0) {
+        yindex = Math.floor(frame / this.sheetWidth);
+    } else {
+        yindex = this.startrow + Math.floor(frame / this.sheetWidth);
+    }
 
     ctx.drawImage(this.spriteSheet,
                  xindex * this.frameWidth, yindex * this.frameHeight,  // source from sheet
@@ -63,13 +68,15 @@ function BackgroundStars(game, spritesheet) {
     this.spritesheet = spritesheet;
     this.game = game;
     this.ctx = game.ctx;
-    this.starsOn = true;
+    this.starsOn = false;
 };
 
 BackgroundStars.prototype.draw = function () {
-    if (this.starsOn) {
+    if (!this.starsOn) {
         this.ctx.drawImage(this.spritesheet,
             this.x, this.y);
+        this.ctx.drawImage(this.spritesheet,
+            700, this.y);
     }
 };
 
@@ -179,7 +186,8 @@ BackgroundStars.prototype.update = function () {
 function Bomberman(game, spritesheet) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
-    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 8, true, 0.5);
+    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 8, true, 0.5, 0);
+    this.sprite = spritesheet;
     this.speed = 200;
     this.ctx = game.ctx;
     Entity.call(this, game, 0, 350);
@@ -190,12 +198,15 @@ Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.update = function () {
     if (this.game.chars['ArrowUp']) {
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2);
         this.y-=2 ;
     }
     if (this.game.chars['ArrowRight']) {
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0);
             this.x+=2 ;
     }
     if (this.game.chars['ArrowDown']) {
+        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1);
         this.y+=2;
     }
     if (this.game.chars['ArrowLeft']) {
