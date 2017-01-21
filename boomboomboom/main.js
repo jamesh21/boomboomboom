@@ -57,6 +57,30 @@ Background.prototype.draw = function () {
 Background.prototype.update = function () {
 };
 
+function BackgroundStars(game, spritesheet) {
+    this.x = 0;
+    this.y = 0;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.starsOn = true;
+};
+
+BackgroundStars.prototype.draw = function () {
+    if (this.starsOn) {
+        this.ctx.drawImage(this.spritesheet,
+            this.x, this.y);
+    }
+};
+
+BackgroundStars.prototype.update = function () {
+    if (this.starsOn && (this.game.clockTick * 1000) % 10 === 0) {
+        this.starsOn = false;
+    } else {
+        this.starsOn = true;
+    }
+};
+
 function MushroomDude(game, spritesheet) {
     this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
     this.x = 0;
@@ -89,8 +113,10 @@ Cheetah.prototype = new Entity();
 Cheetah.prototype.constructor = Cheetah;
 
 Cheetah.prototype.update = function () {
-    this.x += this.game.clockTick * this.speed;
-    if (this.x > 800) this.x = -230;
+    if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
+        this.x += this.game.clockTick * this.speed;
+    //this.x += this.game.clockTick * this.speed;
+    if (this.x > 800) this.x = 0;
     Entity.prototype.update.call(this);
 }
 
@@ -124,7 +150,7 @@ Guy.prototype.draw = function () {
 function Bomberman(game, spritesheet) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
-    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 24, true, 1);
+    this.animation = new Animation(spritesheet, 64, 133, 8, 0.05, 8, true, 0.5);
     this.speed = 200;
     this.ctx = game.ctx;
     Entity.call(this, game, 0, 350);
@@ -134,8 +160,10 @@ Bomberman.prototype = new Entity();
 Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.update = function () {
+    //var keyPressed = String.fromCharCode(event.keyCode);
+    //console.log(keyPressed);
     this.x += this.game.clockTick * this.speed;
-    if (this.x > 800) this.x = -230;
+    if (this.x > 1000) this.x = -230;
     Entity.prototype.update.call(this);
 }
 
@@ -182,6 +210,7 @@ AM.queueDownload("./img/bomberman.png");
 AM.queueDownload("./img/SideSprite.png");
 AM.queueDownload("./img/ugly.png");
 
+//This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     var ctx = canvas.getContext("2d");
@@ -192,7 +221,7 @@ AM.downloadAll(function () {
 
     // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/starfield.png")));
+    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));

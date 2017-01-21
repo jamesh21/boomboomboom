@@ -16,11 +16,13 @@ function GameEngine() {
     this.surfaceHeight = null;
 }
 
+//Initializes everything for the game.
 GameEngine.prototype.init = function (ctx) {
     this.ctx = ctx;
     this.surfaceWidth = this.ctx.canvas.width;
     this.surfaceHeight = this.ctx.canvas.height;
     this.timer = new Timer();
+    //this.startInput();
     console.log('game initialized');
 }
 
@@ -31,6 +33,13 @@ GameEngine.prototype.start = function () {
         that.loop();
         requestAnimFrame(gameLoop, that.ctx.canvas);
     })();
+}
+
+GameEngine.prototype.startInput = function() {
+    console.log("Starting Input");
+    var that = this;
+    this.ctx.canvas.addEventListener("keydown", this.update(event) , false);
+    console.log("Input started");
 }
 
 GameEngine.prototype.addEntity = function (entity) {
