@@ -1,6 +1,7 @@
 var AM = new AssetManager();
 
-function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, startrow, reverse) {
+function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop,
+                   scale, startrow, reverse) {
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameDuration = frameDuration;
@@ -12,7 +13,7 @@ function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDurati
     this.loop = loop;
     this.scale = scale;
     this.startrow = startrow;
-    this.re = reverse;
+    this.reverse = reverse;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y) {
@@ -35,8 +36,10 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
     xindex = frame % this.sheetWidth;
     if (this.startrow === 0) {
         yindex = Math.floor(frame / this.sheetWidth);
+        //console.log("This is when the start row is 0 " + yindex);
     } else {
         yindex = this.startrow + Math.floor(frame / this.sheetWidth);
+        //console.log("This is when the start row is not 0 " + yindex);
     }
 
     ctx.drawImage(this.spriteSheet,
@@ -169,29 +172,55 @@ BackgroundStars.prototype.update = function () {
 // }
 
 // inheritance
-// function Ugly(game, spritesheet) {
-//     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
-//     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
-//     this.animation = new Animation(spritesheet, 64, 64, 7, 0.05, 19, true, 1);
-//     this.speed = 200;
-//     this.ctx = game.ctx;
-//     Entity.call(this, game, 0, 250);
-// }
-//
-// Ugly.prototype = new Entity();
-// Ugly.prototype.constructor = Ugly;
-//
-// Ugly.prototype.update = function () {
-//     this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = -230;
-//     Entity.prototype.update.call(this);
-// }
-//
-// Ugly.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-//     Entity.prototype.draw.call(this);
-//     console.log("GG");
-// }
+function Ugly(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
+    this.sprite = spritesheet;
+    this.leftsprite = this.flip(spritesheet);
+    this.animation = new Animation(spritesheet, 64, 64, 6, 0.05, 6, true, 1, 0, false);
+    this.speed = 200;
+    this.ctx = game.ctx;
+    Entity.call(this, game, 100, 100);
+}
+
+Ugly.prototype = new Entity();
+Ugly.prototype.constructor = Ugly;
+
+Ugly.prototype.update = function () {
+    // this.x += this.game.clockTick * this.speed;
+    // if (this.x > 800) this.x = -230;
+    if (this.game.chars['KeyW']) {
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 2;
+        this.y-=2 ;
+    }
+    if (this.game.chars['KeyD']) {
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 0;
+        this.x+=2 ;
+    }
+    if (this.game.chars['KeyS']) {
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 1;
+        this.y+=2;
+    }
+    if (this.game.chars['KeyA']) {
+        //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+        this.animation.spriteSheet = this.leftsprite;
+        this.animation.startrow = 0;
+        this.animation.reverse = true;
+        this.x-=2;
+    }
+    Entity.prototype.update.call(this);
+}
+
+Ugly.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+}
 
 // inheritance
 function Bomberman(game, spritesheet) {
@@ -210,19 +239,28 @@ Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.update = function () {
     if (this.game.chars['ArrowUp']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 2;
         this.y-=2 ;
     }
     if (this.game.chars['ArrowRight']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-            this.x+=2 ;
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 0;
+        this.x+=2 ;
     }
     if (this.game.chars['ArrowDown']) {
-        this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+        //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+        this.animation.spriteSheet = this.sprite;
+        this.animation.startrow = 1;
         this.y+=2;
     }
     if (this.game.chars['ArrowLeft']) {
-        this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+        //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+        this.animation.spriteSheet = this.leftsprite;
+        this.animation.startrow = 0;
+        this.animation.reverse = true;
         this.x-=2;
     }
     Entity.prototype.update.call(this);
@@ -260,7 +298,7 @@ AM.downloadAll(function () {
     // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
-    // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
+    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
 });
