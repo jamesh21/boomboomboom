@@ -14,7 +14,7 @@ function GameEngine() {
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
-    this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS'];
+    this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space'];
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -80,6 +80,7 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         that.chars[e.code] = true;
+        e.preventDefault();
         console.log(e);
         console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
@@ -87,6 +88,7 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("keypress", function (e) {
         if (e.code === "KeyD") that.d = true;
         that.chars[e.code] = true;
+        e.preventDefault();
         console.log(e);
         console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
     }, false);
