@@ -288,6 +288,32 @@ Bomberman.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
+function Bomb(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
+    this.sprite = spritesheet;
+    this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
+    this.ctx = game.ctx;
+    Entity.call(this, game, 100, 100);
+}
+
+Bomb.prototype = new Entity();
+Bomb.prototype.constructor = Bomb;
+
+Bomb.prototype.update = function () {
+    if (this.game.chars['Space']) {
+        this.x = this.game.entities[2].x;
+        this.y = this.game.entities[2].y;
+
+    }
+    Entity.prototype.update.call(this);
+}
+
+Bomb.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+}
+
 AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
@@ -298,6 +324,7 @@ AM.queueDownload("./img/starfield.png");
 AM.queueDownload("./img/bomberman.png");
 AM.queueDownload("./img/SideSprite.png");
 AM.queueDownload("./img/ugly.png");
+AM.queueDownload("./img/BombFlame.png");
 
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
@@ -316,6 +343,7 @@ AM.downloadAll(function () {
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
+    //gameEngine.addEntity(new Bomb(gameEngine, AM.getAsset("./img/BombFlame.png")));
 
     console.log("All Done!");
 });
