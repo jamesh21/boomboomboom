@@ -1,4 +1,3 @@
-//testing master
 function AssetManager() {
     this.successCount = 0;
     this.errorCount = 0;
@@ -6,11 +5,13 @@ function AssetManager() {
     this.downloadQueue = [];
 }
 
+//Adds the the download path to the array
 AssetManager.prototype.queueDownload = function (path) {
     console.log("Queueing " + path);
     this.downloadQueue.push(path);
 }
 
+//Used to check if all the images have been downloaded
 AssetManager.prototype.isDone = function () {
     return this.downloadQueue.length === this.successCount + this.errorCount;
 }
