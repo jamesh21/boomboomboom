@@ -177,7 +177,7 @@ function Ugly(game, spritesheet) {
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
     this.sprite = spritesheet;
     this.leftsprite = this.flip(spritesheet);
-    this.animation = new Animation(spritesheet, 64, 64, 6, 0.05, 6, true, 1, 0, false);
+    this.animation = new Animation(spritesheet, 64, 64, 6, 0.05, 6, true, 1, 1, false);
     this.speed = 200;
     this.ctx = game.ctx;
     Entity.call(this, game, 100, 100);
@@ -214,11 +214,22 @@ Ugly.prototype.update = function () {
         this.animation.reverse = true;
         this.x-=2;
     }
+    // if (this.game.keyDown) {
+    //     this.animation.loop = true;
+    // } else if (!this.game.keyDown) {
+    //     this.animation.loop = false;
+    // }
     Entity.prototype.update.call(this);
 }
 
 Ugly.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    if (this.game.chars['KeyW'] || this.game.chars['KeyS'] ||
+        this.game.chars['KeyA'] || this.game.chars['KeyD']) {
+        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    } else {
+        this.animation.drawFrame(0, this.ctx, this.x, this.y);
+    }
     Entity.prototype.draw.call(this);
 }
 
@@ -228,7 +239,7 @@ function Bomberman(game, spritesheet) {
     this.leftsprite = this.flip(spritesheet);
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
-    this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, false);
+    this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.8, 1, false);
     this.speed = 200;
     this.ctx = game.ctx;
     Entity.call(this, game, 0, 0);
@@ -267,7 +278,13 @@ Bomberman.prototype.update = function () {
 }
 
 Bomberman.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    if (this.game.chars['ArrowUp'] || this.game.chars['ArrowRight'] ||
+        this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft']) {
+        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    } else {
+        this.animation.drawFrame(0, this.ctx, this.x, this.y);
+    }
     Entity.prototype.draw.call(this);
 }
 
