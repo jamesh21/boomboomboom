@@ -288,16 +288,16 @@ Bomberman.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
-AM.queueDownload("./boomboomboom/img/RobotUnicorn.png");
-AM.queueDownload("./boomboomboom/img/guy.jpg");
-AM.queueDownload("./boomboomboom/img/mushroomdude.png");
-AM.queueDownload("./boomboomboom/img/runningcat.png");
-AM.queueDownload("./boomboomboom/img/background.jpg");
-AM.queueDownload("./boomboomboom/img/farback.gif");
-AM.queueDownload("./boomboomboom/img/starfield.png");
-AM.queueDownload("./boomboomboom/img/bomberman.png");
-AM.queueDownload("./boomboomboom/img/SideSprite.png");
-AM.queueDownload("./boomboomboom/img/ugly.png");
+AM.queueDownload("./img/RobotUnicorn.png");
+AM.queueDownload("./img/guy.jpg");
+AM.queueDownload("./img/mushroomdude.png");
+AM.queueDownload("./img/runningcat.png");
+AM.queueDownload("./img/background.jpg");
+AM.queueDownload("./img/farback.gif");
+AM.queueDownload("./img/starfield.png");
+AM.queueDownload("./img/bomberman.png");
+AM.queueDownload("./img/SideSprite.png");
+AM.queueDownload("./img/ugly.png");
 
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
@@ -309,13 +309,13 @@ AM.downloadAll(function () {
     gameEngine.start();
 
     // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./boomboomboom/img/farback.gif")));
-    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./boomboomboom/img/starfield.png")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
+    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./boomboomboom/img/bomberman.png")));
-    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./boomboomboom/img/ugly.png")));
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
+    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
 });
