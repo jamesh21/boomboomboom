@@ -274,6 +274,14 @@ Bomberman.prototype.update = function () {
         this.animation.reverse = true;
         this.x-=2;
     }
+    if (this.game.chars['Space']) { //create new bomb
+        var bomb = new Bomb(this.game, AM.getAsset("./img/BombFlame.png"));
+        // bomb.x = this.x;
+        // bomb.y = this.y;
+        this.game.addEntity(bomb);
+        Entity.call(bomb, this.game, this.x, this.y);
+
+    }
     Entity.prototype.update.call(this);
 }
 
@@ -290,21 +298,20 @@ Bomberman.prototype.draw = function () {
 
 function Bomb(game, spritesheet) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
-    // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
     this.sprite = spritesheet;
     this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
     this.ctx = game.ctx;
-    Entity.call(this, game, 100, 100);
+    this.isDone = false;
+    //Entity.call(this, game, 100, 100);
 }
 
 Bomb.prototype = new Entity();
 Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.update = function () {
-    if (this.game.chars['Space']) {
-        this.x = this.game.entities[2].x;
-        this.y = this.game.entities[2].y;
-
+    //Checking if the bomb animation has ended
+    if(this.animation.totalTime - this.animation.elapsedTime < 1) {
+        this.removeFromWorld = true;
     }
     Entity.prototype.update.call(this);
 }
