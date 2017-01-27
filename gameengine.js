@@ -121,8 +121,16 @@ GameEngine.prototype.update = function () {
 
     for (var i = 0; i < entitiesCount; i++) {
         var entity = this.entities[i];
+        if (!entity.removeFromWorld) {
+            entity.update();
+        }
 
-        entity.update();
+    }
+    // Loop through to remove entities that have been removed from the world
+    for (var i = this.entities.length-1; i >= 0; --i) {
+        if (this.entities[i].removeFromWorld) {
+            this.entities.splice(i, 1);
+        }
     }
 }
 

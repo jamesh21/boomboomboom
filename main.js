@@ -274,6 +274,15 @@ Bomberman.prototype.update = function () {
         this.animation.reverse = true;
         this.x-=2;
     }
+    if (this.game.chars['Space']) { //create new bomb
+        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"));
+        // bomb.x = this.x;
+        // bomb.y = this.y;
+        this.game.addEntity(bomb);
+        Entity.call(bomb, this.game, this.x + this.animation.frameWidth-bomb.animation.frameWidth
+            , this.y + this.animation.frameHeight-bomb.animation.frameWidth);
+
+    }
     Entity.prototype.update.call(this);
 }
 
@@ -288,16 +297,76 @@ Bomberman.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
-AM.queueDownload("./img/RobotUnicorn.png");
-AM.queueDownload("./img/guy.jpg");
-AM.queueDownload("./img/mushroomdude.png");
-AM.queueDownload("./img/runningcat.png");
-AM.queueDownload("./img/background.jpg");
+function Bomb(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    this.sprite = spritesheet;
+    // this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
+    this.animation = new Animation(spritesheet, 48, 48, 3, 1, 3, true, 0.8, 0, false);
+    this.firePosition = [[0,0], [30, 0], [0, 30], [-30, 0], [0, -30], [60, 0], [0, 60], [-60, 0], [0, -60]];
+    this.ctx = game.ctx;
+    this.currentLvl = 2;
+    //Entity.call(this, game, 100, 100);
+}
+
+Bomb.prototype = new Entity();
+Bomb.prototype.constructor = Bomb;
+
+Bomb.prototype.update = function () {
+    //Checking if the bomb animation has ended
+    if(this.animation.totalTime - this.animation.elapsedTime < 1) {
+        this.removeFromWorld = true;
+        //Creates flames after bombs explosion, loop will run base on bombs current lvl
+        for (var i = 0; i < (4 * this.currentLvl) + 1; i++) {
+            var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
+            this.game.addEntity(flame);
+            Entity.call(flame, this.game, this.x + this.firePosition[i][0], this.y + this.firePosition[i][1]);
+        }
+    }
+    Entity.prototype.update.call(this);
+}
+
+Bomb.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+}
+
+function Flame(game, spritesheet) {
+    //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
+    this.sprite = spritesheet;
+    // this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
+    this.animation = new Animation(spritesheet, 48, 48, 5, 0.4, 5, true, 0.8, 0, false);
+    this.ctx = game.ctx;
+    //Entity.call(this, game, 100, 100);
+}
+
+Flame.prototype = new Entity();
+Flame.prototype.constructor = Bomb;
+
+Flame.prototype.update = function () {
+    //Checking if the bomb animation has ended
+    if(this.animation.totalTime - this.animation.elapsedTime < 1) {
+        this.removeFromWorld = true;
+    }
+    Entity.prototype.update.call(this);
+}
+
+Flame.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    Entity.prototype.draw.call(this);
+}
+
+// AM.queueDownload("./img/RobotUnicorn.png");
+// AM.queueDownload("./img/guy.jpg");
+// AM.queueDownload("./img/mushroomdude.png");
+// AM.queueDownload("./img/runningcat.png");
+// AM.queueDownload("./img/background.jpg");
 AM.queueDownload("./img/farback.gif");
 AM.queueDownload("./img/starfield.png");
 AM.queueDownload("./img/bomberman.png");
 AM.queueDownload("./img/SideSprite.png");
 AM.queueDownload("./img/ugly.png");
+AM.queueDownload("./img/Bomb.png");
+AM.queueDownload("./img/Flame.png");
 
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
