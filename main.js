@@ -248,7 +248,28 @@ function Bomberman(game, spritesheet) {
 Bomberman.prototype = new Entity();
 Bomberman.prototype.constructor = Bomberman;
 
+Bomberman.prototype.collide = function (other) {
+    return distance(this, other) < this.radius + other.radius;
+};
+
+Bomberman.prototype.collideLeft = function () {
+    return this.x - 5 < 0;
+};
+
+Bomberman.prototype.collideRight = function () {
+    return (this.x + 55) > 1000;
+};
+
+Bomberman.prototype.collideTop = function () {
+    return (this.y - 15) < 0;
+};
+
+Bomberman.prototype.collideBottom = function () {
+    return (this.y + 50) > 600;
+};
+
 Bomberman.prototype.update = function () {
+    Entity.prototype.update.call(this);
     if (this.game.chars['ArrowUp']) {
         //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
         this.animation.spriteSheet = this.sprite;
@@ -279,11 +300,10 @@ Bomberman.prototype.update = function () {
         // bomb.x = this.x;
         // bomb.y = this.y;
         this.game.addEntity(bomb);
-        Entity.call(bomb, this.game, this.x + this.animation.frameWidth-bomb.animation.frameWidth
-            , this.y + this.animation.frameHeight-bomb.animation.frameWidth);
+        Entity.call(bomb, this.game, this.x + this.animation.frameWidth - bomb.animation.frameWidth -11
+            , this.y + this.animation.frameHeight - bomb.animation.frameHeight - 24);
 
     }
-    Entity.prototype.update.call(this);
 }
 
 Bomberman.prototype.draw = function () {
@@ -302,9 +322,10 @@ function Bomb(game, spritesheet) {
     this.sprite = spritesheet;
     // this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
     this.animation = new Animation(spritesheet, 48, 48, 3, 1, 3, true, 0.8, 0, false);
-    this.firePosition = [[0,0], [30, 0], [0, 30], [-30, 0], [0, -30], [60, 0], [0, 60], [-60, 0], [0, -60]];
+    // this.firePosition = [[0,0], [30, 0], [0, 30], [-30, 0], [0, -30], [60, 0], [0, 60], [-60, 0], [0, -60]];
+    this.firePosition = [[1, 0], [0, 1], [-1, 0], [0, -1]];
     this.ctx = game.ctx;
-    this.currentLvl = 2;
+    this.currentLvl = 6;
     //Entity.call(this, game, 100, 100);
 }
 
@@ -316,10 +337,16 @@ Bomb.prototype.update = function () {
     if(this.animation.totalTime - this.animation.elapsedTime < 1) {
         this.removeFromWorld = true;
         //Creates flames after bombs explosion, loop will run base on bombs current lvl
-        for (var i = 0; i < (4 * this.currentLvl) + 1; i++) {
-            var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
-            this.game.addEntity(flame);
-            Entity.call(flame, this.game, this.x + this.firePosition[i][0], this.y + this.firePosition[i][1]);
+        for (var i = 0; i <= this.currentLvl; i++) {
+            for (var j = 0; j < 4; j++) {
+                var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
+                this.game.addEntity(flame);
+                Entity.call(flame, this.game, this.x + this.firePosition[j][0] * 30 * i,
+                    this.y + this.firePosition[j][1] * 30 * i);
+                if (i === 0) {
+                    break;
+                }
+            }
         }
     }
     Entity.prototype.update.call(this);
@@ -374,12 +401,42 @@ AM.downloadAll(function () {
     var ctx = canvas.getContext("2d");
 
     var gameEngine = new GameEngine();
+    // var p = 20;
+    // var bh = 600;
+    // var bw = 1000;
+    // var that = this;
+    // function drawBoard(ctx){
+    //     for (var x = 10; x <= bw; x += 50) {
+    //         ctx.beginPath();
+    //         ctx.moveTo(0.5 + x + p, p);
+    //         ctx.lineTo(0.5 + x + p, bh + p);
+    //         ctx.closePath();
+    //         ctx.strokeStyle = "black";
+    //         ctx.stroke();
+    //     }
+    //
+    //
+    //     for (var x = 10; x <= bh; x += 50) {
+    //         ctx.beginPath();
+    //         ctx.moveTo(p, 0.5 + x + p);
+    //         ctx.lineTo(bw + p, 0.5 + x + p);
+    //         ctx.closePath();
+    //         ctx.strokeStyle = "black";
+    //         ctx.stroke();
+    //     }
+    //
+    //     ctx.strokeStyle = "black";
+    //     ctx.stroke();
+    // }
+    //
+    // drawBoard(ctx);
+
     gameEngine.init(ctx);
     gameEngine.start();
 
     // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
-    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
+    //gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
+    //gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
@@ -387,4 +444,5 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
+    // drawBoard(ctx);
 });
