@@ -313,16 +313,16 @@ Bomberman.prototype.collideBottom = function () {
 
 Bomberman.prototype.update = function () {
     Entity.prototype.update.call(this);
-    for (var i = 0; i < this.game.walls.length; i++) {
-        var wall = this.game.walls[i];
-        var dist = distance(wall, this);
-        if (this.collide({x: wall.x, y: wall.y, radius: 25})) {
-            var difX = (wall.x - this.x) / dist;
-            var difY = (wall.y - this.y) / dist;
-            this.x -= difX * 10 / (dist * dist);
-            this.y -= difY * 10 / (dist * dist);
-        }
-    }
+    // for (var i = 0; i < this.game.walls.length; i++) {
+    //     var wall = this.game.walls[i];
+    //     var dist = distance(wall, this);
+    //     if (this.collide({x: wall.x, y: wall.y, radius: 25})) {
+    //         var difX = (wall.x - this.x) / dist;
+    //         var difY = (wall.y - this.y) / dist;
+    //         this.x -= difX * 10 / (dist * dist);
+    //         this.y -= difY * 10 / (dist * dist);
+    //     }
+    // }
     if (this.pass) {
         if (!this.collideTop()) {
             if (this.game.chars['ArrowUp']) {
