@@ -282,6 +282,7 @@ function Bomberman(game, spritesheet) {
     this.ctx = game.ctx;
     this.cooldown = 0;
     this.bombs = 5;
+    this.bombLvl = 2;
     this.name = "Bomberman";
     this.pass = true;
     Entity.call(this, game, 50, 0);
@@ -355,11 +356,17 @@ Bomberman.prototype.update = function () {
                 this.animation.reverse = true;
                 this.x -= 2;
             }
+        } //This was used for bomb lvl up
+        if(this.game.chars['KeyC']) {
+             if (this.bombLvl < 10) {
+                 this.bombLvl++;
+             }
+
         }
     }
     this.pass = true;
     if (this.game.chars['Space']) { //create new bomb
-        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"));
+        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.bombLvl);
         // bomb.x = this.x;
         // bomb.y = this.y;
         this.game.addEntity(bomb);
@@ -379,7 +386,7 @@ Bomberman.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
-function Bomb(game, spritesheet) {
+function Bomb(game, spritesheet, currentBombLvl) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     this.sprite = spritesheet;
     // this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
@@ -388,7 +395,7 @@ function Bomb(game, spritesheet) {
     //                   LEFT   ,  RIGHT,   UP  ,  BOTTOM
     this.firePosition = [[-1, 0], [1, 0], [0, 1], [0, -1]];
     this.ctx = game.ctx;
-    this.currentLvl = 6;
+    this.currentLvl = currentBombLvl;
     this.name = "Bomb";
     this.explode = false;
     //Entity.call(this, game, 100, 100);console.log(this.x +" "+ this.y );
@@ -418,6 +425,16 @@ Bomb.prototype.update = function () {
                 }
             }
         }
+        // This code will be used to making the bomb shake
+        // if (this.shake && this.removeFromWorld != true) {
+        //     this.x += 5;
+        //     this.shake = false;
+        //     console.log("hello world");
+        // } else if (!this.shake && this.removeFromWorld != true) {
+        //     this.x -= 5;
+        //     this.shake = true;
+        //     console.log("world hello");
+        // }
     }
     Entity.prototype.update.call(this);
 }
