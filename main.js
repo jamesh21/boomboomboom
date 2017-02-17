@@ -583,6 +583,7 @@ AM.downloadAll(function () {
         }
     }
 
+    // Placing Destroyable boxes
     for (var row = 1; row <= 11; row++) {
         for (var column = 1; column < 20; column++) {
             var xPosition = column * 50;
