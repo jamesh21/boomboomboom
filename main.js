@@ -573,18 +573,21 @@ AM.downloadAll(function () {
     // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
+    // Most Left and Most Right VERTICAL walls
     for (var i = 1; i <= 10; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 0, i * 50);
         gameEngine.addEntity(circle);
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 1000 - 50, i * 50);
         gameEngine.addEntity(circle);
     }
+    // Most Top and Most Bottom HORIZONTAL walls
     for (var i = 0; i < 26; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 0);
         gameEngine.addEntity(circle);
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 600 - 50);
         gameEngine.addEntity(circle);
     }
+    // Walls in the middle
     for (var row = 2; row <= 10; row += 2) {
         for (var column = 2; column <= 24; column += 2) {
             var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Wall", column * 50, row * 50);
