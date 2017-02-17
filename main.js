@@ -190,7 +190,7 @@ function Ugly(game, spritesheet) {
     this.name = "Ugly";
     this.radius = 24;
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
-    Entity.call(this, game, 845, 440);
+    Entity.call(this, game, 945, 540);
 }
 
 Ugly.prototype = new Entity();
@@ -205,7 +205,7 @@ Ugly.prototype.collideLeft = function () {
 };
 
 Ugly.prototype.collideRight = function () {
-    return (this.x + 55) > 1000 - 50;
+    return (this.x + 55) > 1000;
 };
 
 Ugly.prototype.collideTop = function () {
@@ -213,7 +213,7 @@ Ugly.prototype.collideTop = function () {
 };
 
 Ugly.prototype.collideBottom = function () {
-    return (this.y + 60) > 600 - 50;
+    return (this.y + 60) > 600;
 };
 
 Ugly.prototype.update = function () {
@@ -300,7 +300,7 @@ Bomberman.prototype.collideLeft = function () {
 };
 
 Bomberman.prototype.collideRight = function () {
-    return (this.x + 48 + 50) > 1000;
+    return (this.x + 48 + 50) > 1050;
 };
 
 Bomberman.prototype.collideTop = function () {
@@ -308,7 +308,7 @@ Bomberman.prototype.collideTop = function () {
 };
 
 Bomberman.prototype.collideBottom = function () {
-    return (this.y + 100) > 600 - 50;
+    return (this.y + 100) > 600;
 };
 
 Bomberman.prototype.update = function () {
@@ -574,22 +574,22 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
-    for (var i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 11; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 0, i * 50);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 1000 - 50, i * 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 1000, i * 50);
         gameEngine.addEntity(circle);
     }
     // Most Top and Most Bottom HORIZONTAL walls
     for (var i = 0; i < 26; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 0);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 600 - 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 600);
         gameEngine.addEntity(circle);
     }
     // Walls in the middle
     for (var row = 2; row <= 10; row += 2) {
-        for (var column = 2; column <= 24; column += 2) {
+        for (var column = 2; column < 20; column += 2) {
             var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Wall", column * 50, row * 50);
             gameEngine.addEntity(circle);
         }
