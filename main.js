@@ -413,14 +413,31 @@ Bomb.prototype.update = function () {
         // TODO do the above if we have time
         this.removeFromWorld = true;
 
+        // //Creates flames after bombs explosion, loop will run base on bombs current lvl
+        // for (var i = 0; i <= this.currentLvl; i++) {
+        //     for (var j = 0; j < 4; j++) {
+        //         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
+        //         this.game.addEntity(flame);
+        //         Entity.call(flame, this.game, this.x + this.firePosition[j][0] * 30 * i,
+        //             this.y + this.firePosition[j][1] * 30 * i);
+        //         if (i === 0) {
+        //             break;
+        //         }
+        //     }
+        // }
+
         //Creates flames after bombs explosion, loop will run base on bombs current lvl
-        for (var i = 0; i <= this.currentLvl; i++) {
-            for (var j = 0; j < 4; j++) {
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j <= this.currentLvl; j++) {
                 var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                 this.game.addEntity(flame);
                 Entity.call(flame, this.game, this.x + this.firePosition[j][0] * 30 * i,
                     this.y + this.firePosition[j][1] * 30 * i);
                 if (i === 0) {
+                    break;
+                }
+                if (flame.stop) {
+                    flame.stop = true;
                     break;
                 }
             }
@@ -451,6 +468,7 @@ function Flame(game, spritesheet) {
     this.animation = new Animation(spritesheet, 48, 48, 5, 0.4, 5, true, 0.8, 0, false);
     this.ctx = game.ctx;
     this.name = "Flame";
+    this.stop = false;
     //Entity.call(this, game, 100, 100);
 }
 
@@ -471,6 +489,9 @@ Flame.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
         if (ent !== this && this.collide(ent)) {
+            if (ent.name !== "Background" && ent.name !== "star") {
+                this.stop = true;
+            }
             if (ent.name !== "Flame" && ent.name !== "Bomberman" &&
                 ent.name !== "Wall" && ent.name !== "Background" && ent.name !== "Edge" && !ent.removeFromWorld) {
                 ent.removeFromWorld = true;
@@ -530,7 +551,8 @@ AM.queueDownload("./img/SideSprite.png");
 AM.queueDownload("./img/ugly.png");
 AM.queueDownload("./img/Bomb.png");
 AM.queueDownload("./img/Flame.png");
-AM.queueDownload("./img/Wall.png");
+AM.queueDownload("./img/DestoryableBox.png");
+AM.queueDownload("./img/SolidBlock.png");
 var friction = 1;
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
@@ -575,22 +597,22 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
     for (var i = 1; i <= 11; i++) {
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 0, i * 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", 0, i * 50);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", 1000, i * 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", 1000, i * 50);
         gameEngine.addEntity(circle);
     }
     // Most Top and Most Bottom HORIZONTAL walls
     for (var i = 0; i < 26; i++) {
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 0);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", i * 50, 0);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Edge", i * 50, 600);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", i * 50, 600);
         gameEngine.addEntity(circle);
     }
     // Walls in the middle
     for (var row = 2; row <= 10; row += 2) {
         for (var column = 2; column < 20; column += 2) {
-            var circle = new Wall(gameEngine, AM.getAsset("./img/Wall.png"), "Wall", column * 50, row * 50);
+            var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Wall", column * 50, row * 50);
             gameEngine.addEntity(circle);
         }
     }
