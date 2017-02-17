@@ -580,7 +580,15 @@ AM.downloadAll(function () {
         for (var column = 2; column < 20; column += 2) {
             var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), column * 50, row * 50);
             gameEngine.addEntity(circle);
+            gameEngine.addOffLimitPlacement(circle.x, circle.y);
         }
+    }
+
+    // Keeping the area around each players starting position clear.
+    var startingPosition = [[50, 50], [100, 50], [50, 100], [50, 500], [50, 550], [100, 550], [900, 50], [950, 50],
+                            [950, 100], [950, 500], [900, 550], [950, 550]];
+    for (var i = 0; i < startingPosition.length; i++) {
+        gameEngine.addOffLimitPlacement(startingPosition[i][0], startingPosition[i][1]);
     }
 
     // Placing Destroyable boxes
@@ -589,8 +597,8 @@ AM.downloadAll(function () {
             var xPosition = column * 50;
             var yPosition = row * 50;
             var hasWall = false;
-            for (var i = 0; i < gameEngine.walls.length; i++) {
-                if (gameEngine.walls[i].x === xPosition && gameEngine.walls[i].y=== yPosition) {
+            for (var i = 0; i < gameEngine.offLimitPlacement.length; i++) {
+                if (gameEngine.offLimitPlacement[i].x === xPosition && gameEngine.offLimitPlacement[i].y=== yPosition) {
                     hasWall = true;
                     break;
                 }
@@ -602,9 +610,19 @@ AM.downloadAll(function () {
         }
     }
 
-    // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
-    // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    // For removing random destroyables from the map each time. Need to fix the problem with removing the destroyable from
+    // the main list and the destroyable list.
+    var numberOfDestroyable = gameEngine.destroyable.length;
+    var times = 1;
+    for (var i = 22; i > 0 ; i--) {
+        var position = Math.floor((Math.random() * numberOfDestroyable));
+        gameEngine.destroyable.splice(position, 1);
+        console.log("this many times" + times);
+        times++;
+        console.log("!!!" + position);
+        numberOfDestroyable--;
+    }
+
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
