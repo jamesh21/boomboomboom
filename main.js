@@ -112,71 +112,6 @@ BackgroundStars.prototype.update = function () {
     }
 };
 
-// function MushroomDude(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
-//     this.x = 0;
-//     this.y = 0;
-//     this.speed = 100;
-//     this.game = game;
-//     this.ctx = game.ctx;
-// }
-//
-// MushroomDude.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-// }
-//
-// MushroomDude.prototype.update = function () {
-//     if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
-//         this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = -230;
-// }
-//
-//
-// // inheritance
-// function Cheetah(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 512, 256, 2, 0.05, 8, true, 0.5);
-//     this.speed = 350;
-//     this.ctx = game.ctx;
-//     Entity.call(this, game, 0, 250);
-// }
-//
-// Cheetah.prototype = new Entity();
-// Cheetah.prototype.constructor = Cheetah;
-//
-// Cheetah.prototype.update = function () {
-//     if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
-//         this.x += this.game.clockTick * this.speed;
-//     //this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = 0;
-//     Entity.prototype.update.call(this);
-// }
-//
-// Cheetah.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-//     Entity.prototype.draw.call(this);
-// }
-//
-// // inheritance
-// function Guy(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-//     this.speed = 100;
-//     this.ctx = game.ctx;
-//     Entity.call(this, game, 0, 450);
-// }
-//
-// Guy.prototype = new Entity();
-// Guy.prototype.constructor = Guy;
-//
-// Guy.prototype.update = function () {
-//     this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = -230;
-//     Entity.prototype.update.call(this);
-// }
-//
-// Guy.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-//     Entity.prototype.draw.call(this);
-// }
 
 // inheritance
 function Ugly(game, spritesheet) {
@@ -311,8 +246,10 @@ Bomberman.prototype.collideBottom = function () {
     return (this.y + 100) > 600;
 };
 
+
 Bomberman.prototype.update = function () {
     Entity.prototype.update.call(this);
+
     // for (var i = 0; i < this.game.walls.length; i++) {
     //     var wall = this.game.walls[i];
     //     var dist = distance(wall, this);
@@ -509,13 +446,13 @@ Flame.prototype.draw = function () {
 }
 
 // no inheritance
-function Wall(game, spritesheet, name, x, y) {
+function Wall(game, spritesheet, x, y) {
     this.x = x;
     this.y = y;
     this.spritesheet = spritesheet;
     this.game = game;
     this.ctx = game.ctx;
-    this.name = name;
+    this.name = "Wall";
     this.here = true;
 };
 
@@ -529,6 +466,36 @@ Wall.prototype.draw = function () {
 };
 
 Wall.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && this.collide(ent)) {
+            if (ent.name === "Flame" && !ent.removeFromWorld) {
+                ent.removeFromWorld = true;
+            }
+        }
+    }
+};
+
+function Destroyable(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "Destroyable";
+    this.here = true;
+};
+
+Destroyable.prototype.collide = function (other) {
+    return distance(this, other) < 25;
+};
+
+Destroyable.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+Destroyable.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
         if (ent !== this && this.collide(ent)) {
@@ -592,30 +559,48 @@ AM.downloadAll(function () {
 
     gameEngine.init(ctx);
     gameEngine.start();
-    // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
     for (var i = 1; i <= 11; i++) {
-        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", 0, i * 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 0, i * 50);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", 1000, i * 50);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 1000, i * 50);
         gameEngine.addEntity(circle);
     }
     // Most Top and Most Bottom HORIZONTAL walls
     for (var i = 0; i < 26; i++) {
-        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", i * 50, 0);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 0);
         gameEngine.addEntity(circle);
-        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Edge", i * 50, 600);
+        var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 600);
         gameEngine.addEntity(circle);
     }
     // Walls in the middle
     for (var row = 2; row <= 10; row += 2) {
         for (var column = 2; column < 20; column += 2) {
-            var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), "Wall", column * 50, row * 50);
+            var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), column * 50, row * 50);
             gameEngine.addEntity(circle);
         }
     }
+
+    for (var row = 1; row <= 11; row++) {
+        for (var column = 1; column < 20; column++) {
+            var xPosition = column * 50;
+            var yPosition = row * 50;
+            var hasWall = false;
+            for (var i = 0; i < gameEngine.walls.length; i++) {
+                if (gameEngine.walls[i].x === xPosition && gameEngine.walls[i].y=== yPosition) {
+                    hasWall = true;
+                    break;
+                }
+            }
+            if (!hasWall) {
+                var block = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), xPosition, yPosition);
+                gameEngine.addEntity(block);
+            }
+        }
+    }
+
     // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));

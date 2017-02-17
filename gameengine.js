@@ -11,6 +11,7 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+    this.destroyable = [];
     this.walls = [];
     this.ctx = null;
     this.surfaceWidth = null;
@@ -107,6 +108,7 @@ GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
     this.entities.push(entity);
     if (entity.name === "Wall") this.walls.push(entity);
+    if (entity.name === "Destroyable") this.destroyable.push(entity);
 }
 
 GameEngine.prototype.draw = function () {
@@ -129,7 +131,7 @@ GameEngine.prototype.update = function () {
 
     }
     // Loop through to remove entities that have been removed from the world
-    for (var i = this.entities.length-1; i >= 0; --i) {
+    for (var i = this.entities.length - 1; i >= 0; --i) {
         if (this.entities[i].removeFromWorld) {
             this.entities.splice(i, 1);
         }
