@@ -430,7 +430,24 @@ Flame.prototype.update = function () {
                 this.stop = true;
             }
             if (ent.name !== "Flame" && ent.name !== "Bomberman" &&
-                ent.name !== "Wall" && ent.name !== "Background" && ent.name !== "Edge" && !ent.removeFromWorld) {
+                ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
+                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup") {
+                if(ent.name === "Destroyable" && ent.hasPowerup) {
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!HELLLLLLLLLLLLLLLLLO");
+                    if (ent.hasSpeedPowerup) {
+                        console.log("Speed!!!!!!!!!!!!");
+                        var speedUp = new SpeedPowerup(this.game, AM.getAsset("./img/SpeedPowerup.png"), ent.x, ent.y);
+                        this.game.addEntity(speedUp);
+                    } else if (ent.hasBombPowerup) {
+                        console.log("Bomb!!!!!!!!!!!!!!!");
+                        var bombUp = new BombPowerup(this.game, AM.getAsset("./img/BombPowerup.png"), ent.x, ent.y);
+                        this.game.addEntity(bombUp);
+                    } else {
+                        console.log("Flame!!!!!!!!!!!!!!!");
+                        var flameUp = new FlamePowerup(this.game, AM.getAsset("./img/FlamePowerup.png"), ent.x, ent.y);
+                        this.game.addEntity(flameUp);
+                    }
+                }
                 ent.removeFromWorld = true;
             }
             if (ent.name === "Bomb") {
@@ -483,6 +500,10 @@ function Destroyable(game, spritesheet, x, y) {
     this.game = game;
     this.ctx = game.ctx;
     this.name = "Destroyable";
+    this.hasPowerup = false;
+    this.hasBombPowerup = false;
+    this.hasSpeedPowerup = false;
+    this.hasFlamePowerup = false;
     this.here = true;
 };
 
@@ -501,11 +522,101 @@ Destroyable.prototype.update = function () {
         if (ent !== this && this.collide(ent)) {
             if (ent.name === "Flame" && !ent.removeFromWorld) {
                 ent.removeFromWorld = true;
+
             }
         }
     }
 };
 
+function BombPowerup(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "BombPowerup";
+    this.here = true;
+};
+
+BombPowerup.prototype.collide = function (other) {
+    return distance(this, other) < 25;
+};
+
+BombPowerup.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+BombPowerup.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && this.collide(ent)) {
+            if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
+
+function FlamePowerup(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "FlamePowerup";
+    this.here = true;
+};
+
+FlamePowerup.prototype.collide = function (other) {
+    return distance(this, other) < 25;
+};
+
+FlamePowerup.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+FlamePowerup.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && this.collide(ent)) {
+            if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
+
+function SpeedPowerup(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "SpeedPowerup";
+    this.here = true;
+};
+
+SpeedPowerup.prototype.collide = function (other) {
+    return distance(this, other) < 25;
+};
+
+SpeedPowerup.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+SpeedPowerup.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && this.collide(ent)) {
+            if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
 // AM.queueDownload("./img/RobotUnicorn.png");
 // AM.queueDownload("./img/guy.jpg");
 // AM.queueDownload("./img/mushroomdude.png");
@@ -520,6 +631,9 @@ AM.queueDownload("./img/Bomb.png");
 AM.queueDownload("./img/Flame.png");
 AM.queueDownload("./img/DestoryableBox.png");
 AM.queueDownload("./img/SolidBlock.png");
+AM.queueDownload("./img/BombPowerup.png");
+AM.queueDownload("./img/FlamePowerup.png");
+AM.queueDownload("./img/SpeedPowerup.png");
 var friction = 1;
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
@@ -606,21 +720,60 @@ AM.downloadAll(function () {
             if (!hasWall) {
                 var block = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), xPosition, yPosition);
                 gameEngine.addEntity(block);
+                gameEngine.randomItemPlacement.push(block);
             }
         }
     }
 
-    // For removing random destroyables from the map each time. Need to fix the problem with removing the destroyable from
-    // the main list and the destroyable list.
+    // For removing random destroyables from the map each time.
     var numberOfDestroyable = gameEngine.destroyable.length;
-    var times = 1;
-    for (var i = 22; i > 0 ; i--) {
+    for (var i = 30; i > 0 ; i--) {
         var position = Math.floor((Math.random() * numberOfDestroyable));
-        gameEngine.destroyable.splice(position, 1);
-        console.log("this many times" + times);
-        times++;
-        console.log("!!!" + position);
+        gameEngine.destroyable[position].removeFromWorld = true;
         numberOfDestroyable--;
+    }
+
+    // Removing the empty spaces from the destroyable list
+    for (var i = gameEngine.destroyable.length - 1; i >=0; i--) {
+        if (gameEngine.destroyable[i].removeFromWorld) {
+            gameEngine.destroyable.splice(i, 1);
+            gameEngine.randomItemPlacement.splice(i, 1);
+        }
+    }
+
+    // Placing bomb powerup inside boxes
+    var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
+    for (var i = 0; i < 18; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        // if (!gameEngine.randomItemPlacement[position].hasPowerup) {
+        //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+        //     gameEngine.randomItemPlacement[position].hasBombPowerup = true;
+        //     gameEngine.randomItemPlacement.splice(position, 1);
+        //     numberOfPossibleItemPlacement--;
+        // }
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasBombPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+
+    }
+
+    // Placing flame powerup inside boxes
+    for (var i = 0; i < 24; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing speed powerup inside boxes
+    for (var i = 0; i < 9; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
     }
 
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
