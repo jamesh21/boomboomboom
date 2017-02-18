@@ -1,6 +1,22 @@
 var AM = new AssetManager();
 
 function distance(a, b) {
+    // if (a.name === "Bomberman"){
+    //     var dx = a.x+24 - b.x+25;
+    //     var dy = a.y+70 - b.y+25;
+    //     return Math.sqrt(dx * dx + dy * dy);
+    // }
+    if (a.name === "Bomberman"){
+        var dx = (a.x+23) - b.x+25;
+        var dy = (a.y+80) - b.y+25;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    if(a.name === "Ugly") {
+        var dx = a.x+24 - b.x+25;
+        var dy = a.y+36 - b.y+25;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    console.log("MY A: "+a.name+" my B: "+b.name);
     var dx = a.x - b.x;
     var dy = a.y - b.y;
     return Math.sqrt(dx * dx + dy * dy);
@@ -54,6 +70,15 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y) {
         x, y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
+    ctx.strokeRect(x,y,this.frameWidth * this.scale,
+        this.frameHeight * this.scale);
+    ctx.strokeRect(x+7,y+64,33,33);
+    // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
+    ctx.beginPath();
+    ctx.fillStyle="Red";
+    ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
+    ctx.fill();
+    ctx.closePath();
 }
 
 Animation.prototype.currentFrame = function () {
@@ -112,72 +137,6 @@ BackgroundStars.prototype.update = function () {
     }
 };
 
-// function MushroomDude(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
-//     this.x = 0;
-//     this.y = 0;
-//     this.speed = 100;
-//     this.game = game;
-//     this.ctx = game.ctx;
-// }
-//
-// MushroomDude.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-// }
-//
-// MushroomDude.prototype.update = function () {
-//     if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
-//         this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = -230;
-// }
-//
-//
-// // inheritance
-// function Cheetah(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 512, 256, 2, 0.05, 8, true, 0.5);
-//     this.speed = 350;
-//     this.ctx = game.ctx;
-//     Entity.call(this, game, 0, 250);
-// }
-//
-// Cheetah.prototype = new Entity();
-// Cheetah.prototype.constructor = Cheetah;
-//
-// Cheetah.prototype.update = function () {
-//     if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
-//         this.x += this.game.clockTick * this.speed;
-//     //this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = 0;
-//     Entity.prototype.update.call(this);
-// }
-//
-// Cheetah.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-//     Entity.prototype.draw.call(this);
-// }
-//
-// // inheritance
-// function Guy(game, spritesheet) {
-//     this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-//     this.speed = 100;
-//     this.ctx = game.ctx;
-//     Entity.call(this, game, 0, 450);
-// }
-//
-// Guy.prototype = new Entity();
-// Guy.prototype.constructor = Guy;
-//
-// Guy.prototype.update = function () {
-//     this.x += this.game.clockTick * this.speed;
-//     if (this.x > 800) this.x = -230;
-//     Entity.prototype.update.call(this);
-// }
-//
-// Guy.prototype.draw = function () {
-//     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-//     Entity.prototype.draw.call(this);
-// }
-
 // inheritance
 function Ugly(game, spritesheet) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
@@ -189,6 +148,10 @@ function Ugly(game, spritesheet) {
     this.ctx = game.ctx;
     this.name = "Ugly";
     this.radius = 24;
+    this.leftOffset = 5;
+    this.rightOffset = 55;
+    this.topOffset = 8;
+    this.bottomOffset = 60;
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
     Entity.call(this, game, 945, 540);
 }
@@ -196,26 +159,44 @@ function Ugly(game, spritesheet) {
 Ugly.prototype = new Entity();
 Ugly.prototype.constructor = Ugly;
 
+// Ugly.prototype.collide = function (other) {
+//     return distance(this, other) < 24 + 24;
+// };
+//
+// Ugly.prototype.collideLeft = function () {
+//     return (this.x + 5) < 0 + 50;
+// };
+//
+// Ugly.prototype.collideRight = function () {
+//     return (this.x + 55) > 1000;
+// };
+//
+// Ugly.prototype.collideTop = function () {
+//     return (this.y + 8) < 0 + 50;
+// };
+//
+// Ugly.prototype.collideBottom = function () {
+//     return (this.y + 60) > 600;
+// };
 Ugly.prototype.collide = function (other) {
-    return distance(this, other) < 24 + 24;
+    return distance(this, other) < 40;
 };
 
 Ugly.prototype.collideLeft = function () {
-    return (this.x + 5) < 0 + 50;
+    return (this.x + this.leftOffset) < 50;
 };
 
 Ugly.prototype.collideRight = function () {
-    return (this.x + 55) > 1000;
+    return (this.x + this.rightOffset) > 1000;
 };
 
 Ugly.prototype.collideTop = function () {
-    return (this.y + 8) < 0 + 50;
+    return (this.y + this.topOffset) < 50;
 };
 
 Ugly.prototype.collideBottom = function () {
-    return (this.y + 60) > 600;
+    return (this.y + this.bottomOffset) > 600;
 };
-
 Ugly.prototype.update = function () {
     // this.x += this.game.clockTick * this.speed;
     // if (this.x > 800) this.x = -230;
@@ -289,42 +270,78 @@ function Bomberman(game, spritesheet) {
     this.passBottom = false;
     this.passLeft = false;
     Entity.call(this, game, 50, 0);
-    this.leftOffset = 3;
-    this.rightOffset = 48;
-    this.topOffset = 28;
-    this.bottomOffset = 100;
+    // this.leftOffset = 3;
+    // this.rightOffset = 48;
+    // this.topOffset = 28;
+    // this.bottomOffset = 100;
+    this.leftOffset = 7;
+    this.rightOffset = 33;
+    this.topOffset = 64;
+    this.bottomOffset = 97;
+    this.fourPosition = [[-1, 0], [1, 0], [0, 1], [0, -1]];
+    // ctx.strokeRect(x+7,y+77,33,20);
+    this.cx = this.x + 7;
+    this.cxx = 33;
+    this.cy = this.y + 64;
+    this.cyy = 33;
 }
 
 Bomberman.prototype = new Entity();
 Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.collide = function (other) {
-    // return distance(this, other) < 24 + 24;
-    return(this.x+this.leftOffset < other.x
-    && this.x+this.rightOffset > other.x
-    && this.y+this.topOffset < other.y
-    && this.y+this.bottomOffset > other.y);
+    return distance(this, other) < 17+24;
+    // return(this.x+this.leftOffset < other.x
+    // && this.x+this.rightOffset > other.x
+    // && this.y+this.topOffset < other.y
+    // && this.y+this.bottomOffset > other.y);
 };
 
+// Bomberman.prototype.collideLeft = function () {
+//     // console.log("TELL ME MY COODINATE: {"+this.x+","+this.y+"}");
+//     // console.log("name: "+other.name+"\nmy x: " + other.x+"\nmy y: " + other.y);
+//     // console.log("WHAT IS MY PASSLEFT before: "+this.passLeft);
+//     // console.log("WHAT IS MY PASSLEFT after: "+this.passLeft+"\n");
+//     // return (this.x + this.leftOffset ) > other.x+50;
+//     return this.x+7 < 0;
+// };
+//
+// Bomberman.prototype.collideRight = function () {
+//     // return (this.x + this.rightOffset) > other.x;
+//     return this.x+7+33 > 1500;
+// };
+//
+// Bomberman.prototype.collideTop = function () {
+//     // return (this.y + this.topOffset) < other.y+50;
+//     return this.y+64 < 0;
+// };
+//
+// Bomberman.prototype.collideBottom = function () {
+//     // return (this.y + this.bottomOffset) > other.y;
+//     return this.y+64+33 > 650;
+// };
 Bomberman.prototype.collideLeft = function (other) {
-    console.log("TELL ME MY COODINATE: {"+this.x+","+this.y+"}");
-    console.log("name: "+other.name+"\nmy x: " + other.x+"\nmy y: " + other.y);
-    console.log("WHAT IS MY PASSLEFT before: "+this.passLeft);
-    var r = (this.x + this.leftOffset ) < other.x+50;
-    console.log("WHAT IS MY PASSLEFT after: "+r+"\n");
-    return r;
+    // console.log("TELL ME MY COODINATE: {"+this.x+","+this.y+"}");
+    // console.log("name: "+other.name+"\nmy x: " + other.x+"\nmy y: " + other.y);
+    // console.log("WHAT IS MY PASSLEFT before: "+this.passLeft);
+    // console.log("WHAT IS MY PASSLEFT after: "+this.passLeft+"\n");
+    // return (this.x + this.leftOffset ) > other.x+50;
+    return this.x+7 < other.x+50;
 };
 
 Bomberman.prototype.collideRight = function (other) {
-    return (this.x + this.rightOffset) > other.x;
+    // return (this.x + this.rightOffset) > other.x;
+    return this.x+7+33 > other.x;
 };
 
 Bomberman.prototype.collideTop = function (other) {
-    return (this.y + this.topOffset) < other.y+50;
+    // return (this.y + this.topOffset) < other.y+50;
+    return this.y+64 < other.y+50;
 };
 
 Bomberman.prototype.collideBottom = function (other) {
-    return (this.y + this.bottomOffset) > other.y;
+    // return (this.y + this.bottomOffset) > other.y;
+    return this.y+64+33 > other.y;
 };
 
 Bomberman.prototype.update = function () {
@@ -341,64 +358,87 @@ Bomberman.prototype.update = function () {
     //         this.y -= difY * 10 / (dist * dist);
     //     }
     // }
+
     for (var i = 0; i < this.game.walls.length; i++) {
         var ent = this.game.walls[i];
-        // console.log("TELL ME MY COODINATE: {"+this.x+","+this.y+"}");
-        // console.log("name: "+ent.name+"\nmy x: " + ent.x+"\nmy y: " + ent.y);
-        // this.passTop = false;
-        // this.passRight = false;
-        // this.passBottom = false;
-        // this.passLeft = false;
-        // if (ent.name === "Wall") {
-        //     if (ent !== this /*&& this.collide(ent)*/) {
-                this.passBottom = this.collideBottom(ent);
-                this.passLeft = this.collideLeft(ent);
-                this.passRight = this.collideRight(ent);
-                this.passTop = this.collideTop(ent);
-        //     }
+        // if (ent !== this && this.collide(ent)) {
+            console.log("ent name: "+ent.name);
+            if (!this.collideTop(ent)) {
+                if (this.game.chars['ArrowUp']) {
+                    //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+                    this.animation.spriteSheet = this.sprite;
+                    this.animation.startrow = 2;
+                    this.y -= 5;
+                }
+            }
+            if (!this.collideBottom(ent)) {
+                if (this.game.chars['ArrowDown']) {
+                    //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+                    this.animation.spriteSheet = this.sprite;
+                    this.animation.startrow = 1;
+                    this.y += 5;
+                }
+            }
+            if (!this.collideRight(ent)) {
+                if (this.game.chars['ArrowRight']) {
+                    //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+                    this.animation.spriteSheet = this.sprite;
+                    this.animation.startrow = 0;
+                    this.x += 5;
+                }
+            }
+            if (!this.collideLeft(ent)) {
+                if (this.game.chars['ArrowLeft']) {
+                    //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+                    this.animation.spriteSheet = this.leftsprite;
+                    this.animation.startrow = 0;
+                    this.animation.reverse = true;
+                    this.x -= 5;
+                }
+            }
         // }
     }
 
     // if (this.pass) {
-        if (!this.passTop) {
-            if (this.game.chars['ArrowUp']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 2;
-                this.y -= 5;
-            }
-        }
-        if (!this.passBottom) {
-            if (this.game.chars['ArrowDown']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 1;
-                this.y += 5;
-            }
-        }
-        if (!this.passRight) {
-            if (this.game.chars['ArrowRight']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 0;
-                this.x += 5;
-            }
-        }
-        if (!this.passLeft) {
-            if (this.game.chars['ArrowLeft']) {
-                //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
-                this.animation.spriteSheet = this.leftsprite;
-                this.animation.startrow = 0;
-                this.animation.reverse = true;
-                this.x -= 5;
-            }
-        } //This was used for bomb lvl up
-        if(this.game.chars['KeyC']) {
-             if (this.bombLvl < 10) {
-                 this.bombLvl++;
-             }
-
-        }
+    //     if (!this.collideTop()) {
+    //         if (this.game.chars['ArrowUp']) {
+    //             //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+    //             this.animation.spriteSheet = this.sprite;
+    //             this.animation.startrow = 2;
+    //             this.y -= 5;
+    //         }
+    //     }
+    //     if (!this.collideBottom()) {
+    //         if (this.game.chars['ArrowDown']) {
+    //             //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+    //             this.animation.spriteSheet = this.sprite;
+    //             this.animation.startrow = 1;
+    //             this.y += 5;
+    //         }
+    //     }
+    //     if (!this.collideRight()) {
+    //         if (this.game.chars['ArrowRight']) {
+    //             //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+    //             this.animation.spriteSheet = this.sprite;
+    //             this.animation.startrow = 0;
+    //             this.x += 5;
+    //         }
+    //     }
+    //     if (!this.collideLeft()) {
+    //         if (this.game.chars['ArrowLeft']) {
+    //             //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+    //             this.animation.spriteSheet = this.leftsprite;
+    //             this.animation.startrow = 0;
+    //             this.animation.reverse = true;
+    //             this.x -= 5;
+    //         }
+    //     } //This was used for bomb lvl up
+    //     if(this.game.chars['KeyC']) {
+    //          if (this.bombLvl < 10) {
+    //              this.bombLvl++;
+    //          }
+    //
+    //     }
     // }
     this.pass = true;
     if (this.cooldown === 0 &&this.game.chars['Space']) { //create new bomb
@@ -472,13 +512,13 @@ Bomb.prototype.update = function () {
             for (var j = 0; j <= this.currentLvl; j++) {
                 var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                 this.game.addEntity(flame);
-                Entity.call(flame, this.game, this.x + this.firePosition[i][0] * 20 * j,
-                    this.y + this.firePosition[i][1] * 20 * j);
+                Entity.call(flame, this.game, this.x + this.firePosition[i][0] * 30 * j,
+                    this.y + this.firePosition[i][1] * 30 * j);
                 // if (j === 0) {
                 //     break;
                 // }
                 if (flame.stop) {
-                    flame.stop = false;
+                    // flame.stop = false;
                     break;
                 }
             }
@@ -530,10 +570,10 @@ Flame.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
         if (ent !== this && this.collide(ent)) {
-            if (ent.name !== "Background" && ent.name !== "star") {
+            if (ent.name !== "Background" && ent.name !== "star" && !ent.removeFromWorld) {
                 this.stop = true;
             }
-            if (/*ent.name !== "Flame" &&*/ ent.name !== "Bomberman" &&
+            if (ent.name !== "Flame" && ent.name !== "Bomberman" &&
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld) {
                 ent.removeFromWorld = true;
             }
@@ -570,14 +610,14 @@ Wall.prototype.draw = function () {
 };
 
 Wall.prototype.update = function () {
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
-            if (ent.name === "Flame" && !ent.removeFromWorld) {
-                ent.removeFromWorld = true;
-            }
-        }
-    }
+    // for (var i = 0; i < this.game.entities.length; i++) {
+    //     var ent = this.game.entities[i];
+    //     if (ent !== this && this.collide(ent)) {
+    //         if (ent.name === "Flame" && !ent.removeFromWorld) {
+    //             ent.removeFromWorld = true;
+    //         }
+    //     }
+    // }
 };
 
 // AM.queueDownload("./img/RobotUnicorn.png");
@@ -640,28 +680,35 @@ AM.downloadAll(function () {
     // for (var i = 1; i <= 11; i++) {
     //     var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 0, i * 50);
     //     gameEngine.addEntity(circle);
+    //     // gameEngine.map[0][i] = circle;
     //     var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 1000, i * 50);
     //     gameEngine.addEntity(circle);
+    //     // gameEngine.map[20][i] = circle;
     // }
     // // Most Top and Most Bottom HORIZONTAL walls
     // for (var i = 0; i < 21; i++) {
     //     var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 0);
     //     gameEngine.addEntity(circle);
+    //     // gameEngine.map[i][0] = circle;
     //     var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 600);
     //     gameEngine.addEntity(circle);
+    //     // gameEngine.map[i][12] = circle;
     // }
-    // Walls in the middle
-    for (var row = 2; row <= 10; row += 2) {
-        for (var column = 2; column < 20; column += 2) {
-            var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), column * 50, row * 50);
-            gameEngine.addEntity(circle);
-        }
-    }
+    // // Walls in the middle
+    // for (var row = 2; row <= 10; row += 2) {
+    //     for (var column = 2; column < 20; column += 2) {
+    //         var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), column * 50, row * 50);
+    //         gameEngine.addEntity(circle);
+    //         // gameEngine.map[column][row] = circle;
+    //     }
+    // }
+    var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 200, 200);
+    gameEngine.addEntity(circle);
     // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png")));
-    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
+    //gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {

@@ -12,6 +12,7 @@ window.requestAnimFrame = (function () {
 function GameEngine() {
     this.entities = [];
     this.walls = [];
+    this.map = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -106,7 +107,10 @@ GameEngine.prototype.startInput = function () {
 GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
     this.entities.push(entity);
-    if (entity.name === "Wall") this.walls.push(entity);
+    if (entity.name === "Wall"){
+        this.walls.push(entity);
+        this.map.push({x:(entity.x/50),y:(entity.y/50)});
+    }
 }
 
 GameEngine.prototype.draw = function () {
