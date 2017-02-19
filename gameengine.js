@@ -106,7 +106,9 @@ GameEngine.prototype.startInput = function () {
 
 GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
-    this.entities.push(entity);
+    if (entity.name !=="Background" || entity.name !=="BackgroundStar") {
+        this.entities.push(entity);
+    }
     if (entity.name === "Wall"){
         this.walls.push(entity);
         this.map.push({x:(entity.x/50),y:(entity.y/50)});
