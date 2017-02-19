@@ -425,28 +425,32 @@ Bomberman.prototype.update = function () {
     }
 
     if (!this.passTop) {
-        if (this.game.chars['ArrowUp']) {
+        if (this.game.chars['ArrowUp']
+            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
             this.y -= 5;
         }
     }
     if (!this.passBottom) {
-        if (this.game.chars['ArrowDown']) {
+        if (this.game.chars['ArrowDown']
+            && !this.game.chars['ArrowUp']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
             this.y += 5;
         }
     }
     if (!this.passRight) {
-        if (this.game.chars['ArrowRight']) {
+        if (this.game.chars['ArrowRight']
+            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowUp']&&!this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
             this.x += 5;
         }
     }
     if (!this.passLeft) {
-        if (this.game.chars['ArrowLeft']) {
+        if (this.game.chars['ArrowLeft']
+            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowUp']) {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
