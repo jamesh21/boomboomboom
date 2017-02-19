@@ -332,12 +332,12 @@ Bomberman.prototype.collideLeft = function (other) {
     // console.log("WHAT IS MY PASSLEFT before: "+this.passLeft);
     // console.log("WHAT IS MY PASSLEFT after: "+this.passLeft+"\n");
     // return (this.x + this.leftOffset ) > other.x+50;
-    var temp = (this.x + 7 < other.x + 50) && (this.x + 7 + 33 > other.x + 50)
-        && (((this.y + 64 + 33 > other.y) && (this.y + 64 < other.y))
-        || ((this.y + 64 < other.y + 50) && (this.y + 64 + 33 > other.y + 50))
+    var temp = (this.x + 7 <= other.x + 50) && (this.x + 7 + 33 >= other.x + 50)
+        && (((this.y + 64 + 33 >= other.y) && (this.y + 64 <= other.y))
+        || ((this.y + 64 <= other.y + 50) && (this.y + 64 + 33 >= other.y + 50))
         || ((this.y + 64 >= other.y) && (this.y + 64 + 33 <= other.y + 50)));
     if (temp) {
-        this.x += 1;
+        this.x += 5;
     }
     return temp;
 };
@@ -345,37 +345,37 @@ Bomberman.prototype.collideLeft = function (other) {
 Bomberman.prototype.collideRight = function (other) {
     // return (this.x + this.rightOffset) > other.x;
     // right side collide object && left side is left side of the object
-    var temp = (this.x + 7 + 33 > other.x) && (this.x + 7 < other.x)
+    var temp = (this.x + 7 + 33 >= other.x) && (this.x + 7 <= other.x)
         // &&
-        && (((this.y + 64 + 33 > other.y) && (this.y + 64 < other.y))
-        || ((this.y + 64 < other.y + 50) && (this.y + 64 + 33 > other.y + 50))
+        && (((this.y + 64 + 33 >= other.y) && (this.y + 64 <= other.y))
+        || ((this.y + 64 <= other.y + 50) && (this.y + 64 + 33 >= other.y + 50))
         || ((this.y + 64 >= other.y) && (this.y + 64 + 33 <= other.y + 50)));
     if (temp) {
-        this.x -= 1;
+        this.x -= 5;
     }
     return temp;
 };
 
 Bomberman.prototype.collideTop = function (other) {
     // return (this.y + this.topOffset) < other.y+50;
-    var temp = (this.y + 64 < other.y + 50) && (this.y + 64 + 33 > other.y + 50)
-        && (((this.x + 7 + 33 > other.x) && (this.x + 7 < other.x))
-        || ((this.x + 7 < other.x + 50) && (this.x + 7 + 33 > other.x + 50))
+    var temp = (this.y + 64 <= other.y + 50) && (this.y + 64 + 33 >= other.y + 50)
+        && (((this.x + 7 + 33 >= other.x) && (this.x + 7 <= other.x))
+        || ((this.x + 7 <= other.x + 50) && (this.x + 7 + 33 >= other.x + 50))
         || ((this.x + 7 >= other.x) && (this.x + 7 + 33 <= other.x + 50)));
     if (temp) {
-        this.y += 1;
+        this.y += 5;
     }
     return temp;
 };
 
 Bomberman.prototype.collideBottom = function (other) {
     // return (this.y + this.bottomOffset) > other.y;
-    var temp = (this.y + 64 + 33 > other.y) && (this.y + 64 < other.y)
-        && (((this.x + 7 + 33 > other.x) && (this.x + 7 < other.x))
-        || ((this.x + 7 < other.x + 50) && (this.x + 7 + 33 > other.x + 50))
+    var temp = (this.y + 64 + 33 >= other.y) && (this.y + 64 <= other.y)
+        && (((this.x + 7 + 33 >= other.x) && (this.x + 7 <= other.x))
+        || ((this.x + 7 <= other.x + 50) && (this.x + 7 + 33 >= other.x + 50))
         || ((this.x + 7 >= other.x) && (this.x + 7 + 33 <= other.x + 50)));
     if (temp) {
-        this.y -= 1;
+        this.y -= 5;
     }
     return temp;
 };
@@ -396,45 +396,50 @@ Bomberman.prototype.update = function () {
     //     }
     // }
 
-    for (var i = 0; i < this.game.walls.length; i++) {
-        var ent = this.game.walls[i];
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
         // var tempCollide = this.collide(ent);
         // if (ent !== this && this.collide(ent)) {
         //     console.log("ent name: "+ent.name);
-        if (!this.collideTop(ent)) {
-            if (this.game.chars['ArrowUp']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 2;
-                this.y -= 0.1;
-            }
-        }
-        if (!this.collideBottom(ent)) {
-            if (this.game.chars['ArrowDown']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 1;
-                this.y += 0.1;
-            }
-        }
-        if (!this.collideRight(ent)) {
-            if (this.game.chars['ArrowRight']) {
-                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-                this.animation.spriteSheet = this.sprite;
-                this.animation.startrow = 0;
-                this.x += 0.1;
-            }
-        }
-        if (!this.collideLeft(ent)) {
-            if (this.game.chars['ArrowLeft']) {
-                //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
-                this.animation.spriteSheet = this.leftsprite;
-                this.animation.startrow = 0;
-                this.animation.reverse = true;
-                this.x -= 0.1;
-            }
-        }
+        this.passTop = this.collideTop(ent);
+        this.passBottom = this.collideBottom(ent);
+        this.passRight = this.collideRight(ent);
+        this.passLeft = this.collideLeft(ent);
         // }
+    }
+
+    if (!this.passTop) {
+        if (this.game.chars['ArrowUp']) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 2;
+            this.y -= 5;
+        }
+    }
+    if (!this.passBottom) {
+        if (this.game.chars['ArrowDown']) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 1;
+            this.y += 5;
+        }
+    }
+    if (!this.passRight) {
+        if (this.game.chars['ArrowRight']) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 0;
+            this.x += 5;
+        }
+    }
+    if (!this.passLeft) {
+        if (this.game.chars['ArrowLeft']) {
+            //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+            this.animation.spriteSheet = this.leftsprite;
+            this.animation.startrow = 0;
+            this.animation.reverse = true;
+            this.x -= 5;
+        }
     }
 
     // if (this.pass) {
