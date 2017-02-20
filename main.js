@@ -1,5 +1,5 @@
 var AM = new AssetManager();
-
+var gameEngine = new GameEngine();
 function distance(a, b) {
     // if (a.name === "Bomberman"){
     //     var dx = a.x+24 - b.x+25;
@@ -26,6 +26,35 @@ function distance(a, b) {
     var dy = a.center.y - b.center.y;
     return Math.sqrt(dx * dx + dy * dy);
 }
+
+var mouseX = 0;
+var mouseY = 0;
+var firstPlayerButton = new Button(234, 452, 388, 418);
+var twoPlayerButton = new Button(610, 858, 388, 418);
+
+function mouseClicked(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
+    if (firstPlayerButton.isClicked()) {
+        startSinglePlayerGame();
+    } else if (twoPlayerButton.isClicked()) {
+        startTwoPlayerGame();
+    }
+}
+function Button(leftX, rightX, topY, bottomY) {
+    this.xLeft = leftX;
+    this.xRight = rightX;
+    this.yTop = topY;
+    this.yBottom = bottomY;
+}
+
+// Checking if the button was clicked on to begin the game.
+Button.prototype.isClicked = function() {
+    if (this.xLeft <= mouseX && mouseX <= this.xRight && this.yTop <= mouseY && mouseY <=  this.yBottom) {
+        return true;
+    }
+};
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop,
                    scale, startrow, reverse) {
@@ -852,11 +881,9 @@ SpeedPowerup.prototype.update = function () {
         }
     }
 };
-// AM.queueDownload("./img/RobotUnicorn.png");
-// AM.queueDownload("./img/guy.jpg");
-// AM.queueDownload("./img/mushroomdude.png");
-// AM.queueDownload("./img/runningcat.png");
-// AM.queueDownload("./img/background.jpg");
+
+
+AM.queueDownload("./img/MainMenu.png");
 AM.queueDownload("./img/farback.gif");
 AM.queueDownload("./img/starfield.png");
 AM.queueDownload("./img/bomberman.png");
@@ -869,45 +896,19 @@ AM.queueDownload("./img/SolidBlock.png");
 AM.queueDownload("./img/BombPowerup.png");
 AM.queueDownload("./img/FlamePowerup.png");
 AM.queueDownload("./img/SpeedPowerup.png");
+
 var friction = 1;
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     var ctx = canvas.getContext("2d");
-
-    var gameEngine = new GameEngine();
-    // var p = 20;
-    // var bh = 600;
-    // var bw = 1000;
-    // var that = this;
-    // function drawBoard(ctx){
-    //     for (var x = 10; x <= bw; x += 50) {
-    //         ctx.beginPath();
-    //         ctx.moveTo(0.5 + x + p, p);
-    //         ctx.lineTo(0.5 + x + p, bh + p);
-    //         ctx.closePath();
-    //         ctx.strokeStyle = "black";
-    //         ctx.stroke();
-    //     }
-    //
-    //
-    //     for (var x = 10; x <= bh; x += 50) {
-    //         ctx.beginPath();
-    //         ctx.moveTo(p, 0.5 + x + p);
-    //         ctx.lineTo(bw + p, 0.5 + x + p);
-    //         ctx.closePath();
-    //         ctx.strokeStyle = "black";
-    //         ctx.stroke();
-    //     }
-    //
-    //     ctx.strokeStyle = "black";
-    //     ctx.stroke();
-    // }
-    //
-    // drawBoard(ctx);
-
     gameEngine.init(ctx);
     gameEngine.start();
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
+
+});
+
+function startSinglePlayerGame() {
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
@@ -1023,4 +1024,7 @@ AM.downloadAll(function () {
 
     // }
     // drawBoard(ctx);
-});
+}
+function startTwoPlayerGame() {
+    console.log("Two Player Game");
+}
