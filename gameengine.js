@@ -11,8 +11,11 @@ window.requestAnimFrame = (function () {
 
 function GameEngine() {
     this.entities = [];
+    this.destroyable = [];
     this.walls = [];
-    this.map = [];
+    this.offLimitPlacement = [];
+    this.randomItemPlacement =[];
+    this.items = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
@@ -37,6 +40,13 @@ GameEngine.prototype.start = function () {
     })();
 }
 
+GameEngine.prototype.addOffLimitPlacement = function(x, y) {
+    var offLimit = new Object();
+    offLimit.x = x;
+    offLimit.y = y;
+    this.offLimitPlacement.push(offLimit);
+}
+
 GameEngine.prototype.startInput = function () {
     console.log('Starting input');
 
@@ -58,14 +68,14 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("click", function (e) {
         that.click = getXandY(e);
-        console.log(e);
-        console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
+        //console.log(e);
+        //console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
     }, false);
 
     this.ctx.canvas.addEventListener("contextmenu", function (e) {
         that.click = getXandY(e);
-        console.log(e);
-        console.log("Right Click Event - X,Y " + e.clientX + ", " + e.clientY);
+        //console.log(e);
+       // console.log("Right Click Event - X,Y " + e.clientX + ", " + e.clientY);
         e.preventDefault();
     }, false);
 
@@ -75,43 +85,42 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("mousewheel", function (e) {
-        console.log(e);
+        //console.log(e);
         that.wheel = e;
-        console.log("Click Event - X,Y " + e.clientX + ", " + e.clientY + " Delta " + e.deltaY);
+        //console.log("Click Event - X,Y " + e.clientX + ", " + e.clientY + " Delta " + e.deltaY);
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         that.chars[e.code] = true;
         e.preventDefault();
-        console.log(e);
-        console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
+        //console.log(e);
+        //console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
         if (e.code === "KeyD") that.d = true;
         that.chars[e.code] = true;
         e.preventDefault();
-        console.log(e);
-        console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
+        //console.log(e);
+       // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
         that.chars[e.code] = false;
-        console.log(e);
-        console.log("Key Up Event - Char " + e.code + " Code " + e.keyCode);
+        //console.log(e);
+        //console.log("Key Up Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
-    console.log('Input started');
+    //console.log('Input started');
 }
 
 GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
-    if (entity.name !=="Background" || entity.name !=="BackgroundStar") {
-        this.entities.push(entity);
-    }
-    if (entity.name === "Wall"){
-        this.walls.push(entity);
-        this.map.push({x:(entity.x/50),y:(entity.y/50)});
+    this.entities.push(entity);
+    if (entity.name === "Wall") this.walls.push(entity);
+    if (entity.name === "Destroyable") this.destroyable.push(entity);
+    if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup") {
+        this.items.push(entity);
     }
 }
 
@@ -135,9 +144,15 @@ GameEngine.prototype.update = function () {
 
     }
     // Loop through to remove entities that have been removed from the world
-    for (var i = this.entities.length-1; i >= 0; --i) {
+    for (var i = this.entities.length - 1; i >= 0; --i) {
         if (this.entities[i].removeFromWorld) {
             this.entities.splice(i, 1);
+        }
+    }
+    // Loop  through the destroyable entities to remove from world
+    for (var i = this.destroyable.length -1; i >= 0; i--) {
+        if (this.destroyable[i].removeFromWorld) {
+            this.destroyable.splice(i, 1);
         }
     }
 }
