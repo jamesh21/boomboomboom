@@ -795,7 +795,7 @@ function BombPowerup(game, spritesheet, x, y) {
 };
 
 BombPowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius+2;
 };
 
 BombPowerup.prototype.draw = function () {
@@ -831,7 +831,7 @@ function FlamePowerup(game, spritesheet, x, y) {
 };
 
 FlamePowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius+2;
 };
 
 FlamePowerup.prototype.draw = function () {
@@ -871,7 +871,7 @@ function SpeedPowerup(game, spritesheet, x, y) {
 };
 
 SpeedPowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius+2;
 };
 
 SpeedPowerup.prototype.draw = function () {
