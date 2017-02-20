@@ -161,9 +161,9 @@ function Ugly(game, spritesheet) {
     // this.topOffset = 8;
     // this.bottomOffset = 60;
     this.cooldown = 0;
-    this.cx = this.x+15;
+    this.cx = this.x + 15;
     this.cxx = 34;
-    this.cy = this.y+23;
+    this.cy = this.y + 23;
     this.cyy = 34;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.passTop = false;
@@ -428,7 +428,7 @@ Bomberman.prototype.update = function () {
 
     if (!this.passTop) {
         if (this.game.chars['ArrowUp']
-            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowLeft']) {
+            && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
             this.y -= 5;
@@ -436,7 +436,7 @@ Bomberman.prototype.update = function () {
     }
     if (!this.passBottom) {
         if (this.game.chars['ArrowDown']
-            && !this.game.chars['ArrowUp']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowLeft']) {
+            && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
             this.y += 5;
@@ -444,7 +444,7 @@ Bomberman.prototype.update = function () {
     }
     if (!this.passRight) {
         if (this.game.chars['ArrowRight']
-            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowUp']&&!this.game.chars['ArrowLeft']) {
+            && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
             this.x += 5;
@@ -452,7 +452,7 @@ Bomberman.prototype.update = function () {
     }
     if (!this.passLeft) {
         if (this.game.chars['ArrowLeft']
-            && !this.game.chars['ArrowDown']&&!this.game.chars['ArrowRight']&&!this.game.chars['ArrowUp']) {
+            && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowUp']) {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
@@ -634,7 +634,7 @@ Flame.prototype.update = function () {
             if (ent.name !== "Flame" && ent.name !== "Bomberman" &&
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup") {
-                if(ent.name === "Destroyable" && ent.hasPowerup) {
+                if (ent.name === "Destroyable" && ent.hasPowerup) {
                     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!HELLLLLLLLLLLLLLLLLO");
                     if (ent.hasSpeedPowerup) {
                         console.log("Speed!!!!!!!!!!!!");
@@ -682,7 +682,7 @@ function Wall(game, spritesheet, x, y) {
 };
 
 Wall.prototype.collide = function (other) {
-    return distance(this, other) < this.radius+other.radius;
+    return distance(this, other) < this.radius + other.radius;
 };
 
 Wall.prototype.draw = function () {
@@ -696,11 +696,11 @@ Wall.prototype.draw = function () {
 Wall.prototype.update = function () {
     // for (var i = 0; i < this.game.entities.length; i++) {
     //     var ent = this.game.entities[i];
-        // if (ent !== this && this.collide({x: ent.center.x, y: ent.center.y, radius: ent.radius})) {
-        //     if (ent.name === "Flame" && !ent.removeFromWorld) {
-        //         ent.removeFromWorld = true;
-        //     }
-        // }
+    // if (ent !== this && this.collide({x: ent.center.x, y: ent.center.y, radius: ent.radius})) {
+    //     if (ent.name === "Flame" && !ent.removeFromWorld) {
+    //         ent.removeFromWorld = true;
+    //     }
+    // }
     // }
 };
 
@@ -734,15 +734,15 @@ Destroyable.prototype.draw = function () {
 };
 
 Destroyable.prototype.update = function () {
-    // for (var i = 0; i < this.game.entities.length; i++) {
-    //     var ent = this.game.entities[i];
-    //     if (ent !== this && this.collide(ent)) {
-    //         if (ent.name === "Flame" && !ent.removeFromWorld) {
-    //             ent.removeFromWorld = true;
-    //
-    //         }
-    //     }
-    // }
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+            if (ent.name === "Flame" && !ent.removeFromWorld) {
+                ent.removeFromWorld = true;
+
+            }
+        }
+    }
 };
 
 function BombPowerup(game, spritesheet, x, y) {
@@ -762,7 +762,7 @@ function BombPowerup(game, spritesheet, x, y) {
 };
 
 BombPowerup.prototype.collide = function (other) {
-    return distance(this, other) < 25;
+    return distance(this, other) < this.radius + other.radius;
 };
 
 BombPowerup.prototype.draw = function () {
@@ -773,7 +773,7 @@ BombPowerup.prototype.draw = function () {
 BombPowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
                 this.removeFromWorld = true;
             }
@@ -798,7 +798,7 @@ function FlamePowerup(game, spritesheet, x, y) {
 };
 
 FlamePowerup.prototype.collide = function (other) {
-    return distance(this, other) < 25;
+    return distance(this, other) < this.radius + other.radius;
 };
 
 FlamePowerup.prototype.draw = function () {
@@ -809,7 +809,7 @@ FlamePowerup.prototype.draw = function () {
 FlamePowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
                 this.removeFromWorld = true;
             }
@@ -834,7 +834,7 @@ function SpeedPowerup(game, spritesheet, x, y) {
 };
 
 SpeedPowerup.prototype.collide = function (other) {
-    return distance(this, other) < 25;
+    return distance(this, other) < this.radius + other.radius;
 };
 
 SpeedPowerup.prototype.draw = function () {
@@ -845,7 +845,7 @@ SpeedPowerup.prototype.draw = function () {
 SpeedPowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
                 this.removeFromWorld = true;
             }
@@ -908,8 +908,8 @@ AM.downloadAll(function () {
 
     gameEngine.init(ctx);
     gameEngine.start();
-    // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
-    // gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
+    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
     for (var i = 1; i <= 11; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 0, i * 50);
@@ -918,7 +918,7 @@ AM.downloadAll(function () {
         gameEngine.addEntity(circle);
     }
     // Most Top and Most Bottom HORIZONTAL walls
-   for (var i = 0; i < 21; i++) {
+    for (var i = 0; i < 21; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 0);
         gameEngine.addEntity(circle);
         var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), i * 50, 600);
@@ -935,7 +935,7 @@ AM.downloadAll(function () {
 
     // Keeping the area around each players starting position clear.
     var startingPosition = [[50, 50], [100, 50], [50, 100], [50, 500], [50, 550], [100, 550], [900, 50], [950, 50],
-                            [950, 100], [950, 500], [900, 550], [950, 550]];
+        [950, 100], [950, 500], [900, 550], [950, 550]];
     for (var i = 0; i < startingPosition.length; i++) {
         gameEngine.addOffLimitPlacement(startingPosition[i][0], startingPosition[i][1]);
     }
@@ -947,7 +947,7 @@ AM.downloadAll(function () {
             var yPosition = row * 50;
             var hasWall = false;
             for (var i = 0; i < gameEngine.offLimitPlacement.length; i++) {
-                if (gameEngine.offLimitPlacement[i].x === xPosition && gameEngine.offLimitPlacement[i].y=== yPosition) {
+                if (gameEngine.offLimitPlacement[i].x === xPosition && gameEngine.offLimitPlacement[i].y === yPosition) {
                     hasWall = true;
                     break;
                 }
@@ -962,14 +962,14 @@ AM.downloadAll(function () {
 
     // For removing random destroyables from the map each time.
     var numberOfDestroyable = gameEngine.destroyable.length;
-    for (var i = 30; i > 0 ; i--) {
+    for (var i = 30; i > 0; i--) {
         var position = Math.floor((Math.random() * numberOfDestroyable));
         gameEngine.destroyable[position].removeFromWorld = true;
         numberOfDestroyable--;
     }
 
     // Removing the empty spaces from the destroyable list
-    for (var i = gameEngine.destroyable.length - 1; i >=0; i--) {
+    for (var i = gameEngine.destroyable.length - 1; i >= 0; i--) {
         if (gameEngine.destroyable[i].removeFromWorld) {
             gameEngine.destroyable.splice(i, 1);
             gameEngine.randomItemPlacement.splice(i, 1);
