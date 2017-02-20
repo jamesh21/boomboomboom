@@ -707,6 +707,12 @@ Wall.prototype.update = function () {
 function Destroyable(game, spritesheet, x, y) {
     this.x = x;
     this.y = y;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.spritesheet = spritesheet;
     this.game = game;
     this.ctx = game.ctx;
@@ -728,15 +734,15 @@ Destroyable.prototype.draw = function () {
 };
 
 Destroyable.prototype.update = function () {
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        if (ent !== this && this.collide(ent)) {
-            if (ent.name === "Flame" && !ent.removeFromWorld) {
-                ent.removeFromWorld = true;
-
-            }
-        }
-    }
+    // for (var i = 0; i < this.game.entities.length; i++) {
+    //     var ent = this.game.entities[i];
+    //     if (ent !== this && this.collide(ent)) {
+    //         if (ent.name === "Flame" && !ent.removeFromWorld) {
+    //             ent.removeFromWorld = true;
+    //
+    //         }
+    //     }
+    // }
 };
 
 function BombPowerup(game, spritesheet, x, y) {
@@ -747,6 +753,12 @@ function BombPowerup(game, spritesheet, x, y) {
     this.ctx = game.ctx;
     this.name = "BombPowerup";
     this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
 };
 
 BombPowerup.prototype.collide = function (other) {
@@ -777,6 +789,12 @@ function FlamePowerup(game, spritesheet, x, y) {
     this.ctx = game.ctx;
     this.name = "FlamePowerup";
     this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
 };
 
 FlamePowerup.prototype.collide = function (other) {
@@ -807,6 +825,12 @@ function SpeedPowerup(game, spritesheet, x, y) {
     this.ctx = game.ctx;
     this.name = "SpeedPowerup";
     this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
 };
 
 SpeedPowerup.prototype.collide = function (other) {
@@ -884,8 +908,8 @@ AM.downloadAll(function () {
 
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
-    gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
+    // gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
+    // gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
     for (var i = 1; i <= 11; i++) {
         var circle = new Wall(gameEngine, AM.getAsset("./img/SolidBlock.png"), 0, i * 50);
