@@ -29,6 +29,7 @@ function distance(a, b) {
 
 var mouseX = 0;
 var mouseY = 0;
+var gameeStarted = false;
 var firstPlayerButton = new Button(234, 452, 388, 418);
 var twoPlayerButton = new Button(610, 858, 388, 418);
 
@@ -36,9 +37,11 @@ function mouseClicked(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
     console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
-    if (firstPlayerButton.isClicked()) {
+    if (firstPlayerButton.isClicked() && !gameeStarted) {
+        gameeStarted = true;
         startSinglePlayerGame();
-    } else if (twoPlayerButton.isClicked()) {
+    } else if (twoPlayerButton.isClicked() && !gameeStarted) {
+        gameeStarted = true;
         startTwoPlayerGame();
     }
 }
@@ -362,7 +365,8 @@ function Bomberman(game, spritesheet) {
     this.ctx = game.ctx;
     this.cooldown = 0;
     this.bombs = 5;
-    this.bombLvl = 2;
+    this.flameLvl = 2;
+    this.speedLvl = 2;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -390,7 +394,7 @@ Bomberman.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += 5;
+        this.x += this.speedLvl;
     }
     return temp;
 };
@@ -402,7 +406,7 @@ Bomberman.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= 5;
+        this.x -= this.speedLvl;
     }
     return temp;
 };
@@ -413,7 +417,7 @@ Bomberman.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += 5;
+        this.y += this.speedLvl;
     }
     return temp;
 };
@@ -424,7 +428,7 @@ Bomberman.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= 5;
+        this.y -= this.speedLvl;
     }
     return temp;
 };
@@ -460,7 +464,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
-            this.y -= 5;
+            this.y -= this.speedLvl;
         }
     }
     if (!this.passBottom) {
@@ -468,7 +472,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
-            this.y += 5;
+            this.y += this.speedLvl;
         }
     }
     if (!this.passRight) {
@@ -476,7 +480,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
-            this.x += 5;
+            this.x += this.speedLvl;
         }
     }
     if (!this.passLeft) {
@@ -485,23 +489,24 @@ Bomberman.prototype.update = function () {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
-            this.x -= 5;
+            this.x -= this.speedLvl;
         }
     }
     //This was used for bomb lvl up
-    if (this.game.chars['KeyC']) {
-        if (this.bombLvl < 10) {
-            this.bombLvl++;
-        }
-
-    }
+    // if (this.game.chars['KeyC']) {
+    //     if (this.bombLvl < 10) {
+    //         this.bombLvl++;
+    //     }
+    //
+    // }
 
     this.cx = this.x + 7;
     this.cy = this.y + 64;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+
     if (this.cooldown === 0 && this.game.chars['Space']) { //create new bomb
         this.cooldown = 0.25;
-        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.bombLvl);
+        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.flameLvl);
         // bomb.x = this.x;
         // bomb.y = this.y;
         this.game.addEntity(bomb);
@@ -664,7 +669,6 @@ Flame.prototype.update = function () {
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
-                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!HELLLLLLLLLLLLLLLLLO");
                     if (ent.hasSpeedPowerup) {
                         console.log("Speed!!!!!!!!!!!!");
                         var speedUp = new SpeedPowerup(this.game, AM.getAsset("./img/SpeedPowerup.png"), ent.x, ent.y);
@@ -840,6 +844,10 @@ FlamePowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                if (ent.flameLvl < 6) {
+                    ent.flameLvl++;
+                    console.log("Flame lvl =" + ent.flameLvl);
+                }
                 this.removeFromWorld = true;
             }
         }
@@ -876,6 +884,10 @@ SpeedPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                if (ent.speedLvl < 6) {
+                    ent.speedLvl++;
+                    console.log("Speed lvl =" + ent.speedLvl);
+                }
                 this.removeFromWorld = true;
             }
         }
