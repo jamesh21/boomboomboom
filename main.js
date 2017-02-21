@@ -29,7 +29,7 @@ function distance(a, b) {
 
 var mouseX = 0;
 var mouseY = 0;
-var gameeStarted = false;
+var gameStarted = false;
 var firstPlayerButton = new Button(234, 452, 388, 418);
 var twoPlayerButton = new Button(610, 858, 388, 418);
 
@@ -37,11 +37,11 @@ function mouseClicked(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
     console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
-    if (firstPlayerButton.isClicked() && !gameeStarted) {
-        gameeStarted = true;
+    if (firstPlayerButton.isClicked() && !gameStarted) {
+        gameStarted = true;
         startSinglePlayerGame();
-    } else if (twoPlayerButton.isClicked() && !gameeStarted) {
-        gameeStarted = true;
+    } else if (twoPlayerButton.isClicked() && !gameStarted) {
+        gameStarted = true;
         startTwoPlayerGame();
     }
 }
@@ -364,7 +364,8 @@ function Bomberman(game, spritesheet) {
     this.speed = 200;
     this.ctx = game.ctx;
     this.cooldown = 0;
-    this.bombs = 5;
+    this.currentBombOnField = 0;
+    this.bombLvl = 1;
     this.flameLvl = 2;
     this.speedLvl = 2;
     this.name = "Bomberman";
@@ -504,9 +505,11 @@ Bomberman.prototype.update = function () {
     this.cy = this.y + 64;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
 
-    if (this.cooldown === 0 && this.game.chars['Space']) { //create new bomb
+    if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
-        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.flameLvl);
+        this.currentBombOnField++;
+        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
+        //var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.flameLvl);
         // bomb.x = this.x;
         // bomb.y = this.y;
         this.game.addEntity(bomb);
@@ -534,7 +537,7 @@ Bomberman.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
-function Bomb(game, spritesheet, currentBombLvl) {
+function Bomb(game, spritesheet, owner) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     this.sprite = spritesheet;
     // this.animation = new Animation(spritesheet, 48, 48, 8, 1, 8, true, 0.5, 0, false);
@@ -543,8 +546,9 @@ function Bomb(game, spritesheet, currentBombLvl) {
     //                   LEFT   ,  RIGHT,   UP  ,  BOTTOM
     this.firePosition = [[-1, 0], [1, 0], [0, 1], [0, -1]];
     this.ctx = game.ctx;
-    this.currentLvl = currentBombLvl;
+    this.currentLvl = owner.flameLvl;
     this.name = "Bomb";
+    this.ownerOfBommb = owner;
     this.explode = false;
     this.stoptry = false;
     //Entity.call(this, game, 100, 100);console.log(this.x +" "+ this.y );
@@ -559,8 +563,7 @@ Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.update = function () {
     //Checking if the bomb animation has ended
-    if (this.animation.totalTime - this.animation.elapsedTime < 1 /*||
-     this.explode*/) { // try to do flame collide bomb, bomb explode immediately.
+    if (this.animation.totalTime - this.animation.elapsedTime < 1) { // try to do flame collide bomb, bomb explode immediately.
         // but FAILED..........bomb just removed, won't trigger flame, don't know why
         // TODO do the above if we have time
         this.removeFromWorld = true;
@@ -577,6 +580,7 @@ Bomb.prototype.update = function () {
         //         }
         //     }
         // }
+        this.ownerOfBommb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
         Entity.call(flame, this.game, this.x, this.y);
@@ -597,16 +601,6 @@ Bomb.prototype.update = function () {
                 // }
             }
         }
-        // This code will be used to making the bomb shake
-        // if (this.shake && this.removeFromWorld != true) {
-        //     this.x += 10;
-        //     this.shake = false;
-        //     console.log("hello world");
-        // } else if (!this.shake && this.removeFromWorld != true) {
-        //     this.x -= 10;
-        //     this.shake = true;
-        //     console.log("world hello");
-        // }
     }
     this.cx = this.x;
     this.cy = this.y;
@@ -665,7 +659,7 @@ Flame.prototype.update = function () {
             //     this.removeFromWorld = true;
             //     this.stop = true;
             // }
-            if (ent.name !== "Flame" && ent.name !== "Bomberman" &&
+            if (ent.name !== "Flame" && ent.name !== "Bomberman" && /**ent.name !== "Bomb" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
@@ -681,6 +675,24 @@ Flame.prototype.update = function () {
                         console.log("Flame!!!!!!!!!!!!!!!");
                         var flameUp = new FlamePowerup(this.game, AM.getAsset("./img/FlamePowerup.png"), ent.x, ent.y);
                         this.game.addEntity(flameUp);
+                    }
+                }
+
+                // This is for when the flame kills another bomb, which will right away blow the bomb that was hit
+                // I wanna make a helper function for this, so we dont have to use this code two times!!!!!!!!!!!!!!!!
+                if (ent.name === "Bomb") {
+                    ent.ownerOfBommb.currentBombOnField--;
+                    var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
+                    this.game.addEntity(flame);
+                    Entity.call(flame, this.game, ent.x, ent.y);
+                    //Creates flames after bombs explosion, loop will run base on bombs current lvl
+                    for (var i = 0; i < 4; i++) {
+                        for (var j = 1; j <= ent.currentLvl; j++) {
+                            var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
+                            this.game.addEntity(flame);
+                            Entity.call(flame, this.game, ent.x + ent.firePosition[i][0] * 50 * j,
+                                ent.y + ent.firePosition[i][1] * 50 * j);
+                        }
                     }
                 }
                 ent.removeFromWorld = true;
@@ -808,6 +820,10 @@ BombPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                if (ent.bombLvl < 6) {
+                    ent.bombLvl++;
+                    console.log("Bomb Lvl =" + ent.bombLvl);
+                }
                 this.removeFromWorld = true;
             }
         }
@@ -913,6 +929,7 @@ var friction = 1;
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
+    canvas.style.cursor = "point";
     var ctx = canvas.getContext("2d");
     gameEngine.init(ctx);
     gameEngine.start();

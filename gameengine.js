@@ -19,7 +19,7 @@ function GameEngine() {
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
-    this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space', 'KeyC'];
+    this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space'];
 }
 
 GameEngine.prototype.init = function (ctx) {
