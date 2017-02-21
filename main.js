@@ -912,6 +912,7 @@ SpeedPowerup.prototype.update = function () {
 
 
 AM.queueDownload("./img/MainMenu.png");
+AM.queueDownload("./sound/MenuBackgroundSound.mp3");
 AM.queueDownload("./img/farback.gif");
 AM.queueDownload("./img/starfield.png");
 AM.queueDownload("./img/bomberman.png");
@@ -1057,3 +1058,12 @@ function startSinglePlayerGame() {
 function startTwoPlayerGame() {
     console.log("Two Player Game");
 }
+
+function SoundManager () {
+    this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
+
+};
+SoundManager.prototype.playMenuBackgroundSound = function() {
+    this.menuBackgroundSound.play();
+    this.menuBackgroundSound.loop = true;
+};
