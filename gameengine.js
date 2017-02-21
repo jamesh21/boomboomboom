@@ -81,10 +81,12 @@ GameEngine.prototype.startInput = function () {
         e.preventDefault();
     }, false);
 
-    this.ctx.canvas.addEventListener("mousemove", function (e) {
-        //console.log(e);
-        that.mouse = getXandY(e);
-    }, false);
+    // this.ctx.canvas.addEventListener("mousemove", function (e) {
+    //     //console.log(e);
+    //     that.mouse = getXandY(e);
+    // }, false);
+
+    this.ctx.canvas.addEventListener("mousemove", mouseMoved, false);
 
     this.ctx.canvas.addEventListener("mousewheel", function (e) {
         //console.log(e);

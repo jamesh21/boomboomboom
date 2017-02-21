@@ -1,5 +1,6 @@
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
+var soundManager = new SoundManager();
 function distance(a, b) {
     // if (a.name === "Bomberman"){
     //     var dx = a.x+24 - b.x+25;
@@ -33,10 +34,10 @@ var gameStarted = false;
 var firstPlayerButton = new Button(234, 452, 388, 418);
 var twoPlayerButton = new Button(610, 858, 388, 418);
 
+// When function is called, it checks if the click was within the button boundaires.
 function mouseClicked(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
     if (firstPlayerButton.isClicked() && !gameStarted) {
         gameStarted = true;
         startSinglePlayerGame();
@@ -45,6 +46,20 @@ function mouseClicked(e) {
         startTwoPlayerGame();
     }
 }
+
+// This function is used for changing which state the mouse cursor should be in.
+function mouseMoved(e) {
+    if ((firstPlayerButton.xLeft <= e.clientX && e.clientX <= firstPlayerButton.xRight &&
+        firstPlayerButton.yTop <= e.clientY && e.clientY <=  firstPlayerButton.yBottom && !gameStarted) ||
+        (twoPlayerButton.xLeft <= e.clientX && e.clientX <= twoPlayerButton.xRight &&
+         twoPlayerButton.yTop <= e.clientY && e.clientY <= twoPlayerButton.yBottom && !gameStarted)) {
+        document.documentElement.style.cursor = "url(./img/HeadCursor.png),auto";
+    } else {
+        document.documentElement.style.cursor = "auto";
+    }
+}
+
+// Button class which presents the buttons to start the game
 function Button(leftX, rightX, topY, bottomY) {
     this.xLeft = leftX;
     this.xRight = rightX;
@@ -583,6 +598,7 @@ Bomb.prototype.update = function () {
         this.ownerOfBommb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
+        soundManager.playSound(soundManager.explosion);
         Entity.call(flame, this.game, this.x, this.y);
         //Creates flames after bombs explosion, loop will run base on bombs current lvl
         for (var i = 0; i < 4; i++) {
@@ -684,6 +700,7 @@ Flame.prototype.update = function () {
                     ent.ownerOfBommb.currentBombOnField--;
                     var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                     this.game.addEntity(flame);
+                    soundManager.playSound(soundManager.explosion);
                     Entity.call(flame, this.game, ent.x, ent.y);
                     //Creates flames after bombs explosion, loop will run base on bombs current lvl
                     for (var i = 0; i < 4; i++) {
@@ -934,11 +951,15 @@ AM.downloadAll(function () {
     var ctx = canvas.getContext("2d");
     gameEngine.init(ctx);
     gameEngine.start();
+    soundManager.init();
+    soundManager.playSound(soundManager.menuBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
 
 });
 
 function startSinglePlayerGame() {
+    soundManager.stopSound(soundManager.menuBackgroundSound);
+    soundManager.playSound(soundManager.gameBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
@@ -1059,11 +1080,30 @@ function startTwoPlayerGame() {
     console.log("Two Player Game");
 }
 
+// Sound Manager Object
 function SoundManager () {
-    this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
+    this.menuBackgroundSound;
+    this.gameBackgroundSound;
+    this.explosion;
 
 };
-SoundManager.prototype.playMenuBackgroundSound = function() {
-    this.menuBackgroundSound.play();
+
+// Initializing the sound manager fields
+SoundManager.prototype.init = function() {
+    this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
     this.menuBackgroundSound.loop = true;
+    this.gameBackgroundSound = document.getElementById("backgroundGameAudio");
+    this.gameBackgroundSound.loop = true;
+    this.explosion = document.getElementById("explosion");
+    this.explosion.playbackRate = 3;
+}
+
+// Playing the sound
+SoundManager.prototype.playSound = function(sound) {
+    sound.play();
 };
+
+// Pausing the sound
+SoundManager.prototype.stopSound = function(sound) {
+    sound.pause();
+}
