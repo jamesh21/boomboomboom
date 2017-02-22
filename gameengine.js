@@ -125,7 +125,7 @@ GameEngine.prototype.addEntity = function (entity) {
     this.entities.push(entity);
     if (entity.name === "Wall") this.walls.push(entity);
     if (entity.name === "Bomb") this.bombs.push(entity);
-    if (entity.name === "Bomberman"||entity.name ==="Ugly") this.players_bots.push(entity);
+    if (entity.name === "Bomberman"||entity.name ==="Ugly"||entity.name==="Bot") this.players_bots.push(entity);
     if (entity.name === "Destroyable") this.destroyable.push(entity);
     if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup") {
         this.items.push(entity);
