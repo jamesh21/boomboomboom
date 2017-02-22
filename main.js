@@ -384,6 +384,8 @@ function Bomberman(game, spritesheet) {
     this.bombLvl = 1;
     this.flameLvl = 2;
     this.speedLvl = 6;
+    this.debuffTimer = 0;
+    this.isConfused = 1;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -453,6 +455,9 @@ Bomberman.prototype.collideBottom = function (other) {
 Bomberman.prototype.update = function () {
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
+
+    if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
+    if (this.debuffTimer < 0) this.debuffTimer = 0;
     // for (var i = 0; i < this.game.walls.length; i++) {
     //     var wall = this.game.walls[i];
     //     var dist = distance(wall, this);
@@ -481,7 +486,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
-            this.y -= this.speedLvl;
+            this.y -= this.speedLvl * this.isConfused;
         }
     }
     if (!this.passBottom) {
@@ -489,7 +494,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
-            this.y += this.speedLvl;
+            this.y += this.speedLvl * this.isConfused;
         }
     }
     if (!this.passRight) {
@@ -497,7 +502,7 @@ Bomberman.prototype.update = function () {
             && !this.game.chars['ArrowDown'] && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowLeft']) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
-            this.x += this.speedLvl;
+            this.x += this.speedLvl * this.isConfused;
         }
     }
     if (!this.passLeft) {
@@ -506,7 +511,7 @@ Bomberman.prototype.update = function () {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
-            this.x -= this.speedLvl;
+            this.x -= this.speedLvl * this.isConfused;
         }
     }
     //This was used for bomb lvl up
@@ -520,6 +525,9 @@ Bomberman.prototype.update = function () {
     this.cx = this.x + 7;
     this.cy = this.y + 64;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+    if (this.isConfused === -1 && this.debuffTimer === 0) {
+        this.isConfused = 1;
+    }
 
     if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
@@ -678,7 +686,7 @@ Flame.prototype.update = function () {
             // }
             if (ent.name !== "Flame" && ent.name !== "Bomberman" && /**ent.name !== "Bomb" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup") {
+                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
                         console.log("Speed!!!!!!!!!!!!");
@@ -688,6 +696,12 @@ Flame.prototype.update = function () {
                         console.log("Bomb!!!!!!!!!!!!!!!");
                         var bombUp = new BombPowerup(this.game, AM.getAsset("./img/BombPowerup.png"), ent.x, ent.y);
                         this.game.addEntity(bombUp);
+                    } else if (ent.hasConfusionPowerdown) {
+                        var confusionDown = new ConfusionPowerdown(this.game, AM.getAsset("./img/ConfusionPowerdown.png"), ent.x, ent.y);
+                        this.game.addEntity(confusionDown);
+                    } else if(ent.hasSpeedPowerdown) {
+                        var speedDown = new SpeedPowerdown(this.game, AM.getAsset("./img/SpeedPowerdown.png"), ent.x, ent.y);
+                        this.game.addEntity(speedDown);
                     } else {
                         console.log("Flame!!!!!!!!!!!!!!!");
                         var flameUp = new FlamePowerup(this.game, AM.getAsset("./img/FlamePowerup.png"), ent.x, ent.y);
@@ -784,6 +798,8 @@ function Destroyable(game, spritesheet, x, y) {
     this.hasBombPowerup = false;
     this.hasSpeedPowerup = false;
     this.hasFlamePowerup = false;
+    this.hasSpeedPowerdown = false;
+    this.hasConfusionPowerdown = false;
     this.here = true;
 };
 
@@ -931,6 +947,84 @@ SpeedPowerup.prototype.update = function () {
     }
 };
 
+function SpeedPowerdown(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "SpeedPowerdown";
+    this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+};
+
+SpeedPowerdown.prototype.collide = function (other) {
+    return distance(this, other) < this.radius + other.radius+2;
+};
+
+SpeedPowerdown.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+SpeedPowerdown.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+            if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                //soundManager.playSound(soundManager.speedUp);
+                if (ent.speedLvl > 1) {
+                    ent.speedLvl--;
+                    console.log("Speed lvl =" + ent.speedLvl);
+                }
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
+
+function ConfusionPowerdown(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "ConfusionPowerdown";
+    this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+};
+
+ConfusionPowerdown.prototype.collide = function (other) {
+    return distance(this, other) < this.radius + other.radius+2;
+};
+
+ConfusionPowerdown.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+ConfusionPowerdown.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+            if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                ent.isConfused = -1;
+                ent.debuffTimer = 5;
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
 
 AM.queueDownload("./img/MainMenu.png");
 AM.queueDownload("./sound/MenuBackgroundSound.mp3");
@@ -946,6 +1040,8 @@ AM.queueDownload("./img/SolidBlock.png");
 AM.queueDownload("./img/BombPowerup.png");
 AM.queueDownload("./img/FlamePowerup.png");
 AM.queueDownload("./img/SpeedPowerup.png");
+AM.queueDownload("./img/SpeedPowerdown.png");
+AM.queueDownload("./img/ConfusionPowerdown.png");
 
 var friction = 1;
 //This method call starts the game, using the function as a callback function for when all the resources are finished.
@@ -964,13 +1060,6 @@ AM.downloadAll(function () {
 function startSinglePlayerGame() {
     soundManager.stopSound(soundManager.menuBackgroundSound);
     soundManager.playSound(soundManager.gameBackgroundSound);
-
-
-
-
-
-
-
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
@@ -1043,12 +1132,6 @@ function startSinglePlayerGame() {
     var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
     for (var i = 0; i < 18; i++) {
         var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        // if (!gameEngine.randomItemPlacement[position].hasPowerup) {
-        //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-        //     gameEngine.randomItemPlacement[position].hasBombPowerup = true;
-        //     gameEngine.randomItemPlacement.splice(position, 1);
-        //     numberOfPossibleItemPlacement--;
-        // }
         gameEngine.randomItemPlacement[position].hasPowerup = true;
         gameEngine.randomItemPlacement[position].hasBombPowerup = true;
         gameEngine.randomItemPlacement.splice(position, 1);
@@ -1070,6 +1153,24 @@ function startSinglePlayerGame() {
         var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
         gameEngine.randomItemPlacement[position].hasPowerup = true;
         gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing speed powerdown inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing confusion powerdown inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
         gameEngine.randomItemPlacement.splice(position, 1);
         numberOfPossibleItemPlacement--;
     }
