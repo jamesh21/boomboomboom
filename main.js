@@ -31,8 +31,9 @@ function distance(a, b) {
 var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
-var firstPlayerButton = new Button(234, 452, 388, 418);
-var twoPlayerButton = new Button(610, 858, 388, 418);
+// var firstPlayerButton = new Button(234, 452, 388, 418);
+var firstPlayerButton = new Button(224, 462, 378, 428);
+var twoPlayerButton = new Button(600, 868, 378, 428);
 
 // When function is called, it checks if the click was within the button boundaires.
 function mouseClicked(e) {
@@ -384,7 +385,7 @@ function Bomberman(game, spritesheet) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 2;
-    this.speedLvl = 2;
+    this.speedLvl = 6;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -569,7 +570,7 @@ function Bomb(game, spritesheet, owner) {
     this.ctx = game.ctx;
     this.currentLvl = owner.flameLvl;
     this.name = "Bomb";
-    this.ownerOfBommb = owner;
+    this.ownerOfBomb = owner;
     this.explode = false;
     this.stoptry = false;
     //Entity.call(this, game, 100, 100);console.log(this.x +" "+ this.y );
@@ -602,7 +603,7 @@ Bomb.prototype.update = function () {
         //         }
         //     }
         // }
-        this.ownerOfBommb.currentBombOnField--;
+        this.ownerOfBomb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
         soundManager.playSound(soundManager.explosion);
@@ -752,7 +753,7 @@ Flame.prototype.update = function () {
                 // This is for when the flame kills another bomb, which will right away blow the bomb that was hit
                 // I wanna make a helper function for this, so we dont have to use this code two times!!!!!!!!!!!!!!!!
                 if (ent.name === "Bomb") {
-                    ent.ownerOfBommb.currentBombOnField--;
+                    ent.ownerOfBomb.currentBombOnField--;
                     // var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                     // this.game.addEntity(flame);
                     // soundManager.playSound(soundManager.explosion);
@@ -774,7 +775,6 @@ Flame.prototype.update = function () {
                         Entity.call(flame, this.game, pos.x * 50,
                             pos.y * 50);
                     }
-
                 }
                 ent.removeFromWorld = true;
             }
@@ -904,6 +904,7 @@ BombPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                soundManager.playSound(soundManager.bombUp);
                 if (ent.bombLvl < 6) {
                     ent.bombLvl++;
                     console.log("Bomb Lvl =" + ent.bombLvl);
@@ -945,6 +946,7 @@ FlamePowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                soundManager.playSound(soundManager.fireUp);
                 if (ent.flameLvl < 6) {
                     ent.flameLvl++;
                     console.log("Flame lvl =" + ent.flameLvl);
@@ -986,7 +988,8 @@ SpeedPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
-                if (ent.speedLvl < 6) {
+                soundManager.playSound(soundManager.speedUp);
+                if (ent.speedLvl < 10) {
                     ent.speedLvl++;
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
@@ -1158,21 +1161,28 @@ function SoundManager() {
 };
 
 // Initializing the sound manager fields
-SoundManager.prototype.init = function () {
+SoundManager.prototype.init = function() {
     this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
     this.menuBackgroundSound.loop = true;
     this.gameBackgroundSound = document.getElementById("backgroundGameAudio");
     this.gameBackgroundSound.loop = true;
     this.explosion = document.getElementById("explosion");
     this.explosion.playbackRate = 3;
+    this.speedUp = document.getElementById("speedUp");
+    this.speedUp.playbackRate = 2;
+    this.fireUp = document.getElementById("fireUp");
+    this.fireUp.playbackRate = 1;
+    this.fireUp.volume = 1;
+    this.bombUp = document.getElementById("bombUp");
+    this.bombUp.playbackRate = 1;
 }
 
 // Playing the sound
-SoundManager.prototype.playSound = function (sound) {
+SoundManager.prototype.playSound = function(sound) {
     sound.play();
 };
 
 // Pausing the sound
-SoundManager.prototype.stopSound = function (sound) {
+SoundManager.prototype.stopSound = function(sound) {
     sound.pause();
 }
