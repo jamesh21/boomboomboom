@@ -31,8 +31,9 @@ function distance(a, b) {
 var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
-var firstPlayerButton = new Button(234, 452, 388, 418);
-var twoPlayerButton = new Button(610, 858, 388, 418);
+// var firstPlayerButton = new Button(234, 452, 388, 418);
+var firstPlayerButton = new Button(224, 462, 378, 428);
+var twoPlayerButton = new Button(600, 868, 378, 428);
 
 // When function is called, it checks if the click was within the button boundaires.
 function mouseClicked(e) {
@@ -382,7 +383,7 @@ function Bomberman(game, spritesheet) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 2;
-    this.speedLvl = 2;
+    this.speedLvl = 6;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -563,7 +564,7 @@ function Bomb(game, spritesheet, owner) {
     this.ctx = game.ctx;
     this.currentLvl = owner.flameLvl;
     this.name = "Bomb";
-    this.ownerOfBommb = owner;
+    this.ownerOfBomb = owner;
     this.explode = false;
     this.stoptry = false;
     //Entity.call(this, game, 100, 100);console.log(this.x +" "+ this.y );
@@ -595,7 +596,7 @@ Bomb.prototype.update = function () {
         //         }
         //     }
         // }
-        this.ownerOfBommb.currentBombOnField--;
+        this.ownerOfBomb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
         soundManager.playSound(soundManager.explosion);
@@ -697,7 +698,7 @@ Flame.prototype.update = function () {
                 // This is for when the flame kills another bomb, which will right away blow the bomb that was hit
                 // I wanna make a helper function for this, so we dont have to use this code two times!!!!!!!!!!!!!!!!
                 if (ent.name === "Bomb") {
-                    ent.ownerOfBommb.currentBombOnField--;
+                    ent.ownerOfBomb.currentBombOnField--;
                     var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                     this.game.addEntity(flame);
                     soundManager.playSound(soundManager.explosion);
@@ -837,6 +838,7 @@ BombPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                soundManager.playSound(soundManager.bombUp);
                 if (ent.bombLvl < 6) {
                     ent.bombLvl++;
                     console.log("Bomb Lvl =" + ent.bombLvl);
@@ -877,6 +879,7 @@ FlamePowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
+                soundManager.playSound(soundManager.fireUp);
                 if (ent.flameLvl < 6) {
                     ent.flameLvl++;
                     console.log("Flame lvl =" + ent.flameLvl);
@@ -917,7 +920,8 @@ SpeedPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if (ent.name === "Bomberman" && !ent.removeFromWorld) {
-                if (ent.speedLvl < 6) {
+                soundManager.playSound(soundManager.speedUp);
+                if (ent.speedLvl < 10) {
                     ent.speedLvl++;
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
@@ -960,6 +964,13 @@ AM.downloadAll(function () {
 function startSinglePlayerGame() {
     soundManager.stopSound(soundManager.menuBackgroundSound);
     soundManager.playSound(soundManager.gameBackgroundSound);
+
+
+
+
+
+
+
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
@@ -1067,6 +1078,15 @@ function startSinglePlayerGame() {
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png")));
 
     console.log("All Done!");
+
+
+
+
+
+
+
+
+
     // for (var i = 0; i < 100; i++) {
     //     var circle = new Ugly(gameEngine, AM.getAsset("./img/ugly.png"));
     //     gameEngine.addEntity(circle);
@@ -1096,6 +1116,13 @@ SoundManager.prototype.init = function() {
     this.gameBackgroundSound.loop = true;
     this.explosion = document.getElementById("explosion");
     this.explosion.playbackRate = 3;
+    this.speedUp = document.getElementById("speedUp");
+    this.speedUp.playbackRate = 2;
+    this.fireUp = document.getElementById("fireUp");
+    this.fireUp.playbackRate = 1;
+    this.fireUp.volume = 1;
+    this.bombUp = document.getElementById("bombUp");
+    this.bombUp.playbackRate = 1;
 }
 
 // Playing the sound
