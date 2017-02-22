@@ -398,6 +398,7 @@ function Bomberman(game, spritesheet) {
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.radius = 17;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    this.insideBomb = null;
     Entity.call(this, game, 50, 0);
 }
 
@@ -405,7 +406,7 @@ Bomberman.prototype = new Entity();
 Bomberman.prototype.constructor = Bomberman;
 
 Bomberman.prototype.collide = function (other) {
-    return distance(this, other) < 17 + 24;
+    return distance(this, other) < this.radius+other.radius;
 };
 
 Bomberman.prototype.collideLeft = function (other) {
@@ -456,70 +457,6 @@ Bomberman.prototype.collideBottom = function (other) {
 Bomberman.prototype.update = function () {
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
-    // for (var i = 0; i < this.game.walls.length; i++) {
-    //     var wall = this.game.walls[i];
-    //     var dist = distance(wall, this);
-    //     if (this.collide({x: wall.x, y: wall.y, radius: 25})) {
-    //         var difX = (wall.x - this.x) / dist;
-    //         var difY = (wall.y - this.y) / dist;
-    //         this.x -= difX * 10 / (dist * dist);
-    //         this.y -= difY * 10 / (dist * dist);
-    //     }
-    // }
-
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        // var tempCollide = this.collide(ent);
-        if (ent !== this && ent.name !== "Ugly") {
-            //     console.log("ent name: "+ent.name);
-            this.passTop = this.collideTop(ent);
-            this.passBottom = this.collideBottom(ent);
-            this.passRight = this.collideRight(ent);
-            this.passLeft = this.collideLeft(ent);
-        }
-    }
-
-    if (this.game.chars['ArrowUp']) {
-        if (!this.passTop
-        /*&& !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']*/) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 2;
-            this.y -= this.speedLvl;
-        }
-    }
-    else if (this.game.chars['ArrowDown']) {
-        if (!this.passBottom
-        /*&& !this.game.chars['ArrowUp'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowLeft']*/) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 1;
-            this.y += this.speedLvl;
-        }
-    }
-    else if (this.game.chars['ArrowRight']) {
-        if (!this.passRight
-        /*&& !this.game.chars['ArrowDown'] && !this.game.chars['ArrowUp'] && !this.game.chars['ArrowLeft']*/) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 0;
-            this.x += this.speedLvl;
-        }
-    }
-    else if (this.game.chars['ArrowLeft']) {
-        if (!this.passLeft
-        /*&& !this.game.chars['ArrowDown'] && !this.game.chars['ArrowRight'] && !this.game.chars['ArrowUp']*/) {
-            this.animation.spriteSheet = this.leftsprite;
-            this.animation.startrow = 0;
-            this.animation.reverse = true;
-            this.x -= this.speedLvl;
-        }
-    }
-    //This was used for bomb lvl up
-    // if (this.game.chars['KeyC']) {
-    //     if (this.bombLvl < 10) {
-    //         this.bombLvl++;
-    //     }
-    //
-    // }
-
     this.cx = this.x + 7;
     this.cy = this.y + 64;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
@@ -542,9 +479,126 @@ Bomberman.prototype.update = function () {
         // var y = (Math.floor(this.center.y / 50)) * 50;
         var x = this.position.x * 50;
         var y = this.position.y * 50;
+        bomb.center.x = x+25;
+        bomb.center.y = y+25;
+        for (var i = 0; i < this.game.players_bots.length; i++) {
+            var character = this.game.players_bots[i];
+            console.log(character.name);
+            if (bomb.collide(character)) {
+                character.insideBomb = bomb;
+            }
+        }
+        // this.insideBomb = bomb;
+        // for (var i = 0; i < this.game.players_bots.length; i++) {
+        //     var character = this.game.players_bots[i];
+        //     if (this.collide(character)) {
+        //         this.insideBomb = bomb;
+        //     }
+        // }
         Entity.call(bomb, this.game, x, y);
     }
     // console.log("my center x: " + this.center.x + " my center y: " + this.center.y);
+    // Entity.prototype.update.call(this);
+    // for (var i = 0; i < this.game.walls.length; i++) {
+    //     var wall = this.game.walls[i];
+    //     var dist = distance(wall, this);
+    //     if (this.collide({x: wall.x, y: wall.y, radius: 25})) {
+    //         var difX = (wall.x - this.x) / dist;
+    //         var difY = (wall.y - this.y) / dist;
+    //         this.x -= difX * 10 / (dist * dist);
+    //         this.y -= difY * 10 / (dist * dist);
+    //     }
+    // }
+    // console.log("Before: "+this.insideBomb);
+    if (this.insideBomb != null) {
+        // console.log(this.insideBomb);
+        // console.log("BOMB CENTER X: "+this.insideBomb.center.x);
+        // console.log("AM I COLLIDING!!!!!!!!!!!!! "+this.collide(this.insideBomb));
+        if (!this.collide(this.insideBomb)||this.insideBomb.removeFromWorld) {
+            // console.log("FUNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
+            this.insideBomb = null;
+        }
+    }
+
+    // console.log("After: "+this.insideBomb);
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        // if (ent.name ==="Bomb") {
+        //     console.log(ent.name);
+        // }
+        // var tempCollide = this.collide(ent);
+        if (ent !== this && ent.name !== "Ugly"
+            && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+            //     console.log("ent name: "+ent.name);
+            if (ent.name !== "Bomb" || this.insideBomb == null){
+                this.passTop = this.collideTop(ent);
+                this.passBottom = this.collideBottom(ent);
+                this.passRight = this.collideRight(ent);
+                this.passLeft = this.collideLeft(ent);
+            } /*else if (this.insideBomb == null) {
+                // if (this.insideBomb != null) {
+                //     console.log("ent.x: " + ent.x + " this.insideBomb.x: " + this.insideBomb.x);
+                // }
+                this.passTop = this.collideTop(ent);
+                this.passBottom = this.collideBottom(ent);
+                this.passRight = this.collideRight(ent);
+                this.passLeft = this.collideLeft(ent);
+            }*/else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y){
+                this.passTop = this.collideTop(ent);
+                this.passBottom = this.collideBottom(ent);
+                this.passRight = this.collideRight(ent);
+                this.passLeft = this.collideLeft(ent);
+            }
+        }
+    }
+    // for(var i = 0; i <this.game.bombs.length; i++){
+    //     var ent = this.game.bombs[i];
+    //     if (!ent.removeFromWorld && this.insideBomb != null && ent.x != this.insideBomb.x && ent.y != this.insideBomb.y) {
+    //         console.log("HELLO IM HERE!!!!!!!!!!!");
+    //         this.passTop = this.collideTop(ent);
+    //         this.passBottom = this.collideBottom(ent);
+    //         this.passRight = this.collideRight(ent);
+    //         this.passLeft = this.collideLeft(ent);
+    //     }
+    // }
+
+    if (this.game.chars['ArrowUp']) {
+        if (!this.passTop) {
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 2;
+            this.y -= this.speedLvl;
+        }
+    }
+    else if (this.game.chars['ArrowDown']) {
+        if (!this.passBottom) {
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 1;
+            this.y += this.speedLvl;
+        }
+    }
+    else if (this.game.chars['ArrowRight']) {
+        if (!this.passRight) {
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 0;
+            this.x += this.speedLvl;
+        }
+    }
+    else if (this.game.chars['ArrowLeft']) {
+        if (!this.passLeft) {
+            this.animation.spriteSheet = this.leftsprite;
+            this.animation.startrow = 0;
+            this.animation.reverse = true;
+            this.x -= this.speedLvl;
+        }
+    }
+    //This was used for bomb lvl up
+    // if (this.game.chars['KeyC']) {
+    //     if (this.bombLvl < 10) {
+    //         this.bombLvl++;
+    //     }
+    //
+    // }
+
     Entity.prototype.update.call(this);
 }
 
@@ -583,6 +637,26 @@ function Bomb(game, spritesheet, owner) {
 
 Bomb.prototype = new Entity();
 Bomb.prototype.constructor = Bomb;
+
+Bomb.prototype.collide = function (other) {
+    return distance(this, other) < this.radius+other.radius;
+};
+
+// Bomb.prototype.checkLeft = function (other) {
+//     return !(other.cx + other.cxx < this.x);
+// };
+//
+// Bomb.prototype.checkRight = function (other) {
+//     return !(other.cx > this.x + this.cxx);
+// };
+//
+// Bomb.prototype.checkTop = function (other) {
+//     return !(other.cy + other.cyy < this.y);
+// };
+//
+// Bomb.prototype.checkBottom = function (other) {
+//     return !(other.cy > this.y + this.cyy);
+// };
 
 Bomb.prototype.update = function () {
     //Checking if the bomb animation has ended
@@ -634,6 +708,12 @@ Bomb.prototype.update = function () {
                 pos.y * 50);
         }
     }
+    // for (var i = 0; i < this.game.players_bots.length; i++) {
+    //     var character = this.game.players_bots[i];
+    //     if (this.collide(character)) {
+    //         character.insideBomb = this;
+    //     }
+    // }
     this.cx = this.x;
     this.cy = this.y;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
@@ -1161,7 +1241,7 @@ function SoundManager() {
 };
 
 // Initializing the sound manager fields
-SoundManager.prototype.init = function() {
+SoundManager.prototype.init = function () {
     this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
     this.menuBackgroundSound.loop = true;
     this.gameBackgroundSound = document.getElementById("backgroundGameAudio");
@@ -1178,11 +1258,11 @@ SoundManager.prototype.init = function() {
 }
 
 // Playing the sound
-SoundManager.prototype.playSound = function(sound) {
+SoundManager.prototype.playSound = function (sound) {
     sound.play();
 };
 
 // Pausing the sound
-SoundManager.prototype.stopSound = function(sound) {
+SoundManager.prototype.stopSound = function (sound) {
     sound.pause();
 }

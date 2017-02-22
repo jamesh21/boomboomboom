@@ -13,6 +13,8 @@ function GameEngine() {
     this.entities = [];
     this.destroyable = [];
     this.walls = [];
+    this.bombs = [];
+    this.players_bots = [];
     this.offLimitPlacement = [];
     this.randomItemPlacement =[];
     this.items = [];
@@ -122,6 +124,8 @@ GameEngine.prototype.addEntity = function (entity) {
     console.log('added entity');
     this.entities.push(entity);
     if (entity.name === "Wall") this.walls.push(entity);
+    if (entity.name === "Bomb") this.bombs.push(entity);
+    if (entity.name === "Bomberman"||entity.name ==="Ugly") this.players_bots.push(entity);
     if (entity.name === "Destroyable") this.destroyable.push(entity);
     if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup") {
         this.items.push(entity);
@@ -157,6 +161,16 @@ GameEngine.prototype.update = function () {
     for (var i = this.destroyable.length -1; i >= 0; i--) {
         if (this.destroyable[i].removeFromWorld) {
             this.destroyable.splice(i, 1);
+        }
+    }
+    for (var i = this.bombs.length -1; i >= 0; i--) {
+        if (this.bombs[i].removeFromWorld) {
+            this.bombs.splice(i, 1);
+        }
+    }
+    for (var i = this.players_bots.length -1; i >= 0; i--) {
+        if (this.players_bots[i].removeFromWorld) {
+            this.players_bots.splice(i, 1);
         }
     }
 }
