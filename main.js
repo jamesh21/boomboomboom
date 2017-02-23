@@ -32,8 +32,8 @@ var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
 // var firstPlayerButton = new Button(234, 452, 388, 418);
-var firstPlayerButton = new Button(224, 462, 378, 428);
-var twoPlayerButton = new Button(600, 868, 378, 428);
+var firstPlayerButton = new Button(655, 875, 512, 566);
+var twoPlayerButton = new Button(1029, 1294, 512, 566);
 
 // When function is called, it checks if the click was within the button boundaires.
 function mouseClicked(e) {
@@ -50,6 +50,7 @@ function mouseClicked(e) {
 
 // This function is used for changing which state the mouse cursor should be in.
 function mouseMoved(e) {
+    console.log("x = " + e.clientX + " y = " + e.clientY);
     if ((firstPlayerButton.xLeft <= e.clientX && e.clientX <= firstPlayerButton.xRight &&
         firstPlayerButton.yTop <= e.clientY && e.clientY <= firstPlayerButton.yBottom && !gameStarted) ||
         (twoPlayerButton.xLeft <= e.clientX && e.clientX <= twoPlayerButton.xRight &&

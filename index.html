@@ -4,12 +4,23 @@
 <head>
     <meta charset="utf-8">
     <title>Game Project Shell</title>
+    <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </head>
-<body>
-    <canvas id="gameWorld" tabindex="1" width="1050" height="650" style="border: 1px solid brown; background: lightskyblue"></canvas>
+<body bgcolor="black">
+    <canvas
+            id="gameWorld"
+            tabindex="1"
+            width="1050"
+            height="650"
+            style="border: 1px solid brown;
+            position: absolute;
+
+            background: lightskyblue"></canvas>
+
+
     <audio id="backgroundMenuAudio">
         <source src="./sound/MenuBackgroundSound.mp3" type="audio/mpeg" />
     </audio>
