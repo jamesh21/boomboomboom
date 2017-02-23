@@ -1125,6 +1125,7 @@ Bot.prototype.selectAction = function () {
         // console.log("my near box = "+ this.nearBox());
          action.putBomb = this.nearBox() ;
     // }
+    action.direction = this.getDirection();
     return action;
 }
 Bot.prototype.nearBox = function(){
@@ -1135,7 +1136,7 @@ Bot.prototype.nearBox = function(){
         for(var j = 0; j < this.game.destroyable.length; j++) {
             var entD = this.game.destroyable[j];
             if (entD.position.x === x && entD.position.y === y) {
-                console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
+                // console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
                 return true;
             }
         }
@@ -1143,8 +1144,79 @@ Bot.prototype.nearBox = function(){
     return hasBox;
 }
 
-Bot.prototype.findDirection = function() {
-    
+Bot.prototype.getDirection = function() {
+    var result = {x:this.position.x, y:this.position.y};
+    var possibles = this.findPossibleDirection();
+    return possibles[0];
+}
+
+Bot.prototype.findPossibleDirection = function(){
+    var result = [];
+    for (var i = 0; i < this.fourDirection; i++) {
+        var x = this.position.x + this.fourDirection[i][0];
+        var y = this.position.y+this.fourDirection[i][1];
+        var go = true;
+        for (var j = 0; j <this.game.bombs.length;j++) {
+            var bomb = this.game.bombs[j];
+            if (bomb.position.x === x && bomb.position.y === y) {
+                go = false;
+                break;
+            }
+        }
+        if (!go) {
+            break;
+        }
+        for (var k = 0; k < this.game.walls.length; k++) {
+            var wall = this.game.walls[k];
+            if (wall.position.x === x && wall.position.y === y) {
+                go = false;
+                break;
+            }
+        }
+        if (!go) {
+            break;
+        }
+        for (var l = 0; l < this.game.destroyable.length; l++) {
+            var box = this.game.destroyable[l];
+            if (box.position.x === x && box.position.y === y) {
+                go = false;
+                break;
+            }
+        }
+        if (!go) {
+            break
+        } else {
+            console.log("hello, hello, hello");
+            result.push({x:x, y:y});
+        }
+    }
+    var safePositions = [];
+    for (var m = 0; m < result.lengthl; m++) {
+        var pos = result[i];
+        if (this.isSafe(pos)) {
+            safePositions.push(pos);
+        }
+    }
+    console.log("my target: "+result[0]);
+    if (safePositions.length > 0) {
+        return safePositions;
+    } else {
+        return result;
+    }
+}
+
+Bot.prototype.isSafe = function(position) {
+    for (var i = 0; i < this.game.bombs.length; i++) {
+        var bomb = this.game.bombs[i];
+        var flamePositions = bomb.printFlameHelper();
+        for (var j = 0; j <flamePositions.length; j++) {
+            var flame = flamePositions[j];
+            if (flame.position.x === position.x && flame.position.y === position.y) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 // Bot.prototype.putBomb = function() {
@@ -1208,7 +1280,9 @@ Bot.prototype.update = function () {
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     this.action = this.selectAction();
-    console.log("my action putBomb:"+this.action.putBomb);
+    // console.log("my direction: {" + this.action.direction.x+", "+this.action.direction.y+"}");
+    console.log("my direction: {" + this.action.direction+"}");
+    // console.log("my action putBomb:"+this.action.putBomb);
     if (this.cooldown === 0 && /*this.game.chars['Space']*/this.action.putBomb && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
