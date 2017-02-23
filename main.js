@@ -385,7 +385,7 @@ function Bomberman(game, spritesheet) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 2;
-    this.speedLvl = 6;
+    this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.name = "Bomberman";
@@ -1180,7 +1180,6 @@ AM.queueDownload("./sound/MenuBackgroundSound.mp3");
 AM.queueDownload("./img/farback.gif");
 AM.queueDownload("./img/starfield.png");
 AM.queueDownload("./img/bomberman.png");
-AM.queueDownload("./img/SideSprite.png");
 AM.queueDownload("./img/ugly.png");
 AM.queueDownload("./img/Bomb.png");
 AM.queueDownload("./img/Flame.png");
