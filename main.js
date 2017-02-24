@@ -123,16 +123,17 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, cx, cy, cxx, cyy) {
         x, y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
-    ctx.strokeRect(x, y, this.frameWidth * this.scale,
-        this.frameHeight * this.scale);
-    ctx.strokeRect(cx, cy, cxx, cyy);
-    // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
-    ctx.beginPath();
-    ctx.fillStyle = "Red";
-    // ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
-    ctx.arc(cx + cxx / 2, cy + cyy / 2, 5, 0, Math.PI * 2, false);
-    ctx.fill();
-    ctx.closePath();
+    // For Debugging Only
+    // ctx.strokeRect(x, y, this.frameWidth * this.scale,
+    //     this.frameHeight * this.scale);
+    // ctx.strokeRect(cx, cy, cxx, cyy);
+    // // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
+    // ctx.beginPath();
+    // ctx.fillStyle = "Red";
+    // // ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
+    // ctx.arc(cx + cxx / 2, cy + cyy / 2, 5, 0, Math.PI * 2, false);
+    // ctx.fill();
+    // ctx.closePath();
 }
 
 Animation.prototype.currentFrame = function () {
@@ -540,7 +541,7 @@ Bomberman.prototype.update = function () {
         //     console.log(ent.name);
         // }
         // var tempCollide = this.collide(ent);
-        if (ent !== this && ent.name !== "Ugly"
+        if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot"
             && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
             //     console.log("ent name: "+ent.name);
             if (ent.name !== "Bomb" || this.insideBomb == null) {
@@ -909,9 +910,10 @@ function Wall(game, spritesheet, x, y) {
 Wall.prototype.collide = function (other) {
     return distance(this, other) < this.radius + other.radius;
 };
-
+var rainbow = ["Yellow", "Red", "Orange", "Green", "Blue", "Cyan", "Pink", "White", "Purple"];
 Wall.prototype.draw = function () {
-    this.ctx.strokeStyle = "Red";
+    var color = rainbow[Math.floor(Math.random() * rainbow.length)];
+    this.ctx.strokeStyle = color;
     this.ctx.drawImage(this.spritesheet,
         this.x, this.y, 50, 50);
     // for debugging (to use it have to comment top 2 line and comment out bot 1 line)
@@ -991,7 +993,7 @@ function BombPowerup(game, spritesheet, x, y) {
 };
 
 BombPowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 2;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 BombPowerup.prototype.draw = function () {
@@ -1033,7 +1035,7 @@ function FlamePowerup(game, spritesheet, x, y) {
 };
 
 FlamePowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 2;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 FlamePowerup.prototype.draw = function () {
@@ -1075,7 +1077,7 @@ function SpeedPowerup(game, spritesheet, x, y) {
 };
 
 SpeedPowerup.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 2;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 SpeedPowerup.prototype.draw = function () {
@@ -1117,7 +1119,7 @@ function SpeedPowerdown(game, spritesheet, x, y) {
 };
 
 SpeedPowerdown.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 2;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 SpeedPowerdown.prototype.draw = function () {
@@ -1159,7 +1161,7 @@ function ConfusionPowerdown(game, spritesheet, x, y) {
 };
 
 ConfusionPowerdown.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 2;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 ConfusionPowerdown.prototype.draw = function () {
@@ -1192,7 +1194,7 @@ function Bot(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 2;
-    this.speedLvl = 2;
+    this.speedLvl = 6;
     this.name = "Bot";
     this.passTop = false;
     this.passRight = false;
@@ -1307,6 +1309,7 @@ Bot.prototype.getDirection = function () {
 // if no safe direction, return possibles game's coordinate.
 Bot.prototype.findPossibleDirection = function () {
     var result = [];
+    result.push({x: this.position.x, y: this.position.y});
     for (var i = 0; i < this.fourDirection.length; i++) {
         var x = this.position.x + this.fourDirection[i][0];
         var y = this.position.y + this.fourDirection[i][1];
@@ -1329,7 +1332,7 @@ Bot.prototype.findPossibleDirection = function () {
                 // console.log("My f:{" + flame.x + ", " + flame.y + "}");
                 // console.log("Myfp:{" + flame.position.x + ", " + flame.position.y + "}");
                 // console.log("Myxy:{" + x + ", " + y + "}");
-                if ((flame.x/50) === x && (flame.y/50) === y) {
+                if ((flame.x / 50) === x && (flame.y / 50) === y) {
                     // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
                     go = false;
                     break;
@@ -1380,7 +1383,7 @@ Bot.prototype.findPossibleDirection = function () {
     // console.log("my sp: "+safePositions);
     // console.log("my target: "+result.length);
     if (safePositions.length > 0) {
-    return safePositions;
+        return safePositions;
     } else {
         return result;
     }
@@ -1403,7 +1406,7 @@ Bot.prototype.isSafe = function (position) {
     for (var k = 0; k < this.game.flames.length; k++) {
         console.log("You see me now!!!!!!!!!!!1");
         var flame = this.game.flames[k];
-        if ((flame.x/50) === x && (flame.y/50) === y) {
+        if ((flame.x / 50) === position.x && (flame.y / 50) === position.y) {
             // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
             return false;
         }
@@ -1512,7 +1515,7 @@ Bot.prototype.update = function () {
     }
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Ugly"
+        if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Bomberman"
             && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
             //     console.log("ent name: "+ent.name);
             if (ent.name !== "Bomb" || this.insideBomb == null) {
@@ -1738,8 +1741,9 @@ function startSinglePlayerGame() {
 
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {

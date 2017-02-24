@@ -138,7 +138,17 @@ GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
     for (var i = 0; i < this.entities.length; i++) {
-        this.entities[i].draw(this.ctx);
+        if ((this.entities[i].name == "Bomberman" ||
+            this.entities[i].name == "Ugly" ||
+            this.entities[i].name == "Bot")
+            && (i < (this.entities.length -this.players_bots.length))) {
+            var temp = this.entities[i];
+            this.entities.splice(i, 1);
+            this.entities.push(temp);
+            i--;
+        } else {
+            this.entities[i].draw(this.ctx);
+        }
     }
     this.ctx.restore();
 }
