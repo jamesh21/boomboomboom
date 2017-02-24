@@ -1194,7 +1194,7 @@ function Bot(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 2;
-    this.speedLvl = 6;
+    this.speedLvl = 4;
     this.name = "Bot";
     this.passTop = false;
     this.passRight = false;
@@ -1212,7 +1212,7 @@ function Bot(game, spritesheet, x, y) {
     this.insideBomb = null;
     //                     Left,   Right,   Bot,    Top
     this.fourDirection = [[-1, 0], [1, 0], [0, 1], [0, -1]];
-    // store the target cells's canvas pixel(left top coordinate)
+    // store the target cells's game coordinate (left top coordinate){x,y}
     this.movingTarget = null;
     // store the target cells's CENTER, canvas pixel
     this.movingTargetX = null;
@@ -1257,66 +1257,76 @@ Bot.prototype.nearBox = function () {
 }
 
 Bot.prototype.getDirection = function () {
+    var changeDirection = true;
     // finding new direction if movingTarget is null
     // console.log("Is my movingTarget null???? " + (this.movingTarget === null));
     // console.log(this.movingTargetX+", "+ this.movingTargetY);
-    if (this.movingTarget === null) {
+    // if (this.movingTarget === null) {
         // possibles is holding game coordinates
         var possibles = this.findPossibleDirection(this.position.x, this.position.y);
-        // TODO here is improvement for A.I. don't go to same way if possible.
-        // if (possibles.length > 1) {
-        //
-        // }
-        var safePositions = [];
-        for (var i = 0; i < possibles.length; i++) {
-            var pos = possibles[i];
-            if (this.isSafe(pos)) {
-                safePositions.push(pos);
-            }
-        }
-        // console.log("What is my safePositions size: "+ safePositions.length);
-        // console.log("What is my Possibles size: "+ possibles.length);
-        if (safePositions.length === 0 && possibles.length > 1) {
-            for (var j = 0; j < possibles.length; j++) {
-                // console.log("How about this one!!!!!!!!!!!!");
-                var pos2 = possibles[j];
-                var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
-                // console.log("What is my nextPossibles size: "+nextPossibles.length);
-                if (nextPossibles.length === 1) {
-                    // console.log("Dude I'm here!!!!!!!!!!!");
-                    possibles.splice(j, 1);
+        if (this.movingTarget !== null) {
+            for (var i = 0; i < possibles.length; i++) {
+                var pos = possibles[i];
+                if (pos.x === this.movingTarget.x && pos.y === this.movingTarget.y) {
+                    changeDirection = false;
+                    break;
                 }
-                // var safePositions2 = [];
-                // for (var i = 0; i < nextPossibles.length; i++) {
-                //     var pos2 = nextPossibles[i];
-                //     if (this.isSafe(pos2)) {
-                //         safePositions2.push(pos2);
-                //     }
-                // }
-                // if (safePositions2.length < 1) {
-                //     possibles.splice(j, 1);
-                // }
             }
         }
-        // console.log("What is my Possibles size after splice!!!!!!: "+ possibles.length);
-        var resultDirections = null;
-        if (safePositions.length > 0) {
-            resultDirections = safePositions;
-        } else {
-            resultDirections = possibles;
-        }
+        if (changeDirection) {
+            var safePositions = [];
+            for (var i = 0; i < possibles.length; i++) {
+                var pos = possibles[i];
+                if (this.isSafe(pos)) {
+                    safePositions.push(pos);
+                }
+            }
+            // console.log("What is my safePositions size: "+ safePositions.length);
+            // console.log("What is my Possibles size: "+ possibles.length);
+            if (safePositions.length === 0 && possibles.length > 1) {
+                for (var j = 0; j < possibles.length; j++) {
+                    // console.log("How about this one!!!!!!!!!!!!");
+                    var pos2 = possibles[j];
+                    var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
+                    // console.log("What is my nextPossibles size: "+nextPossibles.length);
+                    if (nextPossibles.length === 1) {
+                        // console.log("Dude I'm here!!!!!!!!!!!");
+                        possibles.splice(j, 1);
+                    }
+                    // var safePositions2 = [];
+                    // for (var i = 0; i < nextPossibles.length; i++) {
+                    //     var pos2 = nextPossibles[i];
+                    //     if (this.isSafe(pos2)) {
+                    //         safePositions2.push(pos2);
+                    //     }
+                    // }
+                    // if (safePositions2.length < 1) {
+                    //     possibles.splice(j, 1);
+                    // }
+                }
+            }
+            // console.log("What is my Possibles size after splice!!!!!!: "+ possibles.length);
 
-        // random pick a cell
-        // console.log("my possibles size: "+possibles.length);
-        // console.log("What's my movingTarget then11111????" + this.movingTarget);
-        console.log("is resultDirection size != 0? "+(resultDirections.length !== 0) );
-        if (resultDirections.length !== 0) {
-            this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
-        } else {
-            this.movingTarget = null;
+            var resultDirections = null;
+            if (safePositions.length > 0) {
+                resultDirections = safePositions;
+            } else {
+                resultDirections = possibles;
+            }
+
+
+            // random pick a cell
+            // console.log("my possibles size: "+possibles.length);
+            // console.log("What's my movingTarget then11111????" + this.movingTarget);
+            // console.log("is resultDirection size != 0? " + (resultDirections.length !== 0));
+            if (resultDirections.length !== 0) {
+                this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
+            } else {
+                this.movingTarget = null;
+            }
         }
         // console.log("What's my movingTarget then22222222222????" + this.movingTarget);
-    }
+    // }
     // set the direction X and Y
     if (this.movingTarget !== null) {
         // console.log("Is my movingTarget null22222222222???? " + (this.movingTarget === null));
@@ -1773,12 +1783,12 @@ function startSinglePlayerGame() {
         numberOfPossibleItemPlacement--;
     }
 
-    // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {
