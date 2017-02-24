@@ -914,7 +914,7 @@ Wall.prototype.collide = function (other) {
 var rainbow = ["Yellow", "Red", "Orange", "Green", "Blue", "Cyan", "Pink", "White", "Purple"];
 Wall.prototype.draw = function () {
     var color = rainbow[Math.floor(Math.random() * rainbow.length)];
-    this.ctx.strokeStyle = "Yellow";
+    this.ctx.strokeStyle = color;
     this.ctx.drawImage(this.spritesheet,
         this.x, this.y, 50, 50);
     // for debugging (to use it have to comment top 2 line and comment out bot 1 line)
