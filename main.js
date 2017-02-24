@@ -1221,6 +1221,7 @@ function Bot(game, spritesheet, x, y) {
     this.directionX = 0;
     // store the moving y direction
     this.directionY = 0;
+    this.stopAnime = false;
     Entity.call(this, game, x, y);
 }
 
@@ -1228,13 +1229,14 @@ Bot.prototype = new Entity();
 Bot.prototype.constructor = Bot;
 
 Bot.prototype.selectAction = function () {
-    var action = {direction: {x: 0, y: 0}, putBomb: false, target: null};
+    var action = {direction: null, putBomb: false, target: null};
     // if (this.nearBox) {
     //this check is correct
     // console.log("my near box = "+ this.nearBox());
     action.putBomb = this.nearBox();
     // }
     action.direction = this.getDirection();
+    this.stopAnime = (this.directionX === 0 && this.directionY === 0);
     return action;
 }
 
@@ -1272,13 +1274,16 @@ Bot.prototype.getDirection = function () {
                 safePositions.push(pos);
             }
         }
+        // console.log("What is my safePositions size: "+ safePositions.length);
+        // console.log("What is my Possibles size: "+ possibles.length);
         if (safePositions.length === 0 && possibles.length > 1) {
             for (var j = 0; j < possibles.length; j++) {
                 // console.log("How about this one!!!!!!!!!!!!");
                 var pos2 = possibles[j];
                 var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
-                if (nextPossibles.length === 0) {
-                    console.log("Dude I'm here!!!!!!!!!!!");
+                // console.log("What is my nextPossibles size: "+nextPossibles.length);
+                if (nextPossibles.length === 1) {
+                    // console.log("Dude I'm here!!!!!!!!!!!");
                     possibles.splice(j, 1);
                 }
                 // var safePositions2 = [];
@@ -1293,6 +1298,7 @@ Bot.prototype.getDirection = function () {
                 // }
             }
         }
+        // console.log("What is my Possibles size after splice!!!!!!: "+ possibles.length);
         var resultDirections = null;
         if (safePositions.length > 0) {
             resultDirections = safePositions;
@@ -1303,6 +1309,7 @@ Bot.prototype.getDirection = function () {
         // random pick a cell
         // console.log("my possibles size: "+possibles.length);
         // console.log("What's my movingTarget then11111????" + this.movingTarget);
+        console.log("is resultDirection size != 0? "+(resultDirections.length !== 0) );
         if (resultDirections.length !== 0) {
             this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
         } else {
@@ -1352,7 +1359,7 @@ Bot.prototype.findPossibleDirection = function (theX, theY) {
         for (var j = 0; j < this.game.bombs.length; j++) {
             var bomb = this.game.bombs[j];
             // console.log("My b:{" + bomb.position.x + ", " + bomb.position.y + "}");
-            if ((bomb.x/50) === x && (bomb.y/50) === y) {
+            if ((bomb.x / 50) === x && (bomb.y / 50) === y) {
                 go = false;
                 break;
             }
@@ -1419,7 +1426,7 @@ Bot.prototype.findPossibleDirection = function (theX, theY) {
     // if (safePositions.length > 0) {
     //     return safePositions;
     // } else {
-        return result;
+    return result;
     // }
 }
 
@@ -1443,16 +1450,6 @@ Bot.prototype.isSafe = function (position) {
             return false;
         }
     }
-    // for (var j = 0; j < this.game.flames.length; j++) {
-    //     var bomb = this.game.bombs[i];
-    //     var flamePositions = bomb.printFlameHelper();
-    //     for (var j = 0; j < flamePositions.length; j++) {
-    //         var flame = flamePositions[j];
-    //         if (flame.x === position.x && flame.y === position.y) {
-    //             return false;
-    //         }
-    //     }
-    // }
     return true;
 }
 
@@ -1611,10 +1608,15 @@ Bot.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     // if (this.game.chars['ArrowUp'] || this.game.chars['ArrowRight'] ||
     //     this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft']) {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
+    // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     // } else {
     //     this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     // }
+    if (this.stopAnime) {
+        this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
+    } else {
+        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
+    }
     Entity.prototype.draw.call(this);
 }
 
@@ -1773,8 +1775,8 @@ function startSinglePlayerGame() {
 
     // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
 
