@@ -913,7 +913,7 @@ Wall.prototype.collide = function (other) {
 var rainbow = ["Yellow", "Red", "Orange", "Green", "Blue", "Cyan", "Pink", "White", "Purple"];
 Wall.prototype.draw = function () {
     var color = rainbow[Math.floor(Math.random() * rainbow.length)];
-    this.ctx.strokeStyle = color;
+    this.ctx.strokeStyle = "Yellow";
     this.ctx.drawImage(this.spritesheet,
         this.x, this.y, 50, 50);
     // for debugging (to use it have to comment top 2 line and comment out bot 1 line)
@@ -1260,17 +1260,51 @@ Bot.prototype.getDirection = function () {
     // console.log(this.movingTargetX+", "+ this.movingTargetY);
     if (this.movingTarget === null) {
         // possibles is holding game coordinates
-        var possibles = this.findPossibleDirection();
+        var possibles = this.findPossibleDirection(this.position.x, this.position.y);
         // TODO here is improvement for A.I. don't go to same way if possible.
         // if (possibles.length > 1) {
         //
         // }
+        var safePositions = [];
+        for (var i = 0; i < possibles.length; i++) {
+            var pos = possibles[i];
+            if (this.isSafe(pos)) {
+                safePositions.push(pos);
+            }
+        }
+        if (safePositions.length === 0 && possibles.length > 1) {
+            for (var j = 0; j < possibles.length; j++) {
+                // console.log("How about this one!!!!!!!!!!!!");
+                var pos2 = possibles[j];
+                var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
+                if (nextPossibles.length === 0) {
+                    console.log("Dude I'm here!!!!!!!!!!!");
+                    possibles.splice(j, 1);
+                }
+                // var safePositions2 = [];
+                // for (var i = 0; i < nextPossibles.length; i++) {
+                //     var pos2 = nextPossibles[i];
+                //     if (this.isSafe(pos2)) {
+                //         safePositions2.push(pos2);
+                //     }
+                // }
+                // if (safePositions2.length < 1) {
+                //     possibles.splice(j, 1);
+                // }
+            }
+        }
+        var resultDirections = null;
+        if (safePositions.length > 0) {
+            resultDirections = safePositions;
+        } else {
+            resultDirections = possibles;
+        }
 
         // random pick a cell
         // console.log("my possibles size: "+possibles.length);
         // console.log("What's my movingTarget then11111????" + this.movingTarget);
-        if (possibles.length !== 0) {
-            this.movingTarget = possibles[Math.floor(Math.random() * possibles.length)];
+        if (resultDirections.length !== 0) {
+            this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
         } else {
             this.movingTarget = null;
         }
@@ -1307,18 +1341,18 @@ Bot.prototype.getDirection = function () {
 
 // this method is CHECKED. it will return safe cells game's coordinate,
 // if no safe direction, return possibles game's coordinate.
-Bot.prototype.findPossibleDirection = function () {
+Bot.prototype.findPossibleDirection = function (theX, theY) {
     var result = [];
-    result.push({x: this.position.x, y: this.position.y});
+    result.push({x: theX, y: theY});
     for (var i = 0; i < this.fourDirection.length; i++) {
-        var x = this.position.x + this.fourDirection[i][0];
-        var y = this.position.y + this.fourDirection[i][1];
+        var x = theX + this.fourDirection[i][0];
+        var y = theY + this.fourDirection[i][1];
         var go = true;
         // check bombs position, if found, break immediately.
         for (var j = 0; j < this.game.bombs.length; j++) {
             var bomb = this.game.bombs[j];
             // console.log("My b:{" + bomb.position.x + ", " + bomb.position.y + "}");
-            if (bomb.position.x === x && bomb.position.y === y) {
+            if ((bomb.x/50) === x && (bomb.y/50) === y) {
                 go = false;
                 break;
             }
@@ -1365,13 +1399,13 @@ Bot.prototype.findPossibleDirection = function () {
             result.push({x: x, y: y});
         }
     }
-    var safePositions = [];
-    for (var m = 0; m < result.length; m++) {
-        var pos = result[m];
-        if (this.isSafe(pos)) {
-            safePositions.push(pos);
-        }
-    }
+    // var safePositions = [];
+    // for (var m = 0; m < result.length; m++) {
+    //     var pos = result[m];
+    //     if (this.isSafe(pos)) {
+    //         safePositions.push(pos);
+    //     }
+    // }
     // for (var n = 0;n <safePositions.length;n++ ) {
     //     console.log("my sp length: "+safePositions.length+
     //         " coordinate: {"+ safePositions[n].x+ " ,"+safePositions[n].y+"}");
@@ -1382,18 +1416,17 @@ Bot.prototype.findPossibleDirection = function () {
     // }
     // console.log("my sp: "+safePositions);
     // console.log("my target: "+result.length);
-    if (safePositions.length > 0) {
-        return safePositions;
-    } else {
+    // if (safePositions.length > 0) {
+    //     return safePositions;
+    // } else {
         return result;
-    }
+    // }
 }
 
 // this method is checked, return true if position is safe, otherwise false.
 // @param position is the game coordination.
 Bot.prototype.isSafe = function (position) {
     for (var i = 0; i < this.game.bombs.length; i++) {
-        console.log("Happy now????????");
         var bomb = this.game.bombs[i];
         var flamePositions = bomb.printFlameHelper();
         for (var j = 0; j < flamePositions.length; j++) {
@@ -1404,7 +1437,6 @@ Bot.prototype.isSafe = function (position) {
         }
     }
     for (var k = 0; k < this.game.flames.length; k++) {
-        console.log("You see me now!!!!!!!!!!!1");
         var flame = this.game.flames[k];
         if ((flame.x / 50) === position.x && (flame.y / 50) === position.y) {
             // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
@@ -1739,11 +1771,12 @@ function startSinglePlayerGame() {
         numberOfPossibleItemPlacement--;
     }
 
-    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {
