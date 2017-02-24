@@ -823,7 +823,7 @@ Flame.prototype.update = function () {
             //     this.removeFromWorld = true;
             //     this.stop = true;
             // }
-            if (ent.name !== "Bomberman" && ent.name !== "Bot" &&
+            if (ent.name !== "Bomberman" && /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
@@ -1254,7 +1254,7 @@ Bot.prototype.nearBox = function () {
 
 Bot.prototype.getDirection = function () {
     // finding new direction if movingTarget is null
-    console.log("Is my movingTarget null???? " + (this.movingTarget === null));
+    // console.log("Is my movingTarget null???? " + (this.movingTarget === null));
     // console.log(this.movingTargetX+", "+ this.movingTargetY);
     if (this.movingTarget === null) {
         // possibles is holding game coordinates
@@ -1265,41 +1265,41 @@ Bot.prototype.getDirection = function () {
         // }
 
         // random pick a cell
-        console.log("my possibles size: "+possibles.length);
-        console.log("What's my movingTarget then11111????" + this.movingTarget);
+        // console.log("my possibles size: "+possibles.length);
+        // console.log("What's my movingTarget then11111????" + this.movingTarget);
         if (possibles.length !== 0) {
             this.movingTarget = possibles[Math.floor(Math.random() * possibles.length)];
         } else {
             this.movingTarget = null;
         }
-        console.log("What's my movingTarget then22222222222????" + this.movingTarget);
+        // console.log("What's my movingTarget then22222222222????" + this.movingTarget);
     }
     // set the direction X and Y
     if (this.movingTarget !== null) {
-        console.log("Is my movingTarget null22222222222???? " + (this.movingTarget === null));
-        console.log("What's my movingTarget then333333333333333333333333333????" + this.movingTarget);
-        console.log("my t: " + this.movingTarget.x + ", " + this.movingTarget.y);
+        // console.log("Is my movingTarget null22222222222???? " + (this.movingTarget === null));
+        // console.log("What's my movingTarget then333333333333333333333333333????" + this.movingTarget);
+        // console.log("my t: " + this.movingTarget.x + ", " + this.movingTarget.y); //game x,y
         this.movingTargetX = this.movingTarget.x * 50 + 25;
         this.movingTargetY = this.movingTarget.y * 50 + 25;
-        console.log("my m: " + this.movingTargetX + ", " + this.movingTargetY);
-        console.log("my c: " + this.center.x + ", " + this.center.y);
+        // console.log("my m: " + this.movingTargetX + ", " + this.movingTargetY); // canvas x,y
+        // console.log("my c: " + this.center.x + ", " + this.center.y); //character's center canvas x, y
     }
-    if(this.movingTargetX > this.center.x && (this.movingTargetX - this.center.x > this.speedLvl)) {
-        this.directionX =  1; // moving right
-    } else if (this.movingTargetX < this.center.x && (this.center.x - this.movingTargetX > this.speedLvl)) {
+    if (this.movingTargetX > this.center.x && (this.movingTargetX - this.center.x >= this.speedLvl)) {
+        this.directionX = 1; // moving right
+    } else if (this.movingTargetX < this.center.x && (this.center.x - this.movingTargetX >= this.speedLvl)) {
         this.directionX = -1; // moving left
     } else {
         this.directionX = 0; // stop or moving vertical
     }
-    if(this.movingTargetY > this.center.y && ((this.movingTargetY - this.center.y) > this.speedLvl)) {
-        this.directionY =  1; // moving bottom
-    } else if (this.movingTargetY < this.center.y && ((this.center.y - this.movingTargetY) > this.speedLvl)) {
+    if (this.movingTargetY > this.center.y && ((this.movingTargetY - this.center.y) >= this.speedLvl)) {
+        this.directionY = 1; // moving bottom
+    } else if (this.movingTargetY < this.center.y && ((this.center.y - this.movingTargetY) >= this.speedLvl)) {
         this.directionY = -1; // moving top
     } else {
         this.directionY = 0; // stop or moving horizontal
     }
     // console.log(this.directionX+", "+ this.directionY);
-    console.log("my d: " + this.directionX+", "+this.directionY);
+    // console.log("my d: " + this.directionX+", "+this.directionY);
     return this.movingTarget;
 }
 
@@ -1314,15 +1314,33 @@ Bot.prototype.findPossibleDirection = function () {
         // check bombs position, if found, break immediately.
         for (var j = 0; j < this.game.bombs.length; j++) {
             var bomb = this.game.bombs[j];
+            // console.log("My b:{" + bomb.position.x + ", " + bomb.position.y + "}");
             if (bomb.position.x === x && bomb.position.y === y) {
                 go = false;
                 break;
+            }
+        }
+        // check flames position, if found, break immediately.
+        if (go) {
+            // console.log("What is my flames size? " + this.game.flames.length);
+            for (var k = 0; k < this.game.flames.length; k++) {
+                var flame = this.game.flames[k];
+                // console.log("CAN you see ME????");
+                // console.log("My f:{" + flame.x + ", " + flame.y + "}");
+                // console.log("Myfp:{" + flame.position.x + ", " + flame.position.y + "}");
+                // console.log("Myxy:{" + x + ", " + y + "}");
+                if ((flame.x/50) === x && (flame.y/50) === y) {
+                    // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
+                    go = false;
+                    break;
+                }
             }
         }
         // check walls position, if found, break immediately.
         if (go) {
             for (var k = 0; k < this.game.walls.length; k++) {
                 var wall = this.game.walls[k];
+                // console.log("My w:{" + wall.position.x + ", " + wall.position.y + "}");
                 if (wall.position.x === x && wall.position.y === y) {
                     go = false;
                     break;
@@ -1333,6 +1351,7 @@ Bot.prototype.findPossibleDirection = function () {
             // check destroyable boxes position, if found, break immediately.
             for (var l = 0; l < this.game.destroyable.length; l++) {
                 var box = this.game.destroyable[l];
+                // console.log("My d:{" + box.position.x + ", " + box.position.y + "}");
                 if (box.position.x === x && box.position.y === y) {
                     go = false;
                     break;
@@ -1361,7 +1380,7 @@ Bot.prototype.findPossibleDirection = function () {
     // console.log("my sp: "+safePositions);
     // console.log("my target: "+result.length);
     if (safePositions.length > 0) {
-        return safePositions;
+    return safePositions;
     } else {
         return result;
     }
@@ -1371,6 +1390,7 @@ Bot.prototype.findPossibleDirection = function () {
 // @param position is the game coordination.
 Bot.prototype.isSafe = function (position) {
     for (var i = 0; i < this.game.bombs.length; i++) {
+        console.log("Happy now????????");
         var bomb = this.game.bombs[i];
         var flamePositions = bomb.printFlameHelper();
         for (var j = 0; j < flamePositions.length; j++) {
@@ -1380,6 +1400,24 @@ Bot.prototype.isSafe = function (position) {
             }
         }
     }
+    for (var k = 0; k < this.game.flames.length; k++) {
+        console.log("You see me now!!!!!!!!!!!1");
+        var flame = this.game.flames[k];
+        if ((flame.x/50) === x && (flame.y/50) === y) {
+            // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
+            return false;
+        }
+    }
+    // for (var j = 0; j < this.game.flames.length; j++) {
+    //     var bomb = this.game.bombs[i];
+    //     var flamePositions = bomb.printFlameHelper();
+    //     for (var j = 0; j < flamePositions.length; j++) {
+    //         var flame = flamePositions[j];
+    //         if (flame.x === position.x && flame.y === position.y) {
+    //             return false;
+    //         }
+    //     }
+    // }
     return true;
 }
 
@@ -1447,7 +1485,7 @@ Bot.prototype.update = function () {
     // console.log("my direction: {" + this.action.direction.x+", "+this.action.direction.y+"}");
     // console.log("my direction: {" + this.action.direction+"}");
     // console.log("my action putBomb:"+this.action.putBomb);
-    if (this.cooldown === 0 &&this.directionX ===0&&this.directionY===0&&this.action.putBomb && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (this.cooldown === 0 && this.directionX === 0 && this.directionY === 0 && this.action.putBomb && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 2.3;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -1482,7 +1520,7 @@ Bot.prototype.update = function () {
                 this.passBottom = this.collideBottom(ent);
                 this.passRight = this.collideRight(ent);
                 this.passLeft = this.collideLeft(ent);
-            }  else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
+            } else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
                 this.passTop = this.collideTop(ent);
                 this.passBottom = this.collideBottom(ent);
                 this.passRight = this.collideRight(ent);
@@ -1490,7 +1528,7 @@ Bot.prototype.update = function () {
             }
         }
     }
-    console.log(this.directionX+", "+ this.directionY);
+    // console.log(this.directionX+", "+ this.directionY);
     if (this.directionY === -1) {
         if (!this.passTop) {
             this.animation.spriteSheet = this.sprite;
@@ -1498,14 +1536,14 @@ Bot.prototype.update = function () {
             this.y -= this.speedLvl;
         }
     }
-     if (this.directionY === 1) {
+    if (this.directionY === 1) {
         if (!this.passBottom) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
             this.y += this.speedLvl;
         }
     }
-     if (this.directionX === 1) {
+    if (this.directionX === 1) {
         if (!this.passRight) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
@@ -1513,7 +1551,7 @@ Bot.prototype.update = function () {
         }
     }
 
-     if (this.directionX === -1) {
+    if (this.directionX === -1) {
         if (!this.passLeft) {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
@@ -1538,7 +1576,7 @@ Bot.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     // if (this.game.chars['ArrowUp'] || this.game.chars['ArrowRight'] ||
     //     this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft']) {
-        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     // } else {
     //     this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     // }
@@ -1698,9 +1736,9 @@ function startSinglePlayerGame() {
         numberOfPossibleItemPlacement--;
     }
 
-    // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
 
     console.log("All Done!");
