@@ -190,6 +190,11 @@ GameEngine.prototype.update = function () {
             this.players_bots.splice(i, 1);
         }
     }
+    if (this.players_bots.length === 1) {
+        document.getElementById('end-game').style.display = "flex";
+        document.getElementById('game-over').style.display = "block";
+        this.clockTick = 0;
+    }
 }
 
 GameEngine.prototype.loop = function () {
