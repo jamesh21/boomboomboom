@@ -1723,6 +1723,7 @@ AM.downloadAll(function () {
 
 });
 
+// Function for building the map, boxes and items of the game.
 function buildMap() {
     soundManager.stopSound(soundManager.menuBackgroundSound);
     soundManager.playSound(soundManager.gameBackgroundSound);
@@ -1862,7 +1863,7 @@ function startTwoPlayerGame() {
     //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
     gameEngine.typeOfGame = 2;
-    console.log("Two Player Game");
+    console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
 // Sound Manager Object
