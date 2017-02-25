@@ -13,3 +13,7 @@ it at lvl 10). In the future lvling up will be done by getting.
 
 4) Basic collision has been implemented with the feature of the ugly guy entity being able 
 to be killed by the bomb. Also entities are not able to walk through the outer blocks of the map.
+
+
+
+Music from Jukedeck - create your own at http://jukedeck.com.
