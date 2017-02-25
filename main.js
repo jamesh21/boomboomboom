@@ -32,8 +32,9 @@ var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
 // var firstPlayerButton = new Button(234, 452, 388, 418);
-var firstPlayerButton = new Button(655, 875, 512, 566);
-var twoPlayerButton = new Button(1029, 1294, 512, 566);
+var firstPlayerButton = new Button(234, 452, 378, 428);
+
+var twoPlayerButton = new Button(600, 868, 378, 428);
 
 // When function is called, it checks if the click was within the button boundaires.
 function mouseClicked(e) {
@@ -825,7 +826,7 @@ Flame.prototype.update = function () {
             //     this.removeFromWorld = true;
             //     this.stop = true;
             // }
-            if (ent.name !== "Bomberman" && /*ent.name !== "Bot" &&*/
+            if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
@@ -1194,7 +1195,7 @@ function Bot(game, spritesheet, x, y) {
     this.ctx = game.ctx;
     this.cooldown = 0;
     this.currentBombOnField = 0;
-    this.bombLvl = 1;
+    this.bombLvl = 5;
     this.flameLvl = 2;
     this.speedLvl = 6;
     this.name = "Bot";
@@ -1522,7 +1523,7 @@ Bot.prototype.update = function () {
     // console.log("my direction: {" + this.action.direction.x+", "+this.action.direction.y+"}");
     // console.log("my direction: {" + this.action.direction+"}");
     // console.log("my action putBomb:"+this.action.putBomb);
-    if (this.cooldown === 0 && this.directionX === 0 && this.directionY === 0 && this.action.putBomb && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (/*(this.game.chars['Space'])||*/(this.cooldown === 0 && this.directionX === 0 && this.directionY === 0 && this.action.putBomb && this.currentBombOnField < this.bombLvl)) { //create new bomb
         this.cooldown = 2.3;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -1655,6 +1656,8 @@ AM.downloadAll(function () {
 
 });
 
+
+
 function startSinglePlayerGame() {
     soundManager.stopSound(soundManager.menuBackgroundSound);
     soundManager.playSound(soundManager.gameBackgroundSound);
@@ -1773,12 +1776,12 @@ function startSinglePlayerGame() {
         numberOfPossibleItemPlacement--;
     }
 
-    // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {

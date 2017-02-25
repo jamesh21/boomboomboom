@@ -4,40 +4,41 @@
 <head>
     <meta charset="utf-8">
     <title>Game Project Shell</title>
-    <link rel="stylesheet" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
 
     <style>
-
-
-    .end-game {
-        position: absolute;
-        justify-content: center;
-        align-items: center;
-        width:1050px;
-        height:650px;
-        opacity:0.5;
-        background: grey;
-        display: none;
-    }
-    .game-over {
-    position: absolute;
-        justify-content: center;
-        align-items: center;
-    color: #FF7F00;
-    font-family: Helvetica, sans-serif;
-    font-size: 40px;
-    cursor: default;
-    display: none;
-    }
-    .game-over span {
-    font-size: 40px;
-    cursor: pointer;
-    position: relative;
-    left: 50px;
-    }
-    .game-over span:hover {
-    color: #FFD700;
-    }
+        .end-game {
+            position: absolute;
+            /*justify-content: center;*/
+            /*align-items: center;*/
+            width:1050px;
+            height:650px;
+            opacity:0.6;
+            background: black;
+            display: none;
+        }
+        .game-over {
+            position: absolute;
+            left:450px;
+            top:325px;
+            /*justify-content: center;*/
+            /*align-items: center;*/
+            color: #FF6600;
+            font-family: Helvetica, sans-serif;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: default;
+            display: none;
+        }
+        .game-over span {
+            font-size: 40px;
+            cursor: pointer;
+            position: relative;
+            left: 50px;
+        }
+        .game-over span:hover {
+            color: #FFD700;
+        }
     </style>
 
 
@@ -45,6 +46,7 @@
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
 </head>
+
 <body bgcolor="black">
     <canvas
             id="gameWorld"
@@ -56,7 +58,12 @@
 
             background: transparent"></canvas>
 
-    <div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>
+    <!--<div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>-->
+
+    <div class="game-over" id="game-over">
+        WINNER
+    </div>
+
 
     <div class="end-game"  id ="end-game"></div>
 
