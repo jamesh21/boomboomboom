@@ -320,7 +320,7 @@ Ugly.prototype.update = function () {
         this.isConfused = 1;
     }
     // TODO change the button to place bomb
-    if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (this.cooldown === 0 && this.game.chars['ControlLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -863,8 +863,8 @@ Flame.prototype.update = function () {
             //     this.stop = true;
             // }
             if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
-                ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
+            ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
+            && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
                         console.log("Speed!!!!!!!!!!!!");
@@ -1232,7 +1232,7 @@ function Bot(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 5;
     this.flameLvl = 2;
-    this.speedLvl = 4;
+    this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.name = "Bot";
@@ -1301,7 +1301,8 @@ Bot.prototype.nearPlayer = function () {
         var y = this.position.y + this.fourDirection[i][1];
         for (var j = 0; j < this.game.players_bots.length; j++) {
             var entP = this.game.players_bots[j];
-            if (entP.position.x === x && entP.position.y === y && entP.name === "Bomberman") {
+            if (entP.position.x === x && entP.position.y === y
+                && (entP.name === "Bomberman" || entP.name === "Ugly")) {
                 // console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
                 return true;
             }
@@ -1393,16 +1394,16 @@ Bot.prototype.getDirection = function () {
         // console.log("my c: " + this.center.x + ", " + this.center.y); //character's center canvas x, y
     }
     if (this.movingTargetX > this.center.x && (this.movingTargetX - this.center.x >= this.speedLvl)) {
-        this.directionX = 1*this.isConfused; // moving right
+        this.directionX = 1 * this.isConfused; // moving right
     } else if (this.movingTargetX < this.center.x && (this.center.x - this.movingTargetX >= this.speedLvl)) {
-        this.directionX = -1*this.isConfused; // moving left
+        this.directionX = -1 * this.isConfused; // moving left
     } else {
         this.directionX = 0; // stop or moving vertical
     }
     if (this.movingTargetY > this.center.y && ((this.movingTargetY - this.center.y) >= this.speedLvl)) {
-        this.directionY = 1*this.isConfused; // moving bottom
+        this.directionY = 1 * this.isConfused; // moving bottom
     } else if (this.movingTargetY < this.center.y && ((this.center.y - this.movingTargetY) >= this.speedLvl)) {
-        this.directionY = -1*this.isConfused; // moving top
+        this.directionY = -1 * this.isConfused; // moving top
     } else {
         this.directionY = 0; // stop or moving horizontal
     }
@@ -1857,7 +1858,7 @@ function startSinglePlayerGame() {
 function startTwoPlayerGame() {
     buildMap();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
-    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
+    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
