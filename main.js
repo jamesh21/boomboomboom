@@ -1723,7 +1723,7 @@ AM.downloadAll(function () {
 
 });
 
-function startSinglePlayerGame() {
+function buildMap() {
     soundManager.stopSound(soundManager.menuBackgroundSound);
     soundManager.playSound(soundManager.gameBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
@@ -1840,25 +1840,28 @@ function startSinglePlayerGame() {
         gameEngine.randomItemPlacement.splice(position, 1);
         numberOfPossibleItemPlacement--;
     }
-
+}
+function startSinglePlayerGame() {
+    buildMap();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
+    gameEngine.typeOfGame = 1;
+    console.log("Single Player Game");
 
-    console.log("All Done!");
-    // for (var i = 0; i < 100; i++) {
-    //     var circle = new Ugly(gameEngine, AM.getAsset("./img/ugly.png"));
-    //     gameEngine.addEntity(circle);
-    // }
-    // for (var i = 0; i < 80; i++) {
-
-    // }
-    // drawBoard(ctx);
 }
 function startTwoPlayerGame() {
+    buildMap();
+    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
+    //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
+    gameEngine.typeOfGame = 2;
     console.log("Two Player Game");
 }
 

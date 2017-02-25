@@ -22,6 +22,7 @@ function GameEngine() {
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.typeOfGame = 1;
     this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space'];
 }
 
