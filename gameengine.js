@@ -22,6 +22,7 @@ function GameEngine() {
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
+    this.typeOfGame = 1;
     this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft', 'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space'];
 }
 
@@ -187,8 +188,35 @@ GameEngine.prototype.update = function () {
     }
     for (var i = this.players_bots.length -1; i >= 0; i--) {
         if (this.players_bots[i].removeFromWorld) {
+            if (this.players_bots[i].name === "Bomberman") {
+                document.getElementById('end-game').style.display = "flex";
+                var gameoverMsg = document.getElementById('game-over');
+                gameoverMsg.style.display = "block";
+                // console.log("x coordinate " + 1050/2);
+                // console.log("y coordinate " + 650/2);
+                // gameoverMsg.move = 1050/2;
+                // gameoverMsg.movingTargetY = 650/2;
+                gameoverMsg.innerHTML = "You Lose!!!!!";
+                this.clockTick = 0;
+                break;
+            }
             this.players_bots.splice(i, 1);
         }
+    }
+    if (this.players_bots.length === 1) {
+        document.getElementById('end-game').style.display = "flex";
+        var gameoverMsg = document.getElementById('game-over');
+        gameoverMsg.style.display = "block";
+        // gameoverMsg.movingTargetX = this.ctx.x/2;
+        // gameoverMsg.movingTargetY = this.ctx.y/2;
+        if (this.players_bots[0].name === "Bomberman") {
+            gameoverMsg.innerHTML = "You Win!!!!!";
+        } else {
+            gameoverMsg.innerHTML = "You Lose";
+        }
+        //document.getElementById('game-over').style.display = "block";
+
+        this.clockTick = 0;
     }
 }
 
