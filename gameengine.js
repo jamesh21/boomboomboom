@@ -189,19 +189,23 @@ GameEngine.prototype.update = function () {
     }
     for (var i = this.players_bots.length -1; i >= 0; i--) {
         if (this.players_bots[i].removeFromWorld) {
-            if (this.players_bots[i].name === "Bomberman") {
+            if (this.typeOfGame === 1 && this.players_bots[i].name === "Bomberman") {
                 document.getElementById('end-game').style.display = "flex";
                 var gameoverMsg = document.getElementById('game-over');
                 gameoverMsg.style.display = "block";
-                // console.log("x coordinate " + 1050/2);
-                // console.log("y coordinate " + 650/2);
-                // gameoverMsg.move = 1050/2;
-                // gameoverMsg.movingTargetY = 650/2;
                 gameoverMsg.innerHTML = "You Lose!!!!!";
                 this.clockTick = 0;
                 break;
             }
             this.players_bots.splice(i, 1);
+            if (this.typeOfGame === 2 && this.checkPlayers()) {
+                document.getElementById('end-game').style.display = "flex";
+                var gameoverMsg = document.getElementById('game-over');
+                gameoverMsg.style.display = "block";
+                gameoverMsg.innerHTML = "A.I. Wins!!!!!";
+                this.clockTick = 0;
+                break;
+            }
         }
     }
     if (this.players_bots.length === 1) {
@@ -212,8 +216,6 @@ GameEngine.prototype.update = function () {
         // gameoverMsg.movingTargetY = this.ctx.y/2;
         if (this.players_bots[0].name === "Bomberman") {
             gameoverMsg.innerHTML = "You Win!!!!!";
-        } else {
-            gameoverMsg.innerHTML = "You Lose";
         }
         //document.getElementById('game-over').style.display = "block";
 
@@ -221,6 +223,17 @@ GameEngine.prototype.update = function () {
     }
 }
 
+GameEngine.prototype.checkPlayers = function () {
+    console.log("Im in here");
+    if (this.players_bots.length === 2 && ((this.players_bots[0].name === "Bot" &&
+                this.players_bots[1].name === "Bot") || this.players_bots[0].name === "Bot" &&
+                    this.players_bots[1].name ==="Bot")) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
 GameEngine.prototype.loop = function () {
     this.clockTick = this.timer.tick();
     this.update();
