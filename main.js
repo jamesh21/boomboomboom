@@ -201,10 +201,8 @@ function Ugly(game, spritesheet, x, y) {
     this.sprite = spritesheet;
     this.leftsprite = this.flip(spritesheet);
     this.animation = new Animation(spritesheet, 64, 64, 6, 0.05, 6, true, 1, 1, false);
-    this.speed = 200;
     this.ctx = game.ctx;
     this.name = "Ugly";
-    this.radius = 24;
     // this.leftOffset = 5;
     // this.rightOffset = 55;
     // this.topOffset = 8;
@@ -250,7 +248,7 @@ Ugly.prototype.constructor = Ugly;
 //     return (this.y + 60) > 600;
 // };
 Ugly.prototype.collide = function (other) {
-    return distance(this, other) < 40;
+    return distance(this, other) < this.radius + other.radius;
 };
 
 Ugly.prototype.collideLeft = function (other) {
@@ -382,7 +380,6 @@ function Bomberman(game, spritesheet, x, y) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     // this.animation = new Animation(spritesheet, 64, 50, 8, 0.15, 8, true, 0.5);
     this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.8, 1, false);
-    this.speed = 200;
     this.ctx = game.ctx;
     this.cooldown = 0;
     this.currentBombOnField = 0;
@@ -824,7 +821,7 @@ Flame.prototype.update = function () {
             //     this.removeFromWorld = true;
             //     this.stop = true;
             // }
-            if (ent.name !== "Bomberman" && /*ent.name !== "Bot" &&*/
+            if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
