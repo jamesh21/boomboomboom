@@ -1233,7 +1233,7 @@ Bot.prototype.selectAction = function () {
     // if (this.nearBox) {
     //this check is correct
     // console.log("my near box = "+ this.nearBox());
-    action.putBomb = this.nearBox();
+    action.putBomb = (this.nearBox() || this.nearPlayer());
     // }
     action.direction = this.getDirection();
     this.stopAnime = (this.directionX === 0 && this.directionY === 0);
@@ -1248,6 +1248,20 @@ Bot.prototype.nearBox = function () {
         for (var j = 0; j < this.game.destroyable.length; j++) {
             var entD = this.game.destroyable[j];
             if (entD.position.x === x && entD.position.y === y) {
+                // console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
+                return true;
+            }
+        }
+    }
+    return false;
+}
+Bot.prototype.nearPlayer = function () {
+    for (var i = 0; i < 4; i++) {
+        var x = this.position.x + this.fourDirection[i][0];
+        var y = this.position.y + this.fourDirection[i][1];
+        for (var j = 0; j < this.game.players_bots.length; j++) {
+            var entP = this.game.players_bots[j];
+            if (entP.position.x === x && entP.position.y === y && entP.name === "Bomberman") {
                 // console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
                 return true;
             }
