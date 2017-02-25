@@ -32,7 +32,7 @@ var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
 // var firstPlayerButton = new Button(234, 452, 388, 418);
-var firstPlayerButton = new Button(224, 462, 378, 428);
+var firstPlayerButton = new Button(234, 452, 378, 428);
 var twoPlayerButton = new Button(600, 868, 378, 428);
 
 // When function is called, it checks if the click was within the button boundaires.
@@ -203,10 +203,12 @@ function Ugly(game, spritesheet, x, y) {
     this.animation = new Animation(spritesheet, 64, 64, 6, 0.05, 6, true, 1, 1, false);
     this.ctx = game.ctx;
     this.name = "Ugly";
-    // this.leftOffset = 5;
-    // this.rightOffset = 55;
-    // this.topOffset = 8;
-    // this.bottomOffset = 60;
+    this.currentBombOnField = 0;
+    this.bombLvl = 1;
+    this.flameLvl = 2;
+    this.speedLvl = 2;
+    this.debuffTimer = 0;
+    this.isConfused = 1;
     this.x = x;
     this.y = y;
     this.cooldown = 0;
@@ -220,6 +222,7 @@ function Ugly(game, spritesheet, x, y) {
     this.passBottom = false;
     this.passLeft = false;
     this.radius = 17;
+    this.insideBomb = null;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
     Entity.call(this, game, this.x, this.y);
@@ -258,7 +261,7 @@ Ugly.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += 5;
+        this.x += this.speedLvl;
     }
     return temp;
 };
@@ -271,7 +274,7 @@ Ugly.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= 5;
+        this.x -= this.speedLvl;
     }
     return temp;
 };
@@ -283,7 +286,7 @@ Ugly.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += 5;
+        this.y += this.speedLvl;
     }
     return temp;
 };
@@ -295,7 +298,7 @@ Ugly.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= 5;
+        this.y -= this.speedLvl;
     }
     return temp;
 };
@@ -305,55 +308,92 @@ Ugly.prototype.update = function () {
     // if (this.x > 800) this.x = -230;
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
-
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        // var tempCollide = this.collide(ent);
-        if (ent !== this && ent.name !== "Bomberman") {
-            //     console.log("ent name: "+ent.name);
-            this.passTop = this.collideTop(ent);
-            this.passBottom = this.collideBottom(ent);
-            this.passRight = this.collideRight(ent);
-            this.passLeft = this.collideLeft(ent);
-        }
-    }
-    if (!this.passTop) {
-        if (this.game.chars['KeyW']) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 2;
-            this.y -= 5;
-        }
-    }
-    if (!this.passBottom) {
-        if (this.game.chars['KeyS']) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 1;
-            this.y += 5;
-        }
-    }
-    if (!this.passRight) {
-        if (this.game.chars['KeyD']) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 0;
-            this.x += 5;
-        }
-    }
-    if (!this.passLeft) {
-        if (this.game.chars['KeyA']) {
-            //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
-            this.animation.spriteSheet = this.leftsprite;
-            this.animation.startrow = 0;
-            this.animation.reverse = true;
-            this.x -= 5;
-        }
-    }
+    if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
+    if (this.debuffTimer < 0) this.debuffTimer = 0;
     this.cx = this.x + 15;
     this.cy = this.y + 23;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+
+    if (this.isConfused === -1 && this.debuffTimer === 0) {
+        this.isConfused = 1;
+    }
+    // TODO change the button to place bomb
+    if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+        this.cooldown = 0.25;
+        this.currentBombOnField++;
+        var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
+        this.game.addEntity(bomb);
+        var x = this.position.x * 50;
+        var y = this.position.y * 50;
+        bomb.center.x = x + 25;
+        bomb.center.y = y + 25;
+        for (var i = 0; i < this.game.players_bots.length; i++) {
+            var character = this.game.players_bots[i];
+            if (bomb.collide(character)) {
+                character.insideBomb = bomb;
+            }
+        }
+        Entity.call(bomb, this.game, x, y);
+    }
+
+    if (this.insideBomb != null) {
+        if (!this.collide(this.insideBomb) || this.insideBomb.removeFromWorld) {
+            this.insideBomb = null;
+        }
+    }
+
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
+            && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+            if (ent.name !== "Bomb" || this.insideBomb == null) {
+                this.passTop = this.collideTop(ent);
+                this.passBottom = this.collideBottom(ent);
+                this.passRight = this.collideRight(ent);
+                this.passLeft = this.collideLeft(ent);
+            } else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
+                this.passTop = this.collideTop(ent);
+                this.passBottom = this.collideBottom(ent);
+                this.passRight = this.collideRight(ent);
+                this.passLeft = this.collideLeft(ent);
+            }
+        }
+    }
+    if (this.game.chars['KeyW']) {
+        if (!this.passTop) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 2;
+            this.y -= this.speedLvl * this.isConfused;
+        }
+    }
+    else if (this.game.chars['KeyS']) {
+        if (!this.passBottom) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 1;
+            this.y += this.speedLvl * this.isConfused;
+        }
+    }
+    else if (this.game.chars['KeyD']) {
+        if (!this.passRight) {
+            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+            this.animation.spriteSheet = this.sprite;
+            this.animation.startrow = 0;
+            this.x += this.speedLvl * this.isConfused;
+        }
+    }
+    else if (this.game.chars['KeyA']) {
+        if (!this.passLeft) {
+            //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+            this.animation.spriteSheet = this.leftsprite;
+            this.animation.startrow = 0;
+            this.animation.reverse = true;
+            this.x -= this.speedLvl * this.isConfused;
+        }
+    }
+
     // if (this.game.keyDown) {
     //     this.animation.loop = true;
     // } else if (!this.game.keyDown) {
@@ -822,8 +862,8 @@ Flame.prototype.update = function () {
             //     this.stop = true;
             // }
             if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
-                ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
+            ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
+            && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
                         console.log("Speed!!!!!!!!!!!!");
@@ -1192,6 +1232,8 @@ function Bot(game, spritesheet, x, y) {
     this.bombLvl = 1;
     this.flameLvl = 2;
     this.speedLvl = 4;
+    this.debuffTimer = 0;
+    this.isConfused = 1;
     this.name = "Bot";
     this.passTop = false;
     this.passRight = false;
@@ -1273,70 +1315,70 @@ Bot.prototype.getDirection = function () {
     // console.log("Is my movingTarget null???? " + (this.movingTarget === null));
     // console.log(this.movingTargetX+", "+ this.movingTargetY);
     // if (this.movingTarget === null) {
-        // possibles is holding game coordinates
-        var possibles = this.findPossibleDirection(this.position.x, this.position.y);
-        if (this.movingTarget !== null) {
-            for (var i = 0; i < possibles.length; i++) {
-                var pos = possibles[i];
-                if (pos.x === this.movingTarget.x && pos.y === this.movingTarget.y) {
-                    changeDirection = false;
-                    break;
-                }
+    // possibles is holding game coordinates
+    var possibles = this.findPossibleDirection(this.position.x, this.position.y);
+    if (this.movingTarget !== null) {
+        for (var i = 0; i < possibles.length; i++) {
+            var pos = possibles[i];
+            if (pos.x === this.movingTarget.x && pos.y === this.movingTarget.y) {
+                changeDirection = false;
+                break;
             }
         }
-        if (changeDirection) {
-            var safePositions = [];
-            for (var i = 0; i < possibles.length; i++) {
-                var pos = possibles[i];
-                if (this.isSafe(pos)) {
-                    safePositions.push(pos);
-                }
-            }
-            // console.log("What is my safePositions size: "+ safePositions.length);
-            // console.log("What is my Possibles size: "+ possibles.length);
-            if (safePositions.length === 0 && possibles.length > 1) {
-                for (var j = 0; j < possibles.length; j++) {
-                    // console.log("How about this one!!!!!!!!!!!!");
-                    var pos2 = possibles[j];
-                    var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
-                    // console.log("What is my nextPossibles size: "+nextPossibles.length);
-                    if (nextPossibles.length === 1) {
-                        // console.log("Dude I'm here!!!!!!!!!!!");
-                        possibles.splice(j, 1);
-                    }
-                    // var safePositions2 = [];
-                    // for (var i = 0; i < nextPossibles.length; i++) {
-                    //     var pos2 = nextPossibles[i];
-                    //     if (this.isSafe(pos2)) {
-                    //         safePositions2.push(pos2);
-                    //     }
-                    // }
-                    // if (safePositions2.length < 1) {
-                    //     possibles.splice(j, 1);
-                    // }
-                }
-            }
-            // console.log("What is my Possibles size after splice!!!!!!: "+ possibles.length);
-
-            var resultDirections = null;
-            if (safePositions.length > 0) {
-                resultDirections = safePositions;
-            } else {
-                resultDirections = possibles;
-            }
-
-
-            // random pick a cell
-            // console.log("my possibles size: "+possibles.length);
-            // console.log("What's my movingTarget then11111????" + this.movingTarget);
-            // console.log("is resultDirection size != 0? " + (resultDirections.length !== 0));
-            if (resultDirections.length !== 0) {
-                this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
-            } else {
-                this.movingTarget = null;
+    }
+    if (changeDirection) {
+        var safePositions = [];
+        for (var i = 0; i < possibles.length; i++) {
+            var pos = possibles[i];
+            if (this.isSafe(pos)) {
+                safePositions.push(pos);
             }
         }
-        // console.log("What's my movingTarget then22222222222????" + this.movingTarget);
+        // console.log("What is my safePositions size: "+ safePositions.length);
+        // console.log("What is my Possibles size: "+ possibles.length);
+        if (safePositions.length === 0 && possibles.length > 1) {
+            for (var j = 0; j < possibles.length; j++) {
+                // console.log("How about this one!!!!!!!!!!!!");
+                var pos2 = possibles[j];
+                var nextPossibles = this.findPossibleDirection(pos2.x, pos2.y);
+                // console.log("What is my nextPossibles size: "+nextPossibles.length);
+                if (nextPossibles.length === 1) {
+                    // console.log("Dude I'm here!!!!!!!!!!!");
+                    possibles.splice(j, 1);
+                }
+                // var safePositions2 = [];
+                // for (var i = 0; i < nextPossibles.length; i++) {
+                //     var pos2 = nextPossibles[i];
+                //     if (this.isSafe(pos2)) {
+                //         safePositions2.push(pos2);
+                //     }
+                // }
+                // if (safePositions2.length < 1) {
+                //     possibles.splice(j, 1);
+                // }
+            }
+        }
+        // console.log("What is my Possibles size after splice!!!!!!: "+ possibles.length);
+
+        var resultDirections = null;
+        if (safePositions.length > 0) {
+            resultDirections = safePositions;
+        } else {
+            resultDirections = possibles;
+        }
+
+
+        // random pick a cell
+        // console.log("my possibles size: "+possibles.length);
+        // console.log("What's my movingTarget then11111????" + this.movingTarget);
+        // console.log("is resultDirection size != 0? " + (resultDirections.length !== 0));
+        if (resultDirections.length !== 0) {
+            this.movingTarget = resultDirections[Math.floor(Math.random() * resultDirections.length)];
+        } else {
+            this.movingTarget = null;
+        }
+    }
+    // console.log("What's my movingTarget then22222222222????" + this.movingTarget);
     // }
     // set the direction X and Y
     if (this.movingTarget !== null) {
@@ -1349,16 +1391,16 @@ Bot.prototype.getDirection = function () {
         // console.log("my c: " + this.center.x + ", " + this.center.y); //character's center canvas x, y
     }
     if (this.movingTargetX > this.center.x && (this.movingTargetX - this.center.x >= this.speedLvl)) {
-        this.directionX = 1; // moving right
+        this.directionX = 1*this.isConfused; // moving right
     } else if (this.movingTargetX < this.center.x && (this.center.x - this.movingTargetX >= this.speedLvl)) {
-        this.directionX = -1; // moving left
+        this.directionX = -1*this.isConfused; // moving left
     } else {
         this.directionX = 0; // stop or moving vertical
     }
     if (this.movingTargetY > this.center.y && ((this.movingTargetY - this.center.y) >= this.speedLvl)) {
-        this.directionY = 1; // moving bottom
+        this.directionY = 1*this.isConfused; // moving bottom
     } else if (this.movingTargetY < this.center.y && ((this.center.y - this.movingTargetY) >= this.speedLvl)) {
-        this.directionY = -1; // moving top
+        this.directionY = -1*this.isConfused; // moving top
     } else {
         this.directionY = 0; // stop or moving horizontal
     }
@@ -1530,14 +1572,20 @@ Bot.prototype.update = function () {
     Entity.prototype.update.call(this);
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
+    if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
+    if (this.debuffTimer < 0) this.debuffTimer = 0;
     this.cx = this.x + 7;
     this.cy = this.y + 64;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    if (this.isConfused === -1 && this.debuffTimer === 0) {
+        this.isConfused = 1;
+    }
     this.action = this.selectAction();
     // console.log("my direction: {" + this.action.direction.x+", "+this.action.direction.y+"}");
     // console.log("my direction: {" + this.action.direction+"}");
     // console.log("my action putBomb:"+this.action.putBomb);
+
     if (this.cooldown === 0 && this.directionX === 0 && this.directionY === 0 && this.action.putBomb && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 2.3;
         this.currentBombOnField++;
@@ -1586,21 +1634,21 @@ Bot.prototype.update = function () {
         if (!this.passTop) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
-            this.y -= this.speedLvl;
+            this.y -= this.speedLvl * this.isConfused;
         }
     }
     if (this.directionY === 1) {
         if (!this.passBottom) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
-            this.y += this.speedLvl;
+            this.y += this.speedLvl * this.isConfused;
         }
     }
     if (this.directionX === 1) {
         if (!this.passRight) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
-            this.x += this.speedLvl;
+            this.x += this.speedLvl * this.isConfused;
         }
     }
 
@@ -1609,7 +1657,7 @@ Bot.prototype.update = function () {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
-            this.x -= this.speedLvl;
+            this.x -= this.speedLvl * this.isConfused;
         }
     }
     //This was used for bomb lvl up
@@ -1622,7 +1670,6 @@ Bot.prototype.update = function () {
     if (this.directionX === 0 && this.directionY === 0) {
         this.movingTarget = null;
     }
-
 }
 
 Bot.prototype.draw = function () {
@@ -1794,12 +1841,12 @@ function startSinglePlayerGame() {
         numberOfPossibleItemPlacement--;
     }
 
-    gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
-    // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
+    // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
+    // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
 
     console.log("All Done!");
     // for (var i = 0; i < 100; i++) {
