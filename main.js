@@ -1345,6 +1345,7 @@ Bot.prototype.getDirection = function () {
                 if (nextPossibles.length === 1) {
                     // console.log("Dude I'm here!!!!!!!!!!!");
                     possibles.splice(j, 1);
+                    j--;
                 }
                 // var safePositions2 = [];
                 // for (var i = 0; i < nextPossibles.length; i++) {
