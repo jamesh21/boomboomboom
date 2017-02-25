@@ -198,7 +198,8 @@ GameEngine.prototype.update = function () {
                 break;
             }
             this.players_bots.splice(i, 1);
-            if (this.typeOfGame === 2 && this.checkPlayers()) {
+            if (this.typeOfGame === 2 && (this.checkPlayers() ||
+                    (this.players_bots.length === 1 && this.players_bots[0].name === "Bot"))) {
                 document.getElementById('end-game').style.display = "flex";
                 var gameoverMsg = document.getElementById('game-over');
                 gameoverMsg.style.display = "block";
