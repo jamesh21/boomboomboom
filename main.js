@@ -1232,7 +1232,7 @@ function Bot(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 5;
     this.flameLvl = 2;
-    this.speedLvl = 2;
+    this.speedLvl = 4;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.name = "Bot";
