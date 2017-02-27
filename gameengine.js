@@ -108,11 +108,11 @@ GameEngine.prototype.startInput = function () {
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
         // if (e.code === "KeyD") that.d = true;\
-        if (e.code === 'KeyV') {
-            that.chars[e.code] = false;
-        } else {
+        // if (e.code === 'KeyV') {
+        //     that.chars[e.code] = false;
+        // } else {
             that.chars[e.code] = true;
-        }
+        // }
         e.preventDefault();
         //console.log(e);
         // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
