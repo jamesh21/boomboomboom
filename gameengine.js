@@ -135,7 +135,8 @@ GameEngine.prototype.addEntity = function (entity) {
     if (entity.name === "Flame") this.flames.push(entity);
     if (entity.name === "Bomberman" || entity.name === "Ugly" || entity.name === "Bot") this.players_bots.push(entity);
     if (entity.name === "Destroyable") this.destroyable.push(entity);
-    if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup") {
+    if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup" ||
+        entity.name === "KickPowerup" || entity.name === "SpeedPowerdown" || entity.name === "ConfusionPowerdown") {
         this.items.push(entity);
     }
 }
