@@ -409,7 +409,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.speedLvl = 6;
     this.debuffTimer = 0;
     this.isConfused = 1;
-    this.canKick = true;
+    this.canKick = false;
     this.isJump = false;
     this.name = "Bomberman";
     this.passTop = false;
@@ -887,14 +887,12 @@ Flame.prototype.update = function () {
             // }
             if (ent.name !== "Bomberman" && /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
+                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
-                        console.log("Speed!!!!!!!!!!!!");
                         var speedUp = new SpeedPowerup(this.game, AM.getAsset("./img/SpeedPowerup.png"), ent.x, ent.y);
                         this.game.addEntity(speedUp);
                     } else if (ent.hasBombPowerup) {
-                        console.log("Bomb!!!!!!!!!!!!!!!");
                         var bombUp = new BombPowerup(this.game, AM.getAsset("./img/BombPowerup.png"), ent.x, ent.y);
                         this.game.addEntity(bombUp);
                     } else if (ent.hasConfusionPowerdown) {
@@ -903,8 +901,10 @@ Flame.prototype.update = function () {
                     } else if (ent.hasSpeedPowerdown) {
                         var speedDown = new SpeedPowerdown(this.game, AM.getAsset("./img/SpeedPowerdown.png"), ent.x, ent.y);
                         this.game.addEntity(speedDown);
+                    } else if (ent.hasKickPowerup) {
+                        var kickUp = new KickPowerup(this.game, AM.getAsset("./img/KickPowerup.png"), ent.x, ent.y);
+                        this.game.addEntity(kickUp);
                     } else {
-                        console.log("Flame!!!!!!!!!!!!!!!");
                         var flameUp = new FlamePowerup(this.game, AM.getAsset("./img/FlamePowerup.png"), ent.x, ent.y);
                         this.game.addEntity(flameUp);
                     }
@@ -1237,6 +1237,45 @@ ConfusionPowerdown.prototype.update = function () {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 ent.isConfused = -1;
                 ent.debuffTimer = 5;
+                this.removeFromWorld = true;
+            }
+        }
+    }
+};
+
+function KickPowerup(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "KickPowerup";
+    this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+    this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+};
+
+KickPowerup.prototype.collide = function (other) {
+    return distance(this, other) < this.radius + other.radius + 1;
+};
+
+KickPowerup.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+KickPowerup.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+            if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
+                //soundManager.playSound(soundManager.bombUp);
+                ent.canKick = true;
                 this.removeFromWorld = true;
             }
         }
@@ -1732,6 +1771,7 @@ AM.queueDownload("./img/BombPowerup.png");
 AM.queueDownload("./img/FlamePowerup.png");
 AM.queueDownload("./img/SpeedPowerup.png");
 AM.queueDownload("./img/SpeedPowerdown.png");
+AM.queueDownload("./img/KickPowerup.png");
 AM.queueDownload("./img/ConfusionPowerdown.png");
 
 var friction = 1;
@@ -1838,6 +1878,16 @@ function buildMap() {
         gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
         gameEngine.randomItemPlacement.splice(position, 1);
         numberOfPossibleItemPlacement--;
+    }
+
+    // Placing kick powerup inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasKickPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+
     }
 
     // Placing speed powerup inside boxes
