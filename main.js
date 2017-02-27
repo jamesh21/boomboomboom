@@ -409,6 +409,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.canKick = true;
+    this.isJump = false;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -424,6 +425,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.radius = 17;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     this.insideBomb = null;
+    this.elapsedTime =0;
     Entity.call(this, game, x, y);
 }
 
@@ -611,7 +613,28 @@ Bomberman.prototype.update = function () {
             this.animation.reverse = true;
             this.x -= this.speedLvl * this.isConfused;
         }
+    } else if (this.game.chars['KeyV']) {
+        this.isJump = true;
     }
+
+    if (this.isJump) {
+        if (this.elapsedTime>1.5) {
+            this.isJump = false;
+            this.elapsedTime = 0;
+        }
+        this.elapsedTime += this.game.clockTick;
+        var jumpDistance = this.elapsedTime / 1.5;
+        var totalHeight = 100;
+
+        if (jumpDistance > 0.5)
+            jumpDistance = 1 - jumpDistance;
+
+        // var height = jumpDistance * 2 * totalHeight;
+        var height = totalHeight*(-4 * (jumpDistance * jumpDistance - jumpDistance));
+        this.y = this.position.y+50 -  height;
+    }
+
+
     //This was used for bomb lvl up
     // if (this.game.chars['KeyC']) {
     //     if (this.bombLvl < 10) {
@@ -626,7 +649,7 @@ Bomberman.prototype.update = function () {
 Bomberman.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     if (this.game.chars['ArrowUp'] || this.game.chars['ArrowRight'] ||
-        this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft']) {
+        this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft'] || this.isJump) {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     } else {
         this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
