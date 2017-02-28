@@ -23,8 +23,9 @@ function GameEngine() {
     this.surfaceWidth = null;
     this.surfaceHeight = null;
     this.typeOfGame = 1;
+    this.dangerous = false;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'KeyV', 'ControlLeft', 'ShiftLeft'];
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -103,7 +104,7 @@ GameEngine.prototype.startInput = function () {
         that.chars[e.code] = true;
         e.preventDefault();
         //console.log(e);
-        console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
+        // console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
@@ -111,7 +112,7 @@ GameEngine.prototype.startInput = function () {
         // if (e.code === 'KeyV') {
         //     that.chars[e.code] = false;
         // } else {
-            that.chars[e.code] = true;
+        that.chars[e.code] = true;
         // }
         e.preventDefault();
         //console.log(e);
@@ -174,6 +175,11 @@ GameEngine.prototype.update = function () {
     for (var i = this.entities.length - 1; i >= 0; --i) {
         if (this.entities[i].removeFromWorld) {
             this.entities.splice(i, 1);
+        }
+    }
+    for (var i = this.walls.length - 1; i >= 0; i--) {
+        if (this.walls[i].removeFromWorld) {
+            this.walls.splice(i, 1);
         }
     }
     // Loop  through the destroyable entities to remove from world
