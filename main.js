@@ -776,7 +776,7 @@ Bomb.prototype = new Entity();
 Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 // Bomb.prototype.checkLeft = function (other) {
@@ -831,7 +831,7 @@ Bomb.prototype.update = function () {
     if (this.isMoving) {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
-            if (ent !== this && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup"
+            if (ent !== this && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name !== "KickPowerup"
                 && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
                 if (this.moveRight && (ent.position.y === this.position.y)
