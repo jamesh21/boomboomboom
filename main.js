@@ -778,7 +778,7 @@ Bomb.prototype = new Entity();
 Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius+1;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 // Bomb.prototype.checkLeft = function (other) {
@@ -1022,12 +1022,12 @@ Flame.prototype.update = function () {
                         continue;
                     }
                 }
-                if (ent.name === "Destroyable") {
-                    if (this.game.destroyable.length === 1) {
-                        gameEngine.dangerous = true;
-                        dangerous(gameEngine);
-                    }
-                }
+                // if (ent.name === "Destroyable") {
+                //     if (this.game.destroyable.length === 1) {
+                //         gameEngine.dangerous = true;
+                //         dangerous(gameEngine);
+                //     }
+                // }
                 ent.removeFromWorld = true;
             }
             // if (ent.name === "Bomb") {
@@ -1099,11 +1099,14 @@ Wall.prototype.update = function () {
     this.cy = this.y;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    if (this.x === 0 && this.y === 0 && this.game.destroyable.length < 1) {
+        dangerous(this.game);
+    }
     if (this.isMoving) {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
             if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Flame"
-                    && ent.name !== "Bomb"
+                && ent.name !== "Bomb"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup"
                 && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
@@ -1227,34 +1230,34 @@ Destroyable.prototype.update = function () {
 // };
 var dangerous = function (game) {
     // while (game.dangerous) {
-        for (var i = 0; i < game.walls.length; i++) {
-            var entW = game.walls[i];
-            if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
-                entW.dangerous = true;
-                continue;
-            }
-            // entW.removeFromWorld = true;
+    for (var i = 0; i < game.walls.length; i++) {
+        var entW = game.walls[i];
+        if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
             entW.dangerous = true;
-            if (entW.x < 500) {
-                entW.isMoving = true;
-                entW.moveLeft = true;
-            }
-            if (entW.x > 500) {
-                entW.isMoving = true;
-                entW.moveRight = true;
-            }
-            if (entW.x === 500 && entW.y < 300) {
-                entW.isMoving = true;
-                entW.moveTop = true;
-            }
-            if (entW.x === 500 && entW.y > 300) {
-                entW.isMoving = true;
-                entW.moveBot = true;
-            }
-            // if (this.x === 500 && this.y === 300) {
-            //     entW.dangerous = true;
-            // }
+            continue;
         }
+        // entW.removeFromWorld = true;
+        entW.dangerous = true;
+        if (entW.x < 500) {
+            entW.isMoving = true;
+            entW.moveLeft = true;
+        }
+        if (entW.x > 500) {
+            entW.isMoving = true;
+            entW.moveRight = true;
+        }
+        if (entW.x === 500 && entW.y < 300) {
+            entW.isMoving = true;
+            entW.moveTop = true;
+        }
+        if (entW.x === 500 && entW.y > 300) {
+            entW.isMoving = true;
+            entW.moveBot = true;
+        }
+        // if (this.x === 500 && this.y === 300) {
+        //     entW.dangerous = true;
+        // }
+    }
     // }
 }
 
