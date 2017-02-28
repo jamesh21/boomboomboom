@@ -700,7 +700,10 @@ Bomberman.prototype.update = function () {
             //         entW.moveBot = true;
             //     }
             // }
-            dangerous(this.game);
+
+            //dangerous(this.game);
+
+            setTimeout(function() {dangerous(gameEngine);} , 5000);
         }
     }
 
@@ -1022,12 +1025,14 @@ Flame.prototype.update = function () {
                         continue;
                     }
                 }
-                // if (ent.name === "Destroyable") {
-                //     if (this.game.destroyable.length === 1) {
-                //         gameEngine.dangerous = true;
-                //         dangerous(gameEngine);
-                //     }
-                // }
+                if (ent.name === "Destroyable") {
+                    if (this.game.destroyable.length === 1) {
+                        gameEngine.dangerous = true;
+                        soundManager.stopSound(soundManager.gameBackgroundSound);
+                        soundManager.playSound(soundManager.countDown);
+                        setTimeout(function() {dangerous(gameEngine);}, 4000);
+                    }
+                }
                 ent.removeFromWorld = true;
             }
             // if (ent.name === "Bomb") {
@@ -1100,7 +1105,10 @@ Wall.prototype.update = function () {
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     if (this.x === 0 && this.y === 0 && this.game.destroyable.length < 1) {
-        dangerous(this.game);
+        // soundManager.stopSound(soundManager.gameBackgroundSound);
+        // soundManager.playSound(soundManager.countDown);
+        // setTimeout(function() {dangerous(gameEngine);}, 4000);
+        //dangerous(this.game);
     }
     if (this.isMoving) {
         for (var i = 0; i < this.game.entities.length; i++) {
@@ -1230,6 +1238,7 @@ Destroyable.prototype.update = function () {
 // };
 var dangerous = function (game) {
     // while (game.dangerous) {
+    soundManager.playSound(soundManager.suddenDeath);
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -2215,6 +2224,9 @@ SoundManager.prototype.init = function () {
     this.fireUp.volume = 1;
     this.bombUp = document.getElementById("bombUp");
     this.bombUp.playbackRate = 1;
+    this.countDown = document.getElementById("countDown");
+    this.suddenDeath = document.getElementById("suddenDeath")
+    this.suddenDeath.loop = true;
 }
 
 // Playing the sound
