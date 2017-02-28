@@ -1102,7 +1102,7 @@ Wall.prototype.update = function () {
     if (this.isMoving) {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
-            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Ugly" && ent.name !== "Bot"
+            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Flame"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup"
                 && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
@@ -1143,9 +1143,9 @@ Wall.prototype.update = function () {
     //     console.log("HELLO MAN");
     //     dangerous(this.game);
     // }
-    if (this.x === 500 && this.y === 300 && this.dangerous) {
-        dangerous(this.game);
-    }
+    // if (this.x === 500 && this.y === 300 && this.dangerous) {
+    //     dangerous(this.game);
+    // }
 
     if (this.moveRight) {
         this.x += 5;
@@ -1250,9 +1250,9 @@ var dangerous = function (game) {
                 entW.isMoving = true;
                 entW.moveBot = true;
             }
-            if (this.x === 500 && this.y === 300) {
-                entW.dangerous = true;
-            }
+            // if (this.x === 500 && this.y === 300) {
+            //     entW.dangerous = true;
+            // }
         }
     // }
 }
