@@ -45,7 +45,22 @@
             font-size: 20px;
             color: white;
             left:1150px;
+            down:1000px;;
 
+        }
+
+        .gui {
+            position: absolute;
+            font-size: 20px;
+            color: white;
+            left : 1150px;
+            display: none;
+        }
+
+        .wordPositioning {
+            font-size: 20px;
+            color:white;
+            padding-left:40px;
         }
     </style>
 
@@ -68,10 +83,61 @@
 
     <!--<div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>-->
 
-    <div class="game-over" id="game-over">
-        WINNER
-    </div>
+    <div class="game-over" id="game-over"></div>
     <div class="end-game"  id ="end-game"></div>
+
+    <div class="gui" id="gui">
+        <h3>Player:<IMG src = "./img/HeadCursor.png"></h3>
+
+        <div style="float: left"><img src="./img/BombPowerup.png"></div>
+        <div id="p1_bombUp" class="wordPositioning" > x 0</div>
+        <br clear="left"/>
+
+        <div style="float: left"><img src="./img/SpeedPowerup.png"></div>
+        <div id="p1_speedUp" class="wordPositioning" > x 0</div>
+        <br clear="left"/>
+
+        <div style="float: left"><img src="./img/FlamePowerup.png"></div>
+        <div id="p1_flameUp" class="wordPositioning" > x 0</div>
+        <br clear="left"/>
+
+        <div id = "2p">
+            <h3>Player:<IMG src = "./img/UglyCursor.png"></h3>
+
+            <div style="float: left"><img src="./img/BombPowerup.png"></div>
+            <div id="p2_bombUp" class="wordPositioning" > x 0</div>
+            <br clear="left"/>
+
+            <div style="float: left"><img src="./img/SpeedPowerup.png"></div>
+            <div id="p2_speedUp" class="wordPositioning" > x 0</div>
+            <br clear="left"/>
+
+            <div style="float: left"><img src="./img/FlamePowerup.png"></div>
+            <div id="p2_flameUp" class="wordPositioning" > x 0</div>
+            <br clear="left"/>
+        </div>
+
+    </div>
+
+    <!--<div class="gui">-->
+        <!--<h3>Player:<IMG src = "./img/Ugly.png"></h3>-->
+
+        <!--<div style="float: left"><img src="./img/BombPowerup.png"></div>-->
+        <!--<div id="p2_bombUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
+
+        <!--<div style="float: left"><img src="./img/SpeedPowerup.png"></div>-->
+        <!--<div id="p2_speedUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
+
+        <!--<div style="float: left"><img src="./img/FlamePowerup.png"></div>-->
+        <!--<div id="p2_flameUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
+
+    <!--</div>-->
+
+
+
 
     <div class="instruction" id="instruction">
         <h1><center>Instructions</center></h1>
