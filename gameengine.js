@@ -24,7 +24,7 @@ function GameEngine() {
     this.surfaceHeight = null;
     this.typeOfGame = 1;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'KeyV', 'Space', 'ControlLeft'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'];
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -103,7 +103,7 @@ GameEngine.prototype.startInput = function () {
         that.chars[e.code] = true;
         e.preventDefault();
         //console.log(e);
-        // console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
+        console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {

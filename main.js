@@ -104,16 +104,16 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, cx, cy, cxx, cyy) {
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
     // For Debugging Only
-    ctx.strokeRect(x, y, this.frameWidth * this.scale,
-        this.frameHeight * this.scale);
-    ctx.strokeRect(cx, cy, cxx, cyy);
-    // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
-    ctx.beginPath();
-    ctx.fillStyle = "Red";
-    // ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
-    ctx.arc(cx + cxx / 2, cy + cyy / 2, 5, 0, Math.PI * 2, false);
-    ctx.fill();
-    ctx.closePath();
+    // ctx.strokeRect(x, y, this.frameWidth * this.scale,
+    //     this.frameHeight * this.scale);
+    // ctx.strokeRect(cx, cy, cxx, cyy);
+    // // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
+    // ctx.beginPath();
+    // ctx.fillStyle = "Red";
+    // // ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
+    // ctx.arc(cx + cxx / 2, cy + cyy / 2, 5, 0, Math.PI * 2, false);
+    // ctx.fill();
+    // ctx.closePath();
 }
 
 Animation.prototype.currentFrame = function () {
@@ -189,9 +189,12 @@ function Ugly(game, spritesheet, x, y) {
     this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
+    this.canKick = false;
+    this.isJump = false;
     this.x = x;
     this.y = y;
     this.cooldown = 0;
+    this.jumpCooldown = 0;
     this.cx = this.x + 15;
     this.cxx = 34;
     this.cy = this.y + 23;
@@ -204,6 +207,8 @@ function Ugly(game, spritesheet, x, y) {
     this.radius = 17;
     this.insideBomb = null;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    this.elapsedTime = 0;
+    this.jumpBeginY = null;
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
     Entity.call(this, game, this.x, this.y);
 }
@@ -288,6 +293,8 @@ Ugly.prototype.update = function () {
     // if (this.x > 800) this.x = -230;
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
+    if (this.jumpCooldown > 0) this.jumpCooldown -= this.game.clockTick;
+    if (this.jumpCooldown < 0) this.jumpCooldown = 0;
     if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
     if (this.debuffTimer < 0) this.debuffTimer = 0;
     this.cx = this.x + 15;
@@ -299,7 +306,8 @@ Ugly.prototype.update = function () {
         this.isConfused = 1;
     }
     // TODO change the button to place bomb
-    if (this.cooldown === 0 && this.game.chars['ControlLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (!this.isJump && this.cooldown === 0
+        && this.game.chars['ControlLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -322,55 +330,100 @@ Ugly.prototype.update = function () {
             this.insideBomb = null;
         }
     }
-
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
-            && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
-            if (ent.name !== "Bomb" || this.insideBomb == null) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
-            } else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
+    if (!this.isJump) {
+        for (var i = 0; i < this.game.entities.length; i++) {
+            var ent = this.game.entities[i];
+            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
+                && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+                if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                } else if (this.insideBomb == null || (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y)) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                    if (this.canKick && ent.name === "Bomb"
+                        && this.passTop && this.game.chars['ArrowUp']) {
+                        ent.moveTop = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        ent.moveBot = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passRight && this.game.chars['ArrowRight']) {
+                        ent.moveRight = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        ent.moveLeft = true;
+                        ent.isMoving = true;
+                    }
+                }
             }
         }
-    }
-    if (this.game.chars['KeyW']) {
-        if (!this.passTop) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 2;
-            this.y -= this.speedLvl * this.isConfused;
+        if (this.game.chars['KeyW']) {
+            if (!this.passTop) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 2;
+                this.y -= this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyS']) {
+            if (!this.passBottom) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 1;
+                this.y += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyD']) {
+            if (!this.passRight) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 0;
+                this.x += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyA']) {
+            if (!this.passLeft) {
+                //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+                this.animation.spriteSheet = this.leftsprite;
+                this.animation.startrow = 0;
+                this.animation.reverse = true;
+                this.x -= this.speedLvl * this.isConfused;
+            }
+        } else if (this.jumpCooldown === 0 && this.game.chars['ShiftLeft']) {
+            this.jumpCooldown = 2;
+            this.jumpBeginY = this.y;
+            this.isJump = true;
         }
     }
-    else if (this.game.chars['KeyS']) {
-        if (!this.passBottom) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 1;
-            this.y += this.speedLvl * this.isConfused;
+
+    if (this.isJump) {
+        this.elapsedTime += this.game.clockTick;
+        var jumpDistance = this.elapsedTime / 1.5;
+        var totalHeight = 100;
+        {
+            if (jumpDistance > 0.5) {
+                jumpDistance = 1 - jumpDistance;
+            }
         }
-    }
-    else if (this.game.chars['KeyD']) {
-        if (!this.passRight) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 0;
-            this.x += this.speedLvl * this.isConfused;
-        }
-    }
-    else if (this.game.chars['KeyA']) {
-        if (!this.passLeft) {
-            //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
-            this.animation.spriteSheet = this.leftsprite;
-            this.animation.startrow = 0;
-            this.animation.reverse = true;
-            this.x -= this.speedLvl * this.isConfused;
+        // var height = jumpDistance * 2 * totalHeight;
+        var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+
+        this.y = this.jumpBeginY - height;
+        if (this.elapsedTime > 1.5) {
+            this.isJump = false;
+            this.jumpBeginY = null;
+            this.elapsedTime = 0;
         }
     }
 
@@ -385,7 +438,7 @@ Ugly.prototype.update = function () {
 Ugly.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     if (this.game.chars['KeyW'] || this.game.chars['KeyS'] ||
-        this.game.chars['KeyA'] || this.game.chars['KeyD']) {
+        this.game.chars['KeyA'] || this.game.chars['KeyD'] || this.isJump) {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     } else {
         this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
@@ -404,9 +457,9 @@ function Bomberman(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.jumpCooldown = 0;
     this.currentBombOnField = 0;
-    this.bombLvl = 11;
-    this.flameLvl = 2;
-    this.speedLvl = 6;
+    this.bombLvl = 1;
+    this.flameLvl = 1;
+    this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.canKick = false;
@@ -426,7 +479,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.radius = 17;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     this.insideBomb = null;
-    this.elapsedTime =0;
+    this.elapsedTime = 0;
     this.jumpBeginY = null;
     Entity.call(this, game, x, y);
 }
@@ -499,7 +552,8 @@ Bomberman.prototype.update = function () {
         this.isConfused = 1;
     }
 
-    if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (!this.isJump && this.cooldown === 0
+        && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -534,7 +588,7 @@ Bomberman.prototype.update = function () {
             this.insideBomb = null;
         }
     }
-    if(!this.isJump) {
+    if (!this.isJump) {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
             // if (ent.name ==="Bomb") {
@@ -616,7 +670,7 @@ Bomberman.prototype.update = function () {
                 this.animation.reverse = true;
                 this.x -= this.speedLvl * this.isConfused;
             }
-        } else if (this.jumpCooldown === 0 && this.game.chars['KeyV']) {
+        } else if (this.jumpCooldown === 0 && this.game.chars['ControlRight']) {
             this.jumpCooldown = 2;
             this.jumpBeginY = this.y;
             this.isJump = true;
@@ -633,10 +687,10 @@ Bomberman.prototype.update = function () {
             }
         }
         // var height = jumpDistance * 2 * totalHeight;
-        var height = totalHeight*(-4 * (jumpDistance * jumpDistance - jumpDistance));
+        var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
 
-        this.y = this.jumpBeginY -  height;
-        if (this.elapsedTime>1.5) {
+        this.y = this.jumpBeginY - height;
+        if (this.elapsedTime > 1.5) {
             this.isJump = false;
             this.jumpBeginY = null;
             this.elapsedTime = 0;
@@ -885,7 +939,7 @@ Flame.prototype.update = function () {
             //     this.removeFromWorld = true;
             //     this.stop = true;
             // }
-            if (ent.name !== "Bomberman" && /*ent.name !== "Bot" &&*/
+            if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
@@ -934,6 +988,11 @@ Flame.prototype.update = function () {
                         this.game.addEntity(flame);
                         Entity.call(flame, this.game, pos.x * 50,
                             pos.y * 50);
+                    }
+                }
+                if (ent.name ==="Bomberman" ||ent.name ==="Ugly"||ent.name ==="Bot") {
+                    if (ent.isJump) {
+                        continue;
                     }
                 }
                 ent.removeFromWorld = true;
@@ -1068,11 +1127,16 @@ BombPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.bombUp);
-                if (ent.bombLvl < 6) {
+                if (ent.bombLvl < 6 && !ent.isJump) {
                     ent.bombLvl++;
                     console.log("Bomb Lvl =" + ent.bombLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.bombUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1110,11 +1174,16 @@ FlamePowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.fireUp);
-                if (ent.flameLvl < 6) {
+                if (ent.flameLvl < 6 && !ent.isJump) {
                     ent.flameLvl++;
                     console.log("Flame lvl =" + ent.flameLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.fireUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1152,11 +1221,16 @@ SpeedPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.speedUp);
-                if (ent.speedLvl < 10) {
+                if (ent.speedLvl < 10 && !ent.isJump) {
                     ent.speedLvl++;
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.speedUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1194,11 +1268,13 @@ SpeedPowerdown.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 //soundManager.playSound(soundManager.speedUp);
-                if (ent.speedLvl > 1) {
+                if (ent.speedLvl > 1 && !ent.isJump) {
                     ent.speedLvl--;
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1235,9 +1311,11 @@ ConfusionPowerdown.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                ent.isConfused = -1;
-                ent.debuffTimer = 5;
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    ent.isConfused = -1;
+                    ent.debuffTimer = 5;
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1274,9 +1352,11 @@ KickPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                //soundManager.playSound(soundManager.bombUp);
-                ent.canKick = true;
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    //soundManager.playSound(soundManager.bombUp);
+                    ent.canKick = true;
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1293,7 +1373,7 @@ function Bot(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.currentBombOnField = 0;
     this.bombLvl = 5;
-    this.flameLvl = 2;
+    this.flameLvl = 1;
     this.speedLvl = 4;
     this.debuffTimer = 0;
     this.isConfused = 1;
