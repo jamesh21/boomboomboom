@@ -307,7 +307,7 @@ Ugly.prototype.update = function () {
     }
     // TODO change the button to place bomb
     if (!this.isJump && this.cooldown === 0
-        && this.game.chars['ControlLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+        && this.game.chars['ShiftLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -400,7 +400,7 @@ Ugly.prototype.update = function () {
                 this.animation.reverse = true;
                 this.x -= this.speedLvl * this.isConfused;
             }
-        } else if (this.jumpCooldown === 0 && this.game.chars['ShiftLeft']) {
+        } else if (this.jumpCooldown === 0 && this.game.chars['ControlLeft']) {
             this.jumpCooldown = 2;
             this.jumpBeginY = this.y;
             this.isJump = true;
