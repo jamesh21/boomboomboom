@@ -1,4 +1,4 @@
-```
+
 
 var AM = new AssetManager();
 
@@ -613,4 +613,3 @@ AM.downloadAll(function () {
     // drawBoard(ctx);
 });
     
-```
