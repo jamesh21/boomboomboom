@@ -19,11 +19,19 @@ var twoPlayerButton = new Button(600, 868, 378, 428);
 function mouseClicked(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    var gui = document.getElementById('gui');
+    var instruction = document.getElementById('instruction');
+    var twopGui = document.getElementById('2p')
     if (firstPlayerButton.isClicked() && !gameStarted) {
         gameStarted = true;
+        instruction.style.display="none";
+        gui.style.display = "block";
+        twopGui.style.display = "none";
         startSinglePlayerGame();
     } else if (twoPlayerButton.isClicked() && !gameStarted) {
         gameStarted = true;
+        instruction.style.display="none";
+        gui.style.display = "block";
         startTwoPlayerGame();
     }
 }
@@ -204,6 +212,9 @@ function Ugly(game, spritesheet, x, y) {
     this.radius = 17;
     this.insideBomb = null;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+    game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+    game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
     Entity.call(this, game, this.x, this.y);
 }
@@ -393,6 +404,12 @@ Ugly.prototype.draw = function () {
     Entity.prototype.draw.call(this);
 }
 
+Ugly.prototype.updateGUI = function () {
+    this.game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+    this.game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+    this.game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
+}
+
 // inheritance
 function Bomberman(game, spritesheet, x, y) {
     this.sprite = spritesheet;
@@ -404,7 +421,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.jumpCooldown = 0;
     this.currentBombOnField = 0;
-    this.bombLvl = 11;
+    this.bombLvl = 1;
     this.flameLvl = 2;
     this.speedLvl = 6;
     this.debuffTimer = 0;
@@ -428,6 +445,9 @@ function Bomberman(game, spritesheet, x, y) {
     this.insideBomb = null;
     this.elapsedTime =0;
     this.jumpBeginY = null;
+    game.p1BombLvl.innerHTML = "x " + this.bombLvl;
+    game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
+    game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
     Entity.call(this, game, x, y);
 }
 
@@ -651,7 +671,6 @@ Bomberman.prototype.update = function () {
     //     }
     //
     // }
-
     Entity.prototype.update.call(this);
 }
 
@@ -664,6 +683,12 @@ Bomberman.prototype.draw = function () {
         this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     }
     Entity.prototype.draw.call(this);
+}
+
+Bomberman.prototype.updateGUI = function () {
+    this.game.p1BombLvl.innerHTML = "x " + this.bombLvl;
+    this.game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
+    this.game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
 }
 
 function Bomb(game, spritesheet, owner) {
@@ -1070,6 +1095,9 @@ BombPowerup.prototype.update = function () {
                 soundManager.playSound(soundManager.bombUp);
                 if (ent.bombLvl < 6) {
                     ent.bombLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Bomb Lvl =" + ent.bombLvl);
                 }
                 this.removeFromWorld = true;
@@ -1112,6 +1140,9 @@ FlamePowerup.prototype.update = function () {
                 soundManager.playSound(soundManager.fireUp);
                 if (ent.flameLvl < 6) {
                     ent.flameLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Flame lvl =" + ent.flameLvl);
                 }
                 this.removeFromWorld = true;
@@ -1154,6 +1185,9 @@ SpeedPowerup.prototype.update = function () {
                 soundManager.playSound(soundManager.speedUp);
                 if (ent.speedLvl < 10) {
                     ent.speedLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
                 this.removeFromWorld = true;
@@ -1196,6 +1230,9 @@ SpeedPowerdown.prototype.update = function () {
                 //soundManager.playSound(soundManager.speedUp);
                 if (ent.speedLvl > 1) {
                     ent.speedLvl--;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
                 this.removeFromWorld = true;
@@ -1779,9 +1816,17 @@ var friction = 1;
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     canvas.style.cursor = "point";
+    // var p1BombLvl = document.getElementById("p1_bombUp");
+    // var p1SpeedLvl = document.getElementById("p1_speedUp");
+    // var p1FlameLvl = document.getElementById("p1_flameUp");
+
     var ctx = canvas.getContext("2d");
     gameEngine.init(ctx);
     gameEngine.start();
+    // gameEngine.p1BombLvl = p1BombLvl;
+    // gameEngine.p1FlameLvl = p1FlameLvl;
+    // gameEngine.p1SpeedLvl = p1SpeedLvl;
+
     soundManager.init();
     soundManager.playSound(soundManager.menuBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
@@ -1919,26 +1964,49 @@ function buildMap() {
 }
 function startSinglePlayerGame() {
     buildMap();
+    gameEngine.typeOfGame = 1;
+    initiateGUI();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    gameEngine.typeOfGame = 1;
+    // gameEngine.typeOfGame = 1;
+    // initiateGUI();
     console.log("Single Player Game");
 
 }
 function startTwoPlayerGame() {
     buildMap();
+    gameEngine.typeOfGame = 2;
+    initiateGUI();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    gameEngine.typeOfGame = 2;
+    // gameEngine.typeOfGame = 2;
+    // initiateGUI();
     console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+}
+
+function initiateGUI () {
+    var p1BombLvl = document.getElementById("p1_bombUp");
+    var p1SpeedLvl = document.getElementById("p1_speedUp");
+    var p1FlameLvl = document.getElementById("p1_flameUp");
+    gameEngine.p1BombLvl = p1BombLvl;
+    gameEngine.p1FlameLvl = p1FlameLvl;
+    gameEngine.p1SpeedLvl = p1SpeedLvl;
+    if (gameEngine.typeOfGame === 2) {
+        var p2BombLvl = document.getElementById("p2_bombUp");
+        var p2SpeedLvl = document.getElementById("p2_speedUp");
+        var p2FlameLvl = document.getElementById("p2_flameUp");
+        gameEngine.p2BombLvl = p2BombLvl;
+        gameEngine.p2FlameLvl = p2FlameLvl;
+        gameEngine.p2SpeedLvl = p2SpeedLvl;
+    }
 }
 
 // Sound Manager Object
