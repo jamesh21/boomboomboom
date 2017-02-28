@@ -1026,8 +1026,16 @@ Flame.prototype.update = function () {
                     }
                 }
                 if (ent.name === "Destroyable") {
-                    if (this.game.destroyable.length === 1) {
+                    if (this.game.destroyable.length < 4) {
                         gameEngine.dangerous = true;
+                        if (this.game.destroyable.length != 0) {
+                            for(var i = 0; i < this.game.destroyable.length; i++) {
+                                var entD = this.game.destroyable[i];
+                                if (!entD.removeFromWorld) {
+                                    entD.removeFromWorld = true;
+                                }
+                            }
+                        }
                         soundManager.stopSound(soundManager.gameBackgroundSound);
                         soundManager.playSound(soundManager.countDown);
                         setTimeout(function() {dangerous(gameEngine);}, 4000);
@@ -2084,6 +2092,12 @@ function buildMap() {
     gameEngine.addEntity(block);
     var block2 = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), 200, 50);
     gameEngine.addEntity(block2);
+    var block3 = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), 250, 100);
+    gameEngine.addEntity(block3);
+    var block4 = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), 300, 150);
+    gameEngine.addEntity(block4);
+    var block5 = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), 250, 200);
+    gameEngine.addEntity(block5);
     // Placing Destroyable boxes
     // for (var row = 1; row <= 11; row++) {
     //     for (var column = 1; column < 20; column++) {
