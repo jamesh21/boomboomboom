@@ -1067,7 +1067,7 @@ function Wall(game, spritesheet, x, y) {
 };
 
 Wall.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius + 5;
 };
 Wall.prototype.collideB = function (other) {
     return distance(this, other) < 25;
