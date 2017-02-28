@@ -1103,6 +1103,7 @@ Wall.prototype.update = function () {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
             if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Flame"
+                    && ent.name !== "Bomb"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup"
                 && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
