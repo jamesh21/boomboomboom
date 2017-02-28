@@ -1,3 +1,5 @@
+```
+
 var AM = new AssetManager();
 
 function distance(a, b) {
@@ -610,3 +612,5 @@ AM.downloadAll(function () {
     // }
     // drawBoard(ctx);
 });
+    
+```
