@@ -1,15 +1,20 @@
 # boomboomboom
 https://yaukuen.github.io/boomboomboom/
 
-Prototype Current Features:
+Minimal Current Features:
 
-1) Able to move Bomberman entity using the arrow keys and able to place bombs with the space bar. 
+    1) 1 Player mode - Able to play with 3 A.Is.
+    2) 2 Player mode - Able to play with 2 players and 2 A.Is.
+    3) Current Item in game - Bomb up, Flame up, Speed up, Speed down, and Confusion.
+    4) Destroyable boxes and items are randomly assigned each time a new game is started. 
 
-2) Ugly Guy entity is able to move with the "A, S, D, E" keys.
+Future Implementations:
+    
+    1) Items - Kick, Jump, Super Bomb, and Immune.
+    2) Networking.
+    3) Sudden Death Mode (All blocks will be cleared from the screen after a certain amount of time)
 
-3) Bomb has been implemented with the feature to scale finished(This will be used for bomb lvl ups when
-items are introduced in the future). You can press "C" to test this feature of lvling up the bomb(I've maxed
-it at lvl 10). In the future lvling up will be done by getting.
+Credits:
 
-4) Basic collision has been implemented with the feature of the ugly guy entity being able 
-to be killed by the bomb. Also entities are not able to walk through the outer blocks of the map.
+    Music from Jukedeck - create your own at http://jukedeck.com.
+    SpriteSheets from Jacob Zinman-Jeanes
