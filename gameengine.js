@@ -17,14 +17,21 @@ function GameEngine() {
     this.flames = [];
     this.players_bots = [];
     this.offLimitPlacement = [];
-    this.randomItemPlacement =[];
+    this.randomItemPlacement = [];
     this.items = [];
     this.ctx = null;
     this.surfaceWidth = null;
     this.surfaceHeight = null;
     this.typeOfGame = 1;
-    this.chars = ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'Space', 'ControlLeft'];
+    this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'];
+    this.p1BombLvl = null;
+    this.p1SpeedLvl = null;
+    this.p1FlameLvl = null;
+
+    this.p2BombLvl = null;
+    this.p2SpeedLvl = null;
+    this.p2FlameLvl = null;
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -45,7 +52,7 @@ GameEngine.prototype.start = function () {
     })();
 }
 
-GameEngine.prototype.addOffLimitPlacement = function(x, y) {
+GameEngine.prototype.addOffLimitPlacement = function (x, y) {
     var offLimit = new Object();
     offLimit.x = x;
     offLimit.y = y;
@@ -64,7 +71,7 @@ GameEngine.prototype.startInput = function () {
             y = Math.floor(y / 32);
         }
 
-        return { x: x, y: y };
+        return {x: x, y: y};
     }
 
     var that = this;
@@ -82,7 +89,7 @@ GameEngine.prototype.startInput = function () {
     this.ctx.canvas.addEventListener("contextmenu", function (e) {
         that.click = getXandY(e);
         //console.log(e);
-       // console.log("Right Click Event - X,Y " + e.clientX + ", " + e.clientY);
+        // console.log("Right Click Event - X,Y " + e.clientX + ", " + e.clientY);
         e.preventDefault();
     }, false);
 
@@ -107,11 +114,15 @@ GameEngine.prototype.startInput = function () {
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
-        if (e.code === "KeyD") that.d = true;
-        that.chars[e.code] = true;
+        // if (e.code === "KeyD") that.d = true;\
+        // if (e.code === 'KeyV') {
+        //     that.chars[e.code] = false;
+        // } else {
+            that.chars[e.code] = true;
+        // }
         e.preventDefault();
         //console.log(e);
-       // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
+        // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -129,9 +140,10 @@ GameEngine.prototype.addEntity = function (entity) {
     if (entity.name === "Wall") this.walls.push(entity);
     if (entity.name === "Bomb") this.bombs.push(entity);
     if (entity.name === "Flame") this.flames.push(entity);
-    if (entity.name === "Bomberman"||entity.name ==="Ugly"||entity.name==="Bot") this.players_bots.push(entity);
+    if (entity.name === "Bomberman" || entity.name === "Ugly" || entity.name === "Bot") this.players_bots.push(entity);
     if (entity.name === "Destroyable") this.destroyable.push(entity);
-    if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup") {
+    if (entity.name === "SpeedPowerup" || entity.name === "BombPowerup" || entity.name === "FlamePowerup" ||
+        entity.name === "KickPowerup" || entity.name === "SpeedPowerdown" || entity.name === "ConfusionPowerdown") {
         this.items.push(entity);
     }
 }
@@ -143,7 +155,7 @@ GameEngine.prototype.draw = function () {
         if ((this.entities[i].name == "Bomberman" ||
             this.entities[i].name == "Ugly" ||
             this.entities[i].name == "Bot")
-            && (i < (this.entities.length -this.players_bots.length))) {
+            && (i < (this.entities.length - this.players_bots.length))) {
             var temp = this.entities[i];
             this.entities.splice(i, 1);
             this.entities.push(temp);
@@ -172,22 +184,22 @@ GameEngine.prototype.update = function () {
         }
     }
     // Loop  through the destroyable entities to remove from world
-    for (var i = this.destroyable.length -1; i >= 0; i--) {
+    for (var i = this.destroyable.length - 1; i >= 0; i--) {
         if (this.destroyable[i].removeFromWorld) {
             this.destroyable.splice(i, 1);
         }
     }
-    for (var i = this.bombs.length -1; i >= 0; i--) {
+    for (var i = this.bombs.length - 1; i >= 0; i--) {
         if (this.bombs[i].removeFromWorld) {
             this.bombs.splice(i, 1);
         }
     }
-    for (var i = this.flames.length -1; i >= 0; i--) {
+    for (var i = this.flames.length - 1; i >= 0; i--) {
         if (this.flames[i].removeFromWorld) {
             this.flames.splice(i, 1);
         }
     }
-    for (var i = this.players_bots.length -1; i >= 0; i--) {
+    for (var i = this.players_bots.length - 1; i >= 0; i--) {
         if (this.players_bots[i].removeFromWorld) {
             if (this.typeOfGame === 1 && this.players_bots[i].name === "Bomberman") {
                 document.getElementById('end-game').style.display = "flex";
@@ -199,7 +211,7 @@ GameEngine.prototype.update = function () {
             }
             this.players_bots.splice(i, 1);
             if (this.typeOfGame === 2 && (this.checkPlayers() ||
-                    (this.players_bots.length === 1 && this.players_bots[0].name === "Bot"))) {
+                (this.players_bots.length === 1 && this.players_bots[0].name === "Bot"))) {
                 document.getElementById('end-game').style.display = "flex";
                 var gameoverMsg = document.getElementById('game-over');
                 gameoverMsg.style.display = "block";
@@ -227,8 +239,8 @@ GameEngine.prototype.update = function () {
 GameEngine.prototype.checkPlayers = function () {
     console.log("Im in here");
     if (this.players_bots.length === 2 && ((this.players_bots[0].name === "Bot" &&
-                this.players_bots[1].name === "Bot") || this.players_bots[0].name === "Bot" &&
-                    this.players_bots[1].name ==="Bot")) {
+        this.players_bots[1].name === "Bot") || this.players_bots[0].name === "Bot" &&
+        this.players_bots[1].name === "Bot")) {
         return true;
     } else {
         return false;

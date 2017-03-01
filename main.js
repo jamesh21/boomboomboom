@@ -2,27 +2,6 @@ var AM = new AssetManager();
 var gameEngine = new GameEngine();
 var soundManager = new SoundManager();
 function distance(a, b) {
-    // if (a.name === "Bomberman"){
-    //     var dx = a.x+24 - b.x+25;
-    //     var dy = a.y+70 - b.y+25;
-    //     return Math.sqrt(dx * dx + dy * dy);
-    // }
-    // if (a.name === "Bomberman") {
-    //     var dx = (a.x + 23) - b.x + 25;
-    //     var dy = (a.y + 81) - b.y + 25;
-    //     return Math.sqrt(dx * dx + dy * dy);
-    // }
-    // if (a.name === "Ugly") {
-    //     var dx = a.x + 24 - b.x + 25;
-    //     var dy = a.y + 36 - b.y + 25;
-    //     return Math.sqrt(dx * dx + dy * dy);
-    // }
-    // if (a.name === "Flame") {
-    //     var dx = a.center.x - b.center.x;
-    //     var dy = a.y + 25 - b.y + 25;
-    //     return Math.sqrt(dx * dx + dy * dy);
-    // }
-    // console.log("MY A: "+a.name+" my B: "+b.name);
     var dx = a.center.x - b.center.x;
     var dy = a.center.y - b.center.y;
     return Math.sqrt(dx * dx + dy * dy);
@@ -40,11 +19,19 @@ var twoPlayerButton = new Button(600, 868, 378, 428);
 function mouseClicked(e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    var gui = document.getElementById('gui');
+    var instruction = document.getElementById('instruction');
+    var twopGui = document.getElementById('2p')
     if (firstPlayerButton.isClicked() && !gameStarted) {
         gameStarted = true;
+        instruction.style.display="none";
+        gui.style.display = "block";
+        twopGui.style.display = "none";
         startSinglePlayerGame();
     } else if (twoPlayerButton.isClicked() && !gameStarted) {
         gameStarted = true;
+        instruction.style.display="none";
+        gui.style.display = "block";
         startTwoPlayerGame();
     }
 }
@@ -206,13 +193,16 @@ function Ugly(game, spritesheet, x, y) {
     this.name = "Ugly";
     this.currentBombOnField = 0;
     this.bombLvl = 1;
-    this.flameLvl = 2;
+    this.flameLvl = 1;
     this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
+    this.canKick = false;
+    this.isJump = false;
     this.x = x;
     this.y = y;
     this.cooldown = 0;
+    this.jumpCooldown = 0;
     this.cx = this.x + 15;
     this.cxx = 34;
     this.cy = this.y + 23;
@@ -225,6 +215,11 @@ function Ugly(game, spritesheet, x, y) {
     this.radius = 17;
     this.insideBomb = null;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    this.elapsedTime = 0;
+    this.jumpBeginY = null;
+    game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+    game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+    game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
     // Entity.call(this, game, this.radius + Math.random() * (1000 - this.radius * 2), this.radius + Math.random() * (600 - this.radius * 2));
     Entity.call(this, game, this.x, this.y);
 }
@@ -309,6 +304,8 @@ Ugly.prototype.update = function () {
     // if (this.x > 800) this.x = -230;
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
+    if (this.jumpCooldown > 0) this.jumpCooldown -= this.game.clockTick;
+    if (this.jumpCooldown < 0) this.jumpCooldown = 0;
     if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
     if (this.debuffTimer < 0) this.debuffTimer = 0;
     this.cx = this.x + 15;
@@ -320,7 +317,8 @@ Ugly.prototype.update = function () {
         this.isConfused = 1;
     }
     // TODO change the button to place bomb
-    if (this.cooldown === 0 && this.game.chars['ControlLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (!this.isJump && this.cooldown === 0
+        && this.game.chars['ShiftLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
@@ -343,55 +341,100 @@ Ugly.prototype.update = function () {
             this.insideBomb = null;
         }
     }
-
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
-            && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
-            if (ent.name !== "Bomb" || this.insideBomb == null) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
-            } else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
+    if (!this.isJump) {
+        for (var i = 0; i < this.game.entities.length; i++) {
+            var ent = this.game.entities[i];
+            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
+                && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+                if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                } else if (this.insideBomb == null || (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y)) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                    if (this.canKick && ent.name === "Bomb"
+                        && this.passTop && this.game.chars['ArrowUp']) {
+                        ent.moveTop = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        ent.moveBot = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passRight && this.game.chars['ArrowRight']) {
+                        ent.moveRight = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        ent.moveLeft = true;
+                        ent.isMoving = true;
+                    }
+                }
             }
         }
-    }
-    if (this.game.chars['KeyW']) {
-        if (!this.passTop) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 2;
-            this.y -= this.speedLvl * this.isConfused;
+        if (this.game.chars['KeyW']) {
+            if (!this.passTop) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 2;
+                this.y -= this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyS']) {
+            if (!this.passBottom) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 1;
+                this.y += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyD']) {
+            if (!this.passRight) {
+                //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 0;
+                this.x += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['KeyA']) {
+            if (!this.passLeft) {
+                //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
+                this.animation.spriteSheet = this.leftsprite;
+                this.animation.startrow = 0;
+                this.animation.reverse = true;
+                this.x -= this.speedLvl * this.isConfused;
+            }
+        } else if (this.jumpCooldown === 0 && this.game.chars['ControlLeft']) {
+            this.jumpCooldown = 2;
+            this.jumpBeginY = this.y;
+            this.isJump = true;
         }
     }
-    else if (this.game.chars['KeyS']) {
-        if (!this.passBottom) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 1;
-            this.y += this.speedLvl * this.isConfused;
+
+    if (this.isJump) {
+        this.elapsedTime += this.game.clockTick;
+        var jumpDistance = this.elapsedTime / 1.5;
+        var totalHeight = 100;
+        {
+            if (jumpDistance > 0.5) {
+                jumpDistance = 1 - jumpDistance;
+            }
         }
-    }
-    else if (this.game.chars['KeyD']) {
-        if (!this.passRight) {
-            //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 0;
-            this.x += this.speedLvl * this.isConfused;
-        }
-    }
-    else if (this.game.chars['KeyA']) {
-        if (!this.passLeft) {
-            //this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.5, 0, true);
-            this.animation.spriteSheet = this.leftsprite;
-            this.animation.startrow = 0;
-            this.animation.reverse = true;
-            this.x -= this.speedLvl * this.isConfused;
+        // var height = jumpDistance * 2 * totalHeight;
+        var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+
+        this.y = this.jumpBeginY - height;
+        if (this.elapsedTime > 1.5) {
+            this.isJump = false;
+            this.jumpBeginY = null;
+            this.elapsedTime = 0;
         }
     }
 
@@ -406,12 +449,18 @@ Ugly.prototype.update = function () {
 Ugly.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     if (this.game.chars['KeyW'] || this.game.chars['KeyS'] ||
-        this.game.chars['KeyA'] || this.game.chars['KeyD']) {
+        this.game.chars['KeyA'] || this.game.chars['KeyD'] || this.isJump) {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     } else {
         this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     }
     Entity.prototype.draw.call(this);
+}
+
+Ugly.prototype.updateGUI = function () {
+    this.game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+    this.game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+    this.game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
 }
 
 // inheritance
@@ -423,12 +472,15 @@ function Bomberman(game, spritesheet, x, y) {
     this.animation = new Animation(this.leftsprite, 64, 133, 8, 0.05, 8, true, 0.8, 1, false);
     this.ctx = game.ctx;
     this.cooldown = 0;
+    this.jumpCooldown = 0;
     this.currentBombOnField = 0;
     this.bombLvl = 1;
-    this.flameLvl = 2;
+    this.flameLvl = 1;
     this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
+    this.canKick = false;
+    this.isJump = false;
     this.name = "Bomberman";
     this.passTop = false;
     this.passRight = false;
@@ -444,6 +496,11 @@ function Bomberman(game, spritesheet, x, y) {
     this.radius = 17;
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
     this.insideBomb = null;
+    this.elapsedTime = 0;
+    this.jumpBeginY = null;
+    game.p1BombLvl.innerHTML = "x " + this.bombLvl;
+    game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
+    game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
     Entity.call(this, game, x, y);
 }
 
@@ -502,7 +559,8 @@ Bomberman.prototype.collideBottom = function (other) {
 Bomberman.prototype.update = function () {
     if (this.cooldown > 0) this.cooldown -= this.game.clockTick;
     if (this.cooldown < 0) this.cooldown = 0;
-
+    if (this.jumpCooldown > 0) this.jumpCooldown -= this.game.clockTick;
+    if (this.jumpCooldown < 0) this.jumpCooldown = 0;
     if (this.debuffTimer > 0) this.debuffTimer -= this.game.clockTick;
     if (this.debuffTimer < 0) this.debuffTimer = 0;
     this.cx = this.x + 7;
@@ -514,21 +572,12 @@ Bomberman.prototype.update = function () {
         this.isConfused = 1;
     }
 
-    if (this.cooldown === 0 && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
+    if (!this.isJump && this.cooldown === 0
+        && this.game.chars['Space'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
-        //var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.flameLvl);
-        // bomb.x = this.x;
-        // bomb.y = this.y;
         this.game.addEntity(bomb);
-        // Entity.call(bomb, this.game, this.x + this.animation.frameWidth - bomb.animation.frameWidth - 11
-        //     , this.y + this.animation.frameHeight - bomb.animation.frameHeight - 24);
-        // var x = (Math.floor(((this.x + this.leftOffset + 5) + this.animation.frameWidth - bomb.animation.frameWidth - 11) / 50)) * 50;
-        // var y = (Math.floor((this.y + 90) / 50)) * 50;
-        // Entity.call(bomb, this.game, x + 6, y + 6);
-        // var x = (Math.floor(this.center.x / 50)) * 50;
-        // var y = (Math.floor(this.center.y / 50)) * 50;
         var x = this.position.x * 50;
         var y = this.position.y * 50;
         bomb.center.x = x + 25;
@@ -549,19 +598,7 @@ Bomberman.prototype.update = function () {
         // }
         Entity.call(bomb, this.game, x, y);
     }
-    // console.log("my center x: " + this.center.x + " my center y: " + this.center.y);
-    // Entity.prototype.update.call(this);
-    // for (var i = 0; i < this.game.walls.length; i++) {
-    //     var wall = this.game.walls[i];
-    //     var dist = distance(wall, this);
-    //     if (this.collide({x: wall.x, y: wall.y, radius: 25})) {
-    //         var difX = (wall.x - this.x) / dist;
-    //         var difY = (wall.y - this.y) / dist;
-    //         this.x -= difX * 10 / (dist * dist);
-    //         this.y -= difY * 10 / (dist * dist);
-    //     }
-    // }
-    // console.log("Before: "+this.insideBomb);
+
     if (this.insideBomb != null) {
         // console.log(this.insideBomb);
         // console.log("BOMB CENTER X: "+this.insideBomb.center.x);
@@ -571,78 +608,116 @@ Bomberman.prototype.update = function () {
             this.insideBomb = null;
         }
     }
-
-    // console.log("After: "+this.insideBomb);
-    for (var i = 0; i < this.game.entities.length; i++) {
-        var ent = this.game.entities[i];
-        // if (ent.name ==="Bomb") {
-        //     console.log(ent.name);
-        // }
-        // var tempCollide = this.collide(ent);
-        if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot"
-            && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
-            //     console.log("ent name: "+ent.name);
-            if (ent.name !== "Bomb" || this.insideBomb == null) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
-            } /*else if (this.insideBomb == null) {
-             // if (this.insideBomb != null) {
-             //     console.log("ent.x: " + ent.x + " this.insideBomb.x: " + this.insideBomb.x);
-             // }
-             this.passTop = this.collideTop(ent);
-             this.passBottom = this.collideBottom(ent);
-             this.passRight = this.collideRight(ent);
-             this.passLeft = this.collideLeft(ent);
-             }*/ else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
-                this.passTop = this.collideTop(ent);
-                this.passBottom = this.collideBottom(ent);
-                this.passRight = this.collideRight(ent);
-                this.passLeft = this.collideLeft(ent);
+    if (!this.isJump) {
+        for (var i = 0; i < this.game.entities.length; i++) {
+            var ent = this.game.entities[i];
+            // if (ent.name ==="Bomb") {
+            //     console.log(ent.name);
+            // }
+            // var tempCollide = this.collide(ent);
+            if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot"
+                && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+                //     console.log("ent name: "+ent.name);
+                if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                } else if (this.insideBomb == null || (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y)) {
+                    this.passTop = this.collideTop(ent);
+                    this.passBottom = this.collideBottom(ent);
+                    this.passRight = this.collideRight(ent);
+                    this.passLeft = this.collideLeft(ent);
+                    if (this.canKick && ent.name === "Bomb"
+                        && this.passTop && this.game.chars['ArrowUp']) {
+                        ent.moveTop = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        ent.moveBot = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passRight && this.game.chars['ArrowRight']) {
+                        ent.moveRight = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        ent.moveLeft = true;
+                        ent.isMoving = true;
+                    }
+                }
             }
         }
-    }
-    // for(var i = 0; i <this.game.bombs.length; i++){
-    //     var ent = this.game.bombs[i];
-    //     if (!ent.removeFromWorld && this.insideBomb != null && ent.x != this.insideBomb.x && ent.y != this.insideBomb.y) {
-    //         console.log("HELLO IM HERE!!!!!!!!!!!");
-    //         this.passTop = this.collideTop(ent);
-    //         this.passBottom = this.collideBottom(ent);
-    //         this.passRight = this.collideRight(ent);
-    //         this.passLeft = this.collideLeft(ent);
-    //     }
-    // }
+        // for(var i = 0; i <this.game.bombs.length; i++){
+        //     var ent = this.game.bombs[i];
+        //     if (!ent.removeFromWorld && this.insideBomb != null && ent.x != this.insideBomb.x && ent.y != this.insideBomb.y) {
+        //         console.log("HELLO IM HERE!!!!!!!!!!!");
+        //         this.passTop = this.collideTop(ent);
+        //         this.passBottom = this.collideBottom(ent);
+        //         this.passRight = this.collideRight(ent);
+        //         this.passLeft = this.collideLeft(ent);
+        //     }
+        // }
 
-    if (this.game.chars['ArrowUp']) {
-        if (!this.passTop) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 2;
-            this.y -= this.speedLvl * this.isConfused;
+        if (this.game.chars['ArrowUp']) {
+            if (!this.passTop) {
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 2;
+                this.y -= this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['ArrowDown']) {
+            if (!this.passBottom) {
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 1;
+                this.y += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['ArrowRight']) {
+            if (!this.passRight) {
+                this.animation.spriteSheet = this.sprite;
+                this.animation.startrow = 0;
+                this.x += this.speedLvl * this.isConfused;
+            }
+        }
+        else if (this.game.chars['ArrowLeft']) {
+            if (!this.passLeft) {
+                this.animation.spriteSheet = this.leftsprite;
+                this.animation.startrow = 0;
+                this.animation.reverse = true;
+                this.x -= this.speedLvl * this.isConfused;
+            }
+        } else if (this.jumpCooldown === 0 && this.game.chars['ControlRight']) {
+            this.jumpCooldown = 2;
+            this.jumpBeginY = this.y;
+            this.isJump = true;
         }
     }
-    else if (this.game.chars['ArrowDown']) {
-        if (!this.passBottom) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 1;
-            this.y += this.speedLvl * this.isConfused;
+
+    if (this.isJump) {
+        this.elapsedTime += this.game.clockTick;
+        var jumpDistance = this.elapsedTime / 1.5;
+        var totalHeight = 100;
+        {
+            if (jumpDistance > 0.5) {
+                jumpDistance = 1 - jumpDistance;
+            }
+        }
+        // var height = jumpDistance * 2 * totalHeight;
+        var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+
+        this.y = this.jumpBeginY - height;
+        if (this.elapsedTime > 1.5) {
+            this.isJump = false;
+            this.jumpBeginY = null;
+            this.elapsedTime = 0;
         }
     }
-    else if (this.game.chars['ArrowRight']) {
-        if (!this.passRight) {
-            this.animation.spriteSheet = this.sprite;
-            this.animation.startrow = 0;
-            this.x += this.speedLvl * this.isConfused;
-        }
-    }
-    else if (this.game.chars['ArrowLeft']) {
-        if (!this.passLeft) {
-            this.animation.spriteSheet = this.leftsprite;
-            this.animation.startrow = 0;
-            this.animation.reverse = true;
-            this.x -= this.speedLvl * this.isConfused;
-        }
-    }
+
+
     //This was used for bomb lvl up
     // if (this.game.chars['KeyC']) {
     //     if (this.bombLvl < 10) {
@@ -650,19 +725,24 @@ Bomberman.prototype.update = function () {
     //     }
     //
     // }
-
     Entity.prototype.update.call(this);
 }
 
 Bomberman.prototype.draw = function () {
     // this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     if (this.game.chars['ArrowUp'] || this.game.chars['ArrowRight'] ||
-        this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft']) {
+        this.game.chars['ArrowDown'] || this.game.chars['ArrowLeft'] || this.isJump) {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     } else {
         this.animation.drawFrame(0, this.ctx, this.x, this.y, this.cx, this.cy, this.cxx, this.cyy);
     }
     Entity.prototype.draw.call(this);
+}
+
+Bomberman.prototype.updateGUI = function () {
+    this.game.p1BombLvl.innerHTML = "x " + this.bombLvl;
+    this.game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
+    this.game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
 }
 
 function Bomb(game, spritesheet, owner) {
@@ -677,6 +757,11 @@ function Bomb(game, spritesheet, owner) {
     this.currentLvl = owner.flameLvl;
     this.name = "Bomb";
     this.ownerOfBomb = owner;
+    this.isMoving = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.moveTop = false;
+    this.moveBot = false;
     this.explode = false;
     this.stoptry = false;
     //Entity.call(this, game, 100, 100);console.log(this.x +" "+ this.y );
@@ -691,7 +776,7 @@ Bomb.prototype = new Entity();
 Bomb.prototype.constructor = Bomb;
 
 Bomb.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 
 // Bomb.prototype.checkLeft = function (other) {
@@ -717,40 +802,12 @@ Bomb.prototype.update = function () {
         // TODO do the above if we have time
         this.removeFromWorld = true;
 
-        // //Creates flames after bombs explosion, loop will run base on bombs current lvl
-        // for (var i = 0; i <= this.currentLvl; i++) {
-        //     for (var j = 0; j < 4; j++) {
-        //         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
-        //         this.game.addEntity(flame);
-        //         Entity.call(flame, this.game, this.x + this.firePosition[j][0] * 30 * i,
-        //             this.y + this.firePosition[j][1] * 30 * i);
-        //         if (i === 0) {
-        //             break;
-        //         }
-        //     }
-        // }
+
         this.ownerOfBomb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
         soundManager.playSound(soundManager.explosion);
         Entity.call(flame, this.game, this.x, this.y);
-        //Creates flames after bombs explosion, loop will run base on bombs current lvl
-        // for (var i = 0; i < 4; i++) {
-        //     for (var j = 1; j <= this.currentLvl; j++) {
-        //         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
-        //         this.game.addEntity(flame);
-        //         Entity.call(flame, this.game, this.x + this.firePosition[i][0] * 50 * j,
-        //             this.y + this.firePosition[i][1] * 50 * j);
-        //         // if (j === 0 ) {
-        //         //     break;
-        //         // }
-        //         // if (flame.collide()) {
-        //         //     console.log("How about me?????????");
-        //         //     // flame.stop = false;
-        //         //     break;
-        //         // }
-        //     }
-        // }
         var positions = this.printFlameHelper();
         for (var i = 0; i < positions.length; i++) {
             // console.log(positions[0].x+", "+positions[0].y);
@@ -771,6 +828,51 @@ Bomb.prototype.update = function () {
     this.cy = this.y;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
     this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+    if (this.isMoving) {
+        for (var i = 0; i < this.game.entities.length; i++) {
+            var ent = this.game.entities[i];
+            if (ent !== this && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name !== "KickPowerup"
+                && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
+                && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
+                if (this.moveRight && (ent.position.y === this.position.y)
+                    && (ent.position.x > this.position.x) && this.collide(ent)) {
+                    this.isMoving = false;
+                    this.moveRight = false;
+                    this.moveBot = false;
+                    this.moveTop = false;
+                    this.moveLeft = false;
+                    break;
+                } else if (this.moveLeft && (ent.position.y === this.position.y)
+                    && (ent.position.x < this.position.x) && this.collide(ent)) {
+                    this.isMoving = false;
+                    this.moveLeft = false;
+                    break;
+                } else if (this.moveTop && (ent.position.x === this.position.x)
+                    && (ent.position.y < this.position.y) && this.collide(ent)) {
+                    this.isMoving = false;
+                    this.moveTop = false;
+                    break;
+                } else if (this.moveBot && (ent.position.x === this.position.x)
+                    && (ent.position.y > this.position.y) && this.collide(ent)) {
+                    this.isMoving = false;
+                    this.moveBot = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (this.moveRight) {
+        this.x += 5;
+    } else if (this.moveLeft) {
+        this.x -= 5;
+    } else if (this.moveTop) {
+        this.y -= 5;
+    } else if (this.moveBot) {
+        this.y += 5;
+    }
+
+
     Entity.prototype.update.call(this);
 }
 
@@ -863,15 +965,13 @@ Flame.prototype.update = function () {
             //     this.stop = true;
             // }
             if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
-            ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-            && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown") {
+                ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
+                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
-                        console.log("Speed!!!!!!!!!!!!");
                         var speedUp = new SpeedPowerup(this.game, AM.getAsset("./img/SpeedPowerup.png"), ent.x, ent.y);
                         this.game.addEntity(speedUp);
                     } else if (ent.hasBombPowerup) {
-                        console.log("Bomb!!!!!!!!!!!!!!!");
                         var bombUp = new BombPowerup(this.game, AM.getAsset("./img/BombPowerup.png"), ent.x, ent.y);
                         this.game.addEntity(bombUp);
                     } else if (ent.hasConfusionPowerdown) {
@@ -880,8 +980,10 @@ Flame.prototype.update = function () {
                     } else if (ent.hasSpeedPowerdown) {
                         var speedDown = new SpeedPowerdown(this.game, AM.getAsset("./img/SpeedPowerdown.png"), ent.x, ent.y);
                         this.game.addEntity(speedDown);
+                    } else if (ent.hasKickPowerup) {
+                        var kickUp = new KickPowerup(this.game, AM.getAsset("./img/KickPowerup.png"), ent.x, ent.y);
+                        this.game.addEntity(kickUp);
                     } else {
-                        console.log("Flame!!!!!!!!!!!!!!!");
                         var flameUp = new FlamePowerup(this.game, AM.getAsset("./img/FlamePowerup.png"), ent.x, ent.y);
                         this.game.addEntity(flameUp);
                     }
@@ -911,6 +1013,11 @@ Flame.prototype.update = function () {
                         this.game.addEntity(flame);
                         Entity.call(flame, this.game, pos.x * 50,
                             pos.y * 50);
+                    }
+                }
+                if (ent.name ==="Bomberman" ||ent.name ==="Ugly"||ent.name ==="Bot") {
+                    if (ent.isJump) {
+                        continue;
                     }
                 }
                 ent.removeFromWorld = true;
@@ -1045,11 +1152,19 @@ BombPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.bombUp);
-                if (ent.bombLvl < 6) {
+                if (ent.bombLvl < 6 && !ent.isJump) {
                     ent.bombLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Bomb Lvl =" + ent.bombLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.bombUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1087,11 +1202,19 @@ FlamePowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.fireUp);
-                if (ent.flameLvl < 6) {
+                if (ent.flameLvl < 6 && !ent.isJump) {
                     ent.flameLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Flame lvl =" + ent.flameLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.fireUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1129,11 +1252,19 @@ SpeedPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.speedUp);
-                if (ent.speedLvl < 10) {
+                if (ent.speedLvl < 10 && !ent.isJump) {
                     ent.speedLvl++;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    // if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                    //     soundManager.playSound(soundManager.speedUp);
+                    // }
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1171,11 +1302,16 @@ SpeedPowerdown.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 //soundManager.playSound(soundManager.speedUp);
-                if (ent.speedLvl > 1) {
+                if (ent.speedLvl > 1 && !ent.isJump) {
                     ent.speedLvl--;
+                    if (ent.name === "Bomberman" || ent.name === "Ugly") {
+                        ent.updateGUI();
+                    }
                     console.log("Speed lvl =" + ent.speedLvl);
                 }
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1212,9 +1348,52 @@ ConfusionPowerdown.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                ent.isConfused = -1;
-                ent.debuffTimer = 5;
-                this.removeFromWorld = true;
+                if (!ent.isJump) {
+                    ent.isConfused = -1;
+                    ent.debuffTimer = 5;
+                    this.removeFromWorld = true;
+                }
+            }
+        }
+    }
+};
+
+function KickPowerup(game, spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.spritesheet = spritesheet;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.name = "KickPowerup";
+    this.here = true;
+    this.cx = this.x;
+    this.cxx = 50;
+    this.cy = this.y;
+    this.cyy = 50;
+    this.radius = 25;
+    this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
+    this.position = {x: (Math.floor(this.center.x / 50)), y: (Math.floor(this.center.y / 50))};
+};
+
+KickPowerup.prototype.collide = function (other) {
+    return distance(this, other) < this.radius + other.radius + 1;
+};
+
+KickPowerup.prototype.draw = function () {
+    this.ctx.drawImage(this.spritesheet,
+        this.x, this.y, 50, 50);
+};
+
+KickPowerup.prototype.update = function () {
+    for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+            if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
+                if (!ent.isJump) {
+                    //soundManager.playSound(soundManager.bombUp);
+                    ent.canKick = true;
+                    this.removeFromWorld = true;
+                }
             }
         }
     }
@@ -1231,8 +1410,8 @@ function Bot(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.currentBombOnField = 0;
     this.bombLvl = 5;
-    this.flameLvl = 2;
-    this.speedLvl = 2;
+    this.flameLvl = 1;
+    this.speedLvl = 4;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.name = "Bot";
@@ -1709,6 +1888,7 @@ AM.queueDownload("./img/BombPowerup.png");
 AM.queueDownload("./img/FlamePowerup.png");
 AM.queueDownload("./img/SpeedPowerup.png");
 AM.queueDownload("./img/SpeedPowerdown.png");
+AM.queueDownload("./img/KickPowerup.png");
 AM.queueDownload("./img/ConfusionPowerdown.png");
 
 var friction = 1;
@@ -1716,9 +1896,17 @@ var friction = 1;
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     canvas.style.cursor = "point";
+    // var p1BombLvl = document.getElementById("p1_bombUp");
+    // var p1SpeedLvl = document.getElementById("p1_speedUp");
+    // var p1FlameLvl = document.getElementById("p1_flameUp");
+
     var ctx = canvas.getContext("2d");
     gameEngine.init(ctx);
     gameEngine.start();
+    // gameEngine.p1BombLvl = p1BombLvl;
+    // gameEngine.p1FlameLvl = p1FlameLvl;
+    // gameEngine.p1SpeedLvl = p1SpeedLvl;
+
     soundManager.init();
     soundManager.playSound(soundManager.menuBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
@@ -1817,6 +2005,16 @@ function buildMap() {
         numberOfPossibleItemPlacement--;
     }
 
+    // Placing kick powerup inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasKickPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+
+    }
+
     // Placing speed powerup inside boxes
     for (var i = 0; i < 9; i++) {
         var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
@@ -1846,26 +2044,49 @@ function buildMap() {
 }
 function startSinglePlayerGame() {
     buildMap();
+    gameEngine.typeOfGame = 1;
+    initiateGUI();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    gameEngine.typeOfGame = 1;
+    // gameEngine.typeOfGame = 1;
+    // initiateGUI();
     console.log("Single Player Game");
 
 }
 function startTwoPlayerGame() {
     buildMap();
+    gameEngine.typeOfGame = 2;
+    initiateGUI();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    gameEngine.typeOfGame = 2;
+    // gameEngine.typeOfGame = 2;
+    // initiateGUI();
     console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+}
+
+function initiateGUI () {
+    var p1BombLvl = document.getElementById("p1_bombUp");
+    var p1SpeedLvl = document.getElementById("p1_speedUp");
+    var p1FlameLvl = document.getElementById("p1_flameUp");
+    gameEngine.p1BombLvl = p1BombLvl;
+    gameEngine.p1FlameLvl = p1FlameLvl;
+    gameEngine.p1SpeedLvl = p1SpeedLvl;
+    if (gameEngine.typeOfGame === 2) {
+        var p2BombLvl = document.getElementById("p2_bombUp");
+        var p2SpeedLvl = document.getElementById("p2_speedUp");
+        var p2FlameLvl = document.getElementById("p2_flameUp");
+        gameEngine.p2BombLvl = p2BombLvl;
+        gameEngine.p2FlameLvl = p2FlameLvl;
+        gameEngine.p2SpeedLvl = p2SpeedLvl;
+    }
 }
 
 // Sound Manager Object
