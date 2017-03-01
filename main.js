@@ -333,7 +333,7 @@ Ugly.prototype.update = function () {
     if (!this.isJump) {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
-            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot"
+            if (ent !== this && ent.name !== "Bomberman" && ent.name !== "Bot" && ent.name !== "Dead"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
                 if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
                     this.passTop = this.collideTop(ent);
@@ -595,7 +595,7 @@ Bomberman.prototype.update = function () {
             //     console.log(ent.name);
             // }
             // var tempCollide = this.collide(ent);
-            if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot"
+            if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Dead"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
                 //     console.log("ent name: "+ent.name);
                 if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
