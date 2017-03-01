@@ -1,3 +1,7 @@
+const MAX_SPEED = 8;
+const MAX_BOMB = 5;
+const MAX_FLAME = 5;
+
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
 var soundManager = new SoundManager();
@@ -197,7 +201,7 @@ function Ugly(game, spritesheet, x, y) {
     this.speedLvl = 2;
     this.debuffTimer = 0;
     this.isConfused = 1;
-    this.canKick = false;
+    this.canKick = true;
     this.isJump = false;
     this.x = x;
     this.y = y;
@@ -458,9 +462,30 @@ Ugly.prototype.draw = function () {
 }
 
 Ugly.prototype.updateGUI = function () {
-    this.game.p2BombLvl.innerHTML = "x " + this.bombLvl;
-    this.game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
-    this.game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
+    if (this.bombLvl === MAX_BOMB) {
+        this.game.p2BombLvl.innerHTML = "x MAX";
+        this.game.p2BombLvl.style.color = "Red";
+    } else {
+        this.game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+        this.game.p2BombLvl.style.color = "White";
+    }
+    if (this.flameLvl === MAX_FLAME) {
+        this.game.p2FlameLvl.innerHTML = "x MAX";
+        this.game.p2FlameLvl.style.color = "Red";
+    } else {
+        this.game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+        this.game.p2FlameLvl.style.color = "White";
+    }
+    if (this.speedLvl === MAX_SPEED) {
+        this.game.p2SpeedLvl.innerHTML = "x MAX";
+        this.game.p2SpeedLvl.style.color = "Red";
+    } else {
+        this.game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
+        this.game.p2SpeedLvl.style.color = "White";
+    }
+    // this.game.p2BombLvl.innerHTML = "x " + this.bombLvl;
+    // this.game.p2FlameLvl.innerHTML = "x " + this.flameLvl;
+    //this.game.p2SpeedLvl.innerHTML = "x " + this.speedLvl;
 }
 
 // inheritance
@@ -474,9 +499,9 @@ function Bomberman(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.jumpCooldown = 0;
     this.currentBombOnField = 0;
-    this.bombLvl = 10;
-    this.flameLvl = 11;
-    this.speedLvl = 6;
+    this.bombLvl = 3;
+    this.flameLvl = 3;
+    this.speedLvl = 4;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.canKick = true;
@@ -770,9 +795,27 @@ Bomberman.prototype.draw = function () {
 }
 
 Bomberman.prototype.updateGUI = function () {
-    this.game.p1BombLvl.innerHTML = "x " + this.bombLvl;
-    this.game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
-    this.game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
+    if (this.bombLvl === MAX_BOMB) {
+        this.game.p1BombLvl.innerHTML = "x MAX";
+        this.game.p1BombLvl.style.color = "Red";
+    } else {
+        this.game.p1BombLvl.innerHTML = "x " + this.bombLvl;
+        this.game.p1BombLvl.style.color = "White";
+    }
+    if (this.flameLvl === MAX_FLAME) {
+        this.game.p1FlameLvl.innerHTML = "x MAX";
+        this.game.p1FlameLvl.style.color = "Red";
+    } else {
+        this.game.p1FlameLvl.innerHTML = "x " + this.flameLvl;
+        this.game.p1FlameLvl.style.color = "White";
+    }
+    if (this.speedLvl === MAX_SPEED) {
+        this.game.p1SpeedLvl.innerHTML = "x MAX";
+        this.game.p1SpeedLvl.style.color = "Red";
+    } else {
+        this.game.p1SpeedLvl.innerHTML = "x " + this.speedLvl;
+        this.game.p1SpeedLvl.style.color = "White";
+    }
 }
 
 function Bomb(game, spritesheet, owner) {
@@ -1334,7 +1377,7 @@ BombPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.bombUp);
-                if (ent.bombLvl < 6 && !ent.isJump) {
+                if (ent.bombLvl < MAX_BOMB && !ent.isJump) {
                     ent.bombLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
@@ -1384,7 +1427,7 @@ FlamePowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.fireUp);
-                if (ent.flameLvl < 6 && !ent.isJump) {
+                if (ent.flameLvl < MAX_FLAME && !ent.isJump) {
                     ent.flameLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
@@ -1434,7 +1477,7 @@ SpeedPowerup.prototype.update = function () {
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.speedUp);
-                if (ent.speedLvl < 10 && !ent.isJump) {
+                if (ent.speedLvl < MAX_SPEED && !ent.isJump) {
                     ent.speedLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
@@ -2143,97 +2186,97 @@ function buildMap() {
     var block5 = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), 250, 200);
     gameEngine.addEntity(block5);
     // Placing Destroyable boxes
-    // for (var row = 1; row <= 11; row++) {
-    //     for (var column = 1; column < 20; column++) {
-    //         var xPosition = column * 50;
-    //         var yPosition = row * 50;
-    //         var hasWall = false;
-    //         for (var i = 0; i < gameEngine.offLimitPlacement.length; i++) {
-    //             if (gameEngine.offLimitPlacement[i].x === xPosition && gameEngine.offLimitPlacement[i].y === yPosition) {
-    //                 hasWall = true;
-    //                 break;
-    //             }
-    //         }
-    //         if (!hasWall) {
-    //             var block = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), xPosition, yPosition);
-    //             gameEngine.addEntity(block);
-    //             gameEngine.randomItemPlacement.push(block);
-    //         }
-    //     }
-    // }
-    //
-    // // For removing random destroyables from the map each time.
-    // var numberOfDestroyable = gameEngine.destroyable.length;
-    // for (var i = 30; i > 0; i--) {
-    //     var position = Math.floor((Math.random() * numberOfDestroyable));
-    //     gameEngine.destroyable[position].removeFromWorld = true;
-    //     numberOfDestroyable--;
-    // }
-    //
-    // // Removing the empty spaces from the destroyable list
-    // for (var i = gameEngine.destroyable.length - 1; i >= 0; i--) {
-    //     if (gameEngine.destroyable[i].removeFromWorld) {
-    //         gameEngine.destroyable.splice(i, 1);
-    //         gameEngine.randomItemPlacement.splice(i, 1);
-    //     }
-    // }
-    //
-    // // Placing bomb powerup inside boxes
-    // var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
-    // for (var i = 0; i < 18; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasBombPowerup = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    //
-    // }
-    //
-    // // Placing flame powerup inside boxes
-    // for (var i = 0; i < 24; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    // }
-    //
-    // // Placing kick powerup inside boxes
-    // for (var i = 0; i < 5; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasKickPowerup = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    //
-    // }
-    //
-    // // Placing speed powerup inside boxes
-    // for (var i = 0; i < 9; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    // }
-    //
-    // // Placing speed powerdown inside boxes
-    // for (var i = 0; i < 5; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    // }
-    //
-    // // Placing confusion powerdown inside boxes
-    // for (var i = 0; i < 5; i++) {
-    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
-    //     gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
-    //     gameEngine.randomItemPlacement.splice(position, 1);
-    //     numberOfPossibleItemPlacement--;
-    // }
+    for (var row = 1; row <= 11; row++) {
+        for (var column = 1; column < 20; column++) {
+            var xPosition = column * 50;
+            var yPosition = row * 50;
+            var hasWall = false;
+            for (var i = 0; i < gameEngine.offLimitPlacement.length; i++) {
+                if (gameEngine.offLimitPlacement[i].x === xPosition && gameEngine.offLimitPlacement[i].y === yPosition) {
+                    hasWall = true;
+                    break;
+                }
+            }
+            if (!hasWall) {
+                var block = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), xPosition, yPosition);
+                gameEngine.addEntity(block);
+                gameEngine.randomItemPlacement.push(block);
+            }
+        }
+    }
+
+    // For removing random destroyables from the map each time.
+    var numberOfDestroyable = gameEngine.destroyable.length;
+    for (var i = 30; i > 0; i--) {
+        var position = Math.floor((Math.random() * numberOfDestroyable));
+        gameEngine.destroyable[position].removeFromWorld = true;
+        numberOfDestroyable--;
+    }
+
+    // Removing the empty spaces from the destroyable list
+    for (var i = gameEngine.destroyable.length - 1; i >= 0; i--) {
+        if (gameEngine.destroyable[i].removeFromWorld) {
+            gameEngine.destroyable.splice(i, 1);
+            gameEngine.randomItemPlacement.splice(i, 1);
+        }
+    }
+
+    // Placing bomb powerup inside boxes
+    var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
+    for (var i = 0; i < 18; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasBombPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+
+    }
+
+    // Placing flame powerup inside boxes
+    for (var i = 0; i < 24; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing kick powerup inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasKickPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+
+    }
+
+    // Placing speed powerup inside boxes
+    for (var i = 0; i < 9; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing speed powerdown inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
+
+    // Placing confusion powerdown inside boxes
+    for (var i = 0; i < 5; i++) {
+        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+        gameEngine.randomItemPlacement[position].hasPowerup = true;
+        gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
+        gameEngine.randomItemPlacement.splice(position, 1);
+        numberOfPossibleItemPlacement--;
+    }
 }
 function startSinglePlayerGame() {
     buildMap();
