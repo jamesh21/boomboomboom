@@ -23,9 +23,15 @@ function GameEngine() {
     this.surfaceWidth = null;
     this.surfaceHeight = null;
     this.typeOfGame = 1;
-    this.dangerous = false;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'KeyV', 'ControlLeft', 'ShiftLeft'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'];
+    this.p1BombLvl = null;
+    this.p1SpeedLvl = null;
+    this.p1FlameLvl = null;
+
+    this.p2BombLvl = null;
+    this.p2SpeedLvl = null;
+    this.p2FlameLvl = null;
 }
 
 GameEngine.prototype.init = function (ctx) {
