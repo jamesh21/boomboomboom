@@ -1482,7 +1482,7 @@ BombPowerup.prototype.draw = function () {
 BombPowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.bombUp);
                 if (ent.bombLvl < MAX_BOMB && !ent.isJump) {
@@ -1532,7 +1532,7 @@ FlamePowerup.prototype.draw = function () {
 FlamePowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.fireUp);
                 if (ent.flameLvl < MAX_FLAME && !ent.isJump) {
@@ -1582,7 +1582,7 @@ SpeedPowerup.prototype.draw = function () {
 SpeedPowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 soundManager.playSound(soundManager.speedUp);
                 if (ent.speedLvl < MAX_SPEED && !ent.isJump) {
@@ -1632,7 +1632,7 @@ SpeedPowerdown.prototype.draw = function () {
 SpeedPowerdown.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 //soundManager.playSound(soundManager.speedUp);
                 if (ent.speedLvl > 1 && !ent.isJump) {
@@ -1679,7 +1679,7 @@ ConfusionPowerdown.prototype.draw = function () {
 ConfusionPowerdown.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 if (!ent.isJump) {
                     ent.isConfused = -1;
@@ -1720,7 +1720,7 @@ KickPowerup.prototype.draw = function () {
 KickPowerup.prototype.update = function () {
     for (var i = 0; i < this.game.entities.length; i++) {
         var ent = this.game.entities[i];
-        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && this.collide(ent)) {
+        if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
                 if (!ent.isJump) {
                     //soundManager.playSound(soundManager.bombUp);
