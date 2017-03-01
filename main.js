@@ -2101,7 +2101,7 @@ Bot.prototype.update = function () {
     // console.log("my direction: {" + this.action.direction+"}");
     // console.log("my action putBomb:"+this.action.putBomb);
     if (/*(this.game.chars['Space'])||*/(this.cooldown === 0 && this.directionX === 0 && this.directionY === 0 && this.action.putBomb && this.currentBombOnField < this.bombLvl)) { //create new bomb
-        this.cooldown = 2.3;
+        this.cooldown = 3.5;
         this.currentBombOnField++;
         var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this);
         //var bomb = new Bomb(this.game, AM.getAsset("./img/Bomb.png"), this.flameLvl);
