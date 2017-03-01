@@ -357,22 +357,22 @@ Ugly.prototype.update = function () {
                     this.passRight = this.collideRight(ent);
                     this.passLeft = this.collideLeft(ent);
                     if (this.canKick && ent.name === "Bomb"
-                        && this.passTop && this.game.chars['ArrowUp']) {
+                        && this.passTop && this.game.chars['KeyW']) {
                         ent.moveTop = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        && this.passBottom && this.game.chars['Keys']) {
                         ent.moveBot = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passRight && this.game.chars['ArrowRight']) {
+                        && this.passRight && this.game.chars['KeyD']) {
                         ent.moveRight = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        && this.passLeft && this.game.chars['KeyA']) {
                         ent.moveLeft = true;
                         ent.isMoving = true;
                     }
