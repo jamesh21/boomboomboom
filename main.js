@@ -700,10 +700,62 @@ Bomberman.prototype.update = function () {
             //         entW.moveBot = true;
             //     }
             // }
+            for (var i = 0; i < this.game.walls.length; i++) {
+                var entW = this.game.walls[i];
+                if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
+                    entW.dangerous = true;
+                    continue;
+                }
+                // entW.removeFromWorld = true;
+                entW.dangerous = true;
+                if (entW.x < 500) {
+                    entW.isMoving = true;
+                    entW.moveTop = true;
+                }
+                if (entW.x >= 500) {
+                    entW.isMoving = true;
+                    entW.moveBot = true;
+                }
+                // if (entW.x === 500 && entW.y < 300) {
+                //     entW.isMoving = true;
+                //     entW.moveTop = true;
+                // }
+                // if (entW.x === 500 && entW.y > 300) {
+                //     entW.isMoving = true;
+                //     entW.moveBot = true;
+                // }
+            }
+
 
             //dangerous(this.game);
 
-            setTimeout(function() {dangerous(gameEngine);} , 5000);
+            // setTimeout(function() {dangerous(gameEngine);} , 5000);
+        } else if (this.game.chars['KeyB']) {
+            for (var i = 0; i < this.game.walls.length; i++) {
+                var entW = this.game.walls[i];
+                if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
+                    entW.dangerous = true;
+                    continue;
+                }
+                // entW.removeFromWorld = true;
+                entW.dangerous = true;
+                if (entW.x < 500 && entW.y < 350) {
+                    entW.isMoving = true;
+                    entW.moveRight = true;
+                }
+                if (entW.x >= 500 && entW.y >= 350) {
+                    entW.isMoving = true;
+                    entW.moveLeft = true;
+                }
+                // if (entW.x === 500 && entW.y < 300) {
+                //     entW.isMoving = true;
+                //     entW.moveTop = true;
+                // }
+                // if (entW.x === 500 && entW.y > 300) {
+                //     entW.isMoving = true;
+                //     entW.moveBot = true;
+                // }
+            }
         }
     }
 
@@ -1029,7 +1081,7 @@ Flame.prototype.update = function () {
                     if (this.game.destroyable.length < 4) {
                         gameEngine.dangerous = true;
                         if (this.game.destroyable.length != 0) {
-                            for(var i = 0; i < this.game.destroyable.length; i++) {
+                            for (var i = 0; i < this.game.destroyable.length; i++) {
                                 var entD = this.game.destroyable[i];
                                 if (!entD.removeFromWorld) {
                                     entD.removeFromWorld = true;
@@ -1038,7 +1090,9 @@ Flame.prototype.update = function () {
                         }
                         soundManager.stopSound(soundManager.gameBackgroundSound);
                         soundManager.playSound(soundManager.countDown);
-                        setTimeout(function() {dangerous(gameEngine);}, 4000);
+                        setTimeout(function () {
+                            dangerous(gameEngine);
+                        }, 4000);
                     }
                 }
                 ent.removeFromWorld = true;

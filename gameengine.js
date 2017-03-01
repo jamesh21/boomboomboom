@@ -25,7 +25,7 @@ function GameEngine() {
     this.typeOfGame = 1;
     this.dangerous = false;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'KeyV', 'ControlLeft', 'ShiftLeft'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft','KeyV','KeyB','KeyN', 'KeyM'];
 }
 
 GameEngine.prototype.init = function (ctx) {
