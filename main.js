@@ -1,4 +1,5 @@
 const MAX_SPEED = 8;
+const EACH_LEVEL_SPEED = 50;
 const MAX_BOMB = 5;
 const MAX_FLAME = 5;
 
@@ -261,7 +262,7 @@ Ugly.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += this.speedLvl;
+        this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -274,7 +275,7 @@ Ugly.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= this.speedLvl;
+        this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -286,7 +287,7 @@ Ugly.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += this.speedLvl;
+        this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -298,7 +299,7 @@ Ugly.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= this.speedLvl;
+        this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -388,7 +389,7 @@ Ugly.prototype.update = function () {
                 //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 2, false);
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 2;
-                this.y -= this.speedLvl * this.isConfused;
+                this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
             }
         }
         else if (this.game.chars['KeyS']) {
@@ -396,7 +397,7 @@ Ugly.prototype.update = function () {
                 //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 1, false);
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 1;
-                this.y += this.speedLvl * this.isConfused;
+                this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
             }
         }
         else if (this.game.chars['KeyD']) {
@@ -404,7 +405,7 @@ Ugly.prototype.update = function () {
                 //this.animation = new Animation(this.sprite, 64, 133, 8, 0.05, 8, true, 0.5, 0,false);
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 0;
-                this.x += this.speedLvl * this.isConfused;
+                this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
             }
         }
         else if (this.game.chars['KeyA']) {
@@ -413,7 +414,7 @@ Ugly.prototype.update = function () {
                 this.animation.spriteSheet = this.leftsprite;
                 this.animation.startrow = 0;
                 this.animation.reverse = true;
-                this.x -= this.speedLvl * this.isConfused;
+                this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
             }
         } else if (this.jumpCooldown === 0 && this.game.chars['ControlLeft']) {
             this.jumpCooldown = 2;
@@ -501,7 +502,7 @@ function Bomberman(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 3;
     this.flameLvl = 3;
-    this.speedLvl = 4;
+    this.speedLvl = 5;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.canKick = true;
@@ -542,7 +543,7 @@ Bomberman.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += this.speedLvl;
+        this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -554,7 +555,7 @@ Bomberman.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= this.speedLvl;
+        this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -565,7 +566,7 @@ Bomberman.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += this.speedLvl;
+        this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -576,7 +577,7 @@ Bomberman.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= this.speedLvl;
+        this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -691,21 +692,21 @@ Bomberman.prototype.update = function () {
             if (!this.passTop) {
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 2;
-                this.y -= this.speedLvl * this.isConfused;
+                this.y -= ((this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused);
             }
         }
         else if (this.game.chars['ArrowDown']) {
             if (!this.passBottom) {
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 1;
-                this.y += this.speedLvl * this.isConfused;
+                this.y += ((this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused);
             }
         }
         else if (this.game.chars['ArrowRight']) {
             if (!this.passRight) {
                 this.animation.spriteSheet = this.sprite;
                 this.animation.startrow = 0;
-                this.x += this.speedLvl * this.isConfused;
+                this.x += ((this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused);
             }
         }
         else if (this.game.chars['ArrowLeft']) {
@@ -713,7 +714,7 @@ Bomberman.prototype.update = function () {
                 this.animation.spriteSheet = this.leftsprite;
                 this.animation.startrow = 0;
                 this.animation.reverse = true;
-                this.x -= this.speedLvl * this.isConfused;
+                this.x -= ((this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused);
             }
         } else if (this.jumpCooldown === 0 && this.game.chars['ControlRight']) {
             this.jumpCooldown = 2;
@@ -1040,13 +1041,13 @@ Bomb.prototype.update = function () {
     }
 
     if (this.moveRight) {
-        this.x += 5;
+        this.x += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveLeft) {
-        this.x -= 5;
+        this.x -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveTop) {
-        this.y -= 5;
+        this.y -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveBot) {
-        this.y += 5;
+        this.y += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
 
     Entity.prototype.update.call(this);
@@ -1283,7 +1284,7 @@ function Wall(game, spritesheet, x, y) {
 };
 
 Wall.prototype.collide = function (other) {
-    return distance(this, other) < this.radius + other.radius + 5;
+    return distance(this, other) < this.radius + other.radius + 1;
 };
 Wall.prototype.collideB = function (other) {
     return distance(this, other) < 25;
@@ -1376,13 +1377,13 @@ Wall.prototype.update = function () {
     // }
 
     if (this.moveRight) {
-        this.x += 5;
+        this.x += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveLeft) {
-        this.x -= 5;
+        this.x -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveTop) {
-        this.y -= 5;
+        this.y -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveBot) {
-        this.y += 5;
+        this.y += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
 };
 
@@ -2044,7 +2045,7 @@ Bot.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += this.speedLvl;
+        this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -2056,7 +2057,7 @@ Bot.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= this.speedLvl;
+        this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -2067,7 +2068,7 @@ Bot.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += this.speedLvl;
+        this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -2078,7 +2079,7 @@ Bot.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= this.speedLvl;
+        this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -2148,21 +2149,21 @@ Bot.prototype.update = function () {
         if (!this.passTop) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 2;
-            this.y -= this.speedLvl * this.isConfused;
+            this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
         }
     }
     if (this.directionY === 1) {
         if (!this.passBottom) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 1;
-            this.y += this.speedLvl * this.isConfused;
+            this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
         }
     }
     if (this.directionX === 1) {
         if (!this.passRight) {
             this.animation.spriteSheet = this.sprite;
             this.animation.startrow = 0;
-            this.x += this.speedLvl * this.isConfused;
+            this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
         }
     }
 
@@ -2171,7 +2172,7 @@ Bot.prototype.update = function () {
             this.animation.spriteSheet = this.leftsprite;
             this.animation.startrow = 0;
             this.animation.reverse = true;
-            this.x -= this.speedLvl * this.isConfused;
+            this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick * this.isConfused;
         }
     }
     //This was used for bomb lvl up
