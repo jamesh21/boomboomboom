@@ -24,7 +24,8 @@ function GameEngine() {
     this.surfaceHeight = null;
     this.typeOfGame = 1;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft','KeyV','KeyB','KeyN', 'KeyM'];
+
     this.p1BombLvl = null;
     this.p1SpeedLvl = null;
     this.p1FlameLvl = null;
@@ -118,7 +119,7 @@ GameEngine.prototype.startInput = function () {
         // if (e.code === 'KeyV') {
         //     that.chars[e.code] = false;
         // } else {
-            that.chars[e.code] = true;
+        that.chars[e.code] = true;
         // }
         e.preventDefault();
         //console.log(e);
@@ -183,6 +184,11 @@ GameEngine.prototype.update = function () {
             this.entities.splice(i, 1);
         }
     }
+    for (var i = this.walls.length - 1; i >= 0; i--) {
+        if (this.walls[i].removeFromWorld) {
+            this.walls.splice(i, 1);
+        }
+    }
     // Loop  through the destroyable entities to remove from world
     for (var i = this.destroyable.length - 1; i >= 0; i--) {
         if (this.destroyable[i].removeFromWorld) {
@@ -227,7 +233,7 @@ GameEngine.prototype.update = function () {
         gameoverMsg.style.display = "block";
         // gameoverMsg.movingTargetX = this.ctx.x/2;
         // gameoverMsg.movingTargetY = this.ctx.y/2;
-        if (this.players_bots[0].name === "Bomberman") {
+        if (this.players_bots[0].name === "Bomberman" || this.players_bots[0].name === "Ugly") {
             gameoverMsg.innerHTML = "You Win!!!!!";
         }
         //document.getElementById('game-over').style.display = "block";
