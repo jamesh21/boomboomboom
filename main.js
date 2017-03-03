@@ -1,4 +1,4 @@
-const MAX_SPEED = 8;
+const MAX_SPEED = 10;
 const EACH_LEVEL_SPEED = 50;
 const MAX_BOMB = 10;
 const MAX_FLAME = 10;
@@ -1771,7 +1771,7 @@ function Bot(game, spritesheet, x, y) {
     this.currentBombOnField = 0;
     this.bombLvl = 1;
     this.flameLvl = 1;
-    this.speedLvl = 4;
+    this.speedLvl = 6;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.name = "Bot";
