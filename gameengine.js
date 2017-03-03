@@ -233,7 +233,7 @@ GameEngine.prototype.update = function () {
         gameoverMsg.style.display = "block";
         // gameoverMsg.movingTargetX = this.ctx.x/2;
         // gameoverMsg.movingTargetY = this.ctx.y/2;
-        if (this.players_bots[0].name === "Bomberman") {
+        if (this.players_bots[0].name === "Bomberman" || this.players_bots[0].name === "Ugly") {
             gameoverMsg.innerHTML = "You Win!!!!!";
         }
         //document.getElementById('game-over').style.display = "block";
