@@ -12,6 +12,12 @@ function distance(a, b) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
+function loadClick() {
+    console.log("HELLO LOAD");
+}
+function saveClick() {
+    console.log("HELLO SAVE");
+}
 var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;

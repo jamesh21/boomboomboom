@@ -45,7 +45,7 @@
             font-size: 20px;
             color: white;
             left:1150px;
-            down:1000px;;
+            down:1000px;
 
         }
 
@@ -61,6 +61,15 @@
             font-size: 20px;
             color:white;
             padding-left:40px;
+        }
+
+        .buttonLoad {
+            position: absolute;
+            left:1150px;
+        }
+        .buttonSave {
+            position: absolute;
+            left:1200px
         }
     </style>
 
@@ -82,6 +91,9 @@
             background: transparent"></canvas>
 
     <!--<div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>-->
+
+    <button class="buttonLoad" id="load_button" onclick="loadClick()">Load</button>
+    <button class="buttonSave" id="save_button" onclick="saveClick()">Save</button>
 
     <div class="game-over" id="game-over"></div>
     <div class="end-game"  id ="end-game"></div>
@@ -119,52 +131,38 @@
 
     </div>
 
-    <!--<div class="gui">-->
-        <!--<h3>Player:<IMG src = "./img/Ugly.png"></h3>-->
+    <!--<div class="instruction" id="instruction">-->
+        <!--<h1><center>Instructions</center></h1>-->
 
-        <!--<div style="float: left"><img src="./img/BombPowerup.png"></div>-->
-        <!--<div id="p2_bombUp" class="wordPositioning" > x 0</div>-->
-        <!--<br clear="left"/>-->
+        <!--<ul style = "list-style-type:disc">-->
 
-        <!--<div style="float: left"><img src="./img/SpeedPowerup.png"></div>-->
-        <!--<div id="p2_speedUp" class="wordPositioning" > x 0</div>-->
-        <!--<br clear="left"/>-->
+            <!--<li>1P Movement: UP, DOWN RIGHT, LEFT ARROW KEYS</li>-->
+            <!--<li>1P Bomb: SPACE KEY</li>-->
+            <!--<li>HIDDEN SKILL: RIGHT CTRL</li>-->
+            <!--<br>-->
+            <!--<li>2P Movement: A, W, S, D KEYS</li>-->
+            <!--<li>2P Bomb: LEFT SHIFT</li>-->
+            <!--<li>HIDDEN SKILL: LEFT CTRL</li>-->
+        <!--</ul>-->
 
-        <!--<div style="float: left"><img src="./img/FlamePowerup.png"></div>-->
-        <!--<div id="p2_flameUp" class="wordPositioning" > x 0</div>-->
-        <!--<br clear="left"/>-->
+
+        <!--<h1><center>Items</center></h1>-->
+            <!--<ul style = "list-style-type:disc">-->
+                <!--<li><IMG src="./img/BombPowerup.png">   Bomb Powerup: Increase number of bombs carried.</li>-->
+                <!--<li><IMG src="./img/SpeedPowerup.png">   Speed Powerup: Increase movement speed</li>-->
+                <!--<li><IMG src="./img/FlamePowerup.png">   Flame Powerup: Increase range of flames after bomb explosion</li>-->
+                <!--<li><IMG src="./img/KickPowerup.png">   Kick: Gains the ability to kick bombs</li>-->
+                <!--<li><IMG src="./img/SpeedPowerdown.png">   Speed Powerdown: Decrease movement speed</li>-->
+                <!--<li><IMG src="./img/ConfusionPowerdown.png">   Confusion: Movement impaired all movement keys reversed</li>-->
+            <!--</ul>-->
 
     <!--</div>-->
 
 
 
 
-    <div class="instruction" id="instruction">
-        <h1><center>Instructions</center></h1>
-
-        <ul style = "list-style-type:disc">
-
-            <li>1P Movement: UP, DOWN RIGHT, LEFT ARROW KEYS</li>
-            <li>1P Bomb: SPACE KEY</li>
-            <li>HIDDEN SKILL: RIGHT CTRL</li>
-            <br>
-            <li>2P Movement: A, W, S, D KEYS</li>
-            <li>2P Bomb: LEFT SHIFT</li>
-            <li>HIDDEN SKILL: LEFT CTRL</li>
-        </ul>
 
 
-        <h1><center>Items</center></h1>
-            <ul style = "list-style-type:disc">
-                <li><IMG src="./img/BombPowerup.png">   Bomb Powerup: Increase number of bombs carried.</li>
-                <li><IMG src="./img/SpeedPowerup.png">   Speed Powerup: Increase movement speed</li>
-                <li><IMG src="./img/FlamePowerup.png">   Flame Powerup: Increase range of flames after bomb explosion</li>
-                <li><IMG src="./img/KickPowerup.png">   Kick: Gains the ability to kick bombs</li>
-                <li><IMG src="./img/SpeedPowerdown.png">   Speed Powerdown: Decrease movement speed</li>
-                <li><IMG src="./img/ConfusionPowerdown.png">   Confusion: Movement impaired all movement keys reversed</li>
-            </ul>
-
-    </div>
 
 
 
