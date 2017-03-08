@@ -85,7 +85,7 @@ GameEngine.prototype.startInput = function () {
     //     console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
     // }, false);
 
-    this.ctx.canvas.addEventListener("click", mouseClicked, false);
+    //this.ctx.canvas.addEventListener("click", mouseClicked, false);
 
     this.ctx.canvas.addEventListener("contextmenu", function (e) {
         that.click = getXandY(e);
@@ -99,7 +99,7 @@ GameEngine.prototype.startInput = function () {
     //     that.mouse = getXandY(e);
     // }, false);
 
-    this.ctx.canvas.addEventListener("mousemove", mouseMoved, false);
+    //this.ctx.canvas.addEventListener("mousemove", mouseMoved, false);
 
     this.ctx.canvas.addEventListener("mousewheel", function (e) {
         //console.log(e);
@@ -207,39 +207,38 @@ GameEngine.prototype.update = function () {
     }
     for (var i = this.players_bots.length - 1; i >= 0; i--) {
         if (this.players_bots[i].removeFromWorld) {
-            if (this.typeOfGame === 1 && this.players_bots[i].name === "Bomberman") {
-                document.getElementById('end-game').style.display = "flex";
-                var gameoverMsg = document.getElementById('game-over');
-                gameoverMsg.style.display = "block";
-                gameoverMsg.innerHTML = "You Lose!!!!!";
-                this.clockTick = 0;
-                break;
-            }
+            // if (this.typeOfGame === 1 && this.players_bots[i].name === "Bomberman") {
+            //     document.getElementById('end-game').style.display = "flex";
+            //     var gameoverMsg = document.getElementById('game-over');
+            //     gameoverMsg.style.display = "block";
+            //     gameoverMsg.innerHTML = "You Lose!!!!!";
+            //     this.clockTick = 0;
+            //     break;
+            // }
             this.players_bots.splice(i, 1);
-            if (this.typeOfGame === 2 && (this.checkPlayers() ||
-                (this.players_bots.length === 1 && this.players_bots[0].name === "Bot"))) {
-                document.getElementById('end-game').style.display = "flex";
-                var gameoverMsg = document.getElementById('game-over');
-                gameoverMsg.style.display = "block";
-                gameoverMsg.innerHTML = "A.I. Wins!!!!!";
-                this.clockTick = 0;
-                break;
-            }
+            // if (this.typeOfGame === 2 && (this.checkPlayers() ||
+            //     (this.players_bots.length === 1 && this.players_bots[0].name === "Bot"))) {
+            //     document.getElementById('end-game').style.display = "flex";
+            //     var gameoverMsg = document.getElementById('game-over');
+            //     gameoverMsg.style.display = "block";
+            //     gameoverMsg.innerHTML = "A.I. Wins!!!!!";
+            //     this.clockTick = 0;
+            //     break;
+            // }
         }
     }
-    if (this.players_bots.length === 1) {
-        document.getElementById('end-game').style.display = "flex";
-        var gameoverMsg = document.getElementById('game-over');
-        gameoverMsg.style.display = "block";
-        // gameoverMsg.movingTargetX = this.ctx.x/2;
-        // gameoverMsg.movingTargetY = this.ctx.y/2;
-        if (this.players_bots[0].name === "Bomberman" || this.players_bots[0].name === "Ugly") {
-            gameoverMsg.innerHTML = "You Win!!!!!";
-        }
-        //document.getElementById('game-over').style.display = "block";
-
-        this.clockTick = 0;
-    }
+    // if (this.players_bots.length === 1) {
+    //     document.getElementById('end-game').style.display = "flex";
+    //     var gameoverMsg = document.getElementById('game-over');
+    //     gameoverMsg.style.display = "block";
+    //     // gameoverMsg.movingTargetX = this.ctx.x/2;
+    //     // gameoverMsg.movingTargetY = this.ctx.y/2;
+    //     if (this.players_bots[0].name === "Bomberman" || this.players_bots[0].name === "Ugly") {
+    //         gameoverMsg.innerHTML = "You Win!!!!!";
+    //     }
+    //
+    //     this.clockTick = 0;
+    // }
 }
 
 GameEngine.prototype.checkPlayers = function () {

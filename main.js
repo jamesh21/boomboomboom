@@ -15,58 +15,58 @@ function distance(a, b) {
 var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
-// var firstPlayerButton = new Button(234, 452, 388, 418);
-var firstPlayerButton = new Button(234, 452, 378, 428);
 
-var twoPlayerButton = new Button(600, 868, 378, 428);
-
-// When function is called, it checks if the click was within the button boundaires.
-function mouseClicked(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    var gui = document.getElementById('gui');
-    var instruction = document.getElementById('instruction');
-    var twopGui = document.getElementById('2p')
-    if (firstPlayerButton.isClicked() && !gameStarted) {
-        gameStarted = true;
-        instruction.style.display="none";
-        gui.style.display = "block";
-        twopGui.style.display = "none";
-        startSinglePlayerGame();
-    } else if (twoPlayerButton.isClicked() && !gameStarted) {
-        gameStarted = true;
-        instruction.style.display="none";
-        gui.style.display = "block";
-        startTwoPlayerGame();
-    }
-}
-
-// This function is used for changing which state the mouse cursor should be in.
-function mouseMoved(e) {
-    if ((firstPlayerButton.xLeft <= e.clientX && e.clientX <= firstPlayerButton.xRight &&
-        firstPlayerButton.yTop <= e.clientY && e.clientY <= firstPlayerButton.yBottom && !gameStarted) ||
-        (twoPlayerButton.xLeft <= e.clientX && e.clientX <= twoPlayerButton.xRight &&
-        twoPlayerButton.yTop <= e.clientY && e.clientY <= twoPlayerButton.yBottom && !gameStarted)) {
-        document.documentElement.style.cursor = "url(./img/HeadCursor.png),auto";
-    } else {
-        document.documentElement.style.cursor = "auto";
-    }
-}
+// var firstPlayerButton = new Button(234, 452, 378, 428);
+//
+// var twoPlayerButton = new Button(600, 868, 378, 428);
+//
+// // When function is called, it checks if the click was within the button boundaires.
+// function mouseClicked(e) {
+//     mouseX = e.clientX;
+//     mouseY = e.clientY;
+//     var gui = document.getElementById('gui');
+//     var instruction = document.getElementById('instruction');
+//     var twopGui = document.getElementById('2p')
+//     if (firstPlayerButton.isClicked() && !gameStarted) {
+//         gameStarted = true;
+//         instruction.style.display="none";
+//         gui.style.display = "block";
+//         twopGui.style.display = "none";
+//         startSinglePlayerGame();
+//     } else if (twoPlayerButton.isClicked() && !gameStarted) {
+//         gameStarted = true;
+//         instruction.style.display="none";
+//         gui.style.display = "block";
+//         startTwoPlayerGame();
+//     }
+// }
+//
+// // This function is used for changing which state the mouse cursor should be in.
+// function mouseMoved(e) {
+//     if ((firstPlayerButton.xLeft <= e.clientX && e.clientX <= firstPlayerButton.xRight &&
+//         firstPlayerButton.yTop <= e.clientY && e.clientY <= firstPlayerButton.yBottom && !gameStarted) ||
+//         (twoPlayerButton.xLeft <= e.clientX && e.clientX <= twoPlayerButton.xRight &&
+//         twoPlayerButton.yTop <= e.clientY && e.clientY <= twoPlayerButton.yBottom && !gameStarted)) {
+//         document.documentElement.style.cursor = "url(./img/HeadCursor.png),auto";
+//     } else {
+//         document.documentElement.style.cursor = "auto";
+//     }
+// }
 
 // Button class which presents the buttons to start the game
-function Button(leftX, rightX, topY, bottomY) {
-    this.xLeft = leftX;
-    this.xRight = rightX;
-    this.yTop = topY;
-    this.yBottom = bottomY;
-}
+// function Button(leftX, rightX, topY, bottomY) {
+//     this.xLeft = leftX;
+//     this.xRight = rightX;
+//     this.yTop = topY;
+//     this.yBottom = bottomY;
+// }
 
 // Checking if the button was clicked on to begin the game.
-Button.prototype.isClicked = function () {
-    if (this.xLeft <= mouseX && mouseX <= this.xRight && this.yTop <= mouseY && mouseY <= this.yBottom) {
-        return true;
-    }
-};
+// Button.prototype.isClicked = function () {
+//     if (this.xLeft <= mouseX && mouseX <= this.xRight && this.yTop <= mouseY && mouseY <= this.yBottom) {
+//         return true;
+//     }
+// };
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop,
                    scale, startrow, reverse) {
@@ -983,21 +983,6 @@ Bomb.prototype.collide = function (other) {
     return distance(this, other) < this.radius + other.radius + 1;
 };
 
-// Bomb.prototype.checkLeft = function (other) {
-//     return !(other.cx + other.cxx < this.x);
-// };
-//
-// Bomb.prototype.checkRight = function (other) {
-//     return !(other.cx > this.x + this.cxx);
-// };
-//
-// Bomb.prototype.checkTop = function (other) {
-//     return !(other.cy + other.cyy < this.y);
-// };
-//
-// Bomb.prototype.checkBottom = function (other) {
-//     return !(other.cy > this.y + this.cyy);
-// };
 
 Bomb.prototype.update = function () {
     //Checking if the bomb animation has ended
@@ -1021,12 +1006,7 @@ Bomb.prototype.update = function () {
                 pos.y * 50);
         }
     }
-    // for (var i = 0; i < this.game.players_bots.length; i++) {
-    //     var character = this.game.players_bots[i];
-    //     if (this.collide(character)) {
-    //         character.insideBomb = this;
-    //     }
-    // }
+
     this.cx = this.x;
     this.cy = this.y;
     this.center = {x: (this.cx + (this.cxx / 2)), y: (this.cy + (this.cyy / 2))};
@@ -2262,7 +2242,8 @@ AM.downloadAll(function () {
     gameEngine.start();
     soundManager.init();
     soundManager.playSound(soundManager.menuBackgroundSound);
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
+    //gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
+    startSinglePlayerGame();
 
 });
 
