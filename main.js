@@ -1209,23 +1209,23 @@ Flame.prototype.update = function () {
                         continue;
                     }
                 }
-                if (ent.name === "Destroyable") {
-                    if (this.game.destroyable.length < 5) {
-                        if (this.game.destroyable.length != 0) {
-                            for (var i = 0; i < this.game.destroyable.length; i++) {
-                                var entD = this.game.destroyable[i];
-                                if (!entD.removeFromWorld) {
-                                    entD.removeFromWorld = true;
-                                }
-                            }
-                        }
-                        soundManager.stopSound(soundManager.gameBackgroundSound);
-                        soundManager.playSound(soundManager.countDown);
-                        setTimeout(function () {
-                            dangerousStart(gameEngine);
-                        }, 4000);
-                    }
-                }
+                // if (ent.name === "Destroyable") {
+                //     if (this.game.destroyable.length < 5) {
+                //         if (this.game.destroyable.length != 0) {
+                //             for (var i = 0; i < this.game.destroyable.length; i++) {
+                //                 var entD = this.game.destroyable[i];
+                //                 if (!entD.removeFromWorld) {
+                //                     entD.removeFromWorld = true;
+                //                 }
+                //             }
+                //         }
+                //         soundManager.stopSound(soundManager.gameBackgroundSound);
+                //         soundManager.playSound(soundManager.countDown);
+                //         setTimeout(function () {
+                //             dangerousStart(gameEngine);
+                //         }, 4000);
+                //     }
+                // }
                 ent.removeFromWorld = true;
             }
             // if (ent.name === "Bomb") {
@@ -1787,6 +1787,7 @@ function Bot(game, spritesheet, x, y) {
     this.elapsedTime = 0;
     this.jumpBeginY = null;
     this.fireJump = false;
+    this.dangerousCount = 0;
     Entity.call(this, game, x, y);
 }
 
@@ -1891,9 +1892,12 @@ Bot.prototype.getDirection = function () {
         var resultDirections = null;
         if (safePositions.length > 0) {
             resultDirections = safePositions;
-        } else if (possibles.length > 1) {
+        } else if (possibles.length > 1 /*&& this.dangerousCount<130*/ && !this.isJump) {
+            this.dangerousCount++;
             resultDirections = possibles;
-        } else if (possibles.length === 1 && this.jumpCooldown ===0 /*&& this.insideBomb === null*/){
+        }else if(possibles.length <2 && this.dangerousCount<50&& this.jumpCooldown===0){
+            this.dangerousCount++;
+        } else if ((possibles.length < 2 && this.dangerousCount>49)/*possibles.length === 1*/ && this.jumpCooldown ===0 /*&& this.insideBomb === null*/){
             this.fireJump = true;
         }
 
@@ -2204,7 +2208,8 @@ Bot.prototype.update = function () {
             this.movingTarget = null;
         }
         if (this.jumpCooldown === 0 && this.fireJump) {
-            this.jumpCooldown = 4;
+            this.dangerousCount = 0;
+            this.jumpCooldown = 5;
             this.jumpBeginY = this.y;
             this.isJump = true;
             this.fireJump = false;
@@ -2213,7 +2218,7 @@ Bot.prototype.update = function () {
 
     if (this.isJump) {
         this.elapsedTime += this.game.clockTick;
-        var jumpDistance = this.elapsedTime / 3.5;
+        var jumpDistance = this.elapsedTime / 4;
         var totalHeight = 100;
         {
             if (jumpDistance > 0.5) {
@@ -2224,7 +2229,7 @@ Bot.prototype.update = function () {
         var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
 
         this.y = this.jumpBeginY - height;
-        if (this.elapsedTime > 3.5) {
+        if (this.elapsedTime > 4) {
             this.isJump = false;
             this.jumpBeginY = null;
             this.elapsedTime = 0;
