@@ -1750,9 +1750,9 @@ function Bot(game, spritesheet, x, y) {
     this.cooldown = 0;
     this.jumpCooldown = 0;
     this.currentBombOnField = 0;
-    this.bombLvl = 1;
-    this.flameLvl = 1;
-    this.speedLvl = 6;
+    this.bombLvl = 10;
+    this.flameLvl = 10;
+    this.speedLvl = 4;
     this.debuffTimer = 0;
     this.isConfused = 1;
     this.canKick = true;
@@ -1856,6 +1856,7 @@ Bot.prototype.getDirection = function () {
     }
     if (changeDirection) {
         var safePositions = [];
+        console.log("possible size: "+ possibles.length);
         for (var i = 0; i < possibles.length; i++) {
             var pos = possibles[i];
             if (this.isSafe(pos)) {
@@ -1891,17 +1892,22 @@ Bot.prototype.getDirection = function () {
 
         var resultDirections = null;
         if (safePositions.length > 0) {
+            this.dangerousCount = 0;
             resultDirections = safePositions;
-        } else if (possibles.length > 1 /*&& this.dangerousCount<130*/ && !this.isJump) {
+        } else if ((possibles.length > 1|| this.dangerousCount>9) /*&& this.dangerousCount<130*/ && !this.isJump) {
+            if (this.dangerousCount>9) {
+                this.fireJump = true;
+            } else {
+                this.dangerousCount++;
+                resultDirections = possibles;
+            }
+        }/*else if(possibles.length <2 && this.dangerousCount<30&& this.jumpCooldown===0){
             this.dangerousCount++;
-            resultDirections = possibles;
-        }else if(possibles.length <2 && this.dangerousCount<50&& this.jumpCooldown===0){
-            this.dangerousCount++;
-        } else if ((possibles.length < 2 && this.dangerousCount>49)/*possibles.length === 1*/ && this.jumpCooldown ===0 /*&& this.insideBomb === null*/){
+        }*/ else if ((possibles.length < 2 || this.dangerousCount>9)/*possibles.length === 1*/ && !this.isJump /*&& this.insideBomb === null*/){
             this.fireJump = true;
         }
 
-
+console.log("my count = "+this.dangerousCount);
         // random pick a cell
         // console.log("my possibles size: "+possibles.length);
         // console.log("What's my movingTarget then11111????" + this.movingTarget);
@@ -2030,6 +2036,23 @@ Bot.prototype.findPossibleDirection = function (theX, theY) {
 // this method is checked, return true if position is safe, otherwise false.
 // @param position is the game coordination.
 Bot.prototype.isSafe = function (position) {
+    // for (var i = 0; i < this.game.bombs.length; i++) {
+    //     var bomb = this.game.bombs[i];
+    //     var flamePositions = bomb.printFlameHelper();
+    //     for (var j = 0; j < flamePositions.length; j++) {
+    //         var flame = flamePositions[j];
+    //         if (flame.x === position.x && flame.y === position.y) {
+    //             return false;
+    //         }
+    //     }
+    // }
+    for (var k = 0; k < this.game.flames.length; k++) {
+        var flame = this.game.flames[k];
+        if ((flame.x / 50) === position.x && (flame.y / 50) === position.y) {
+            // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
+            return false;
+        }
+    }
     for (var i = 0; i < this.game.bombs.length; i++) {
         var bomb = this.game.bombs[i];
         var flamePositions = bomb.printFlameHelper();
@@ -2038,13 +2061,6 @@ Bot.prototype.isSafe = function (position) {
             if (flame.x === position.x && flame.y === position.y) {
                 return false;
             }
-        }
-    }
-    for (var k = 0; k < this.game.flames.length; k++) {
-        var flame = this.game.flames[k];
-        if ((flame.x / 50) === position.x && (flame.y / 50) === position.y) {
-            // console.log("WHAT THE FXXK!!!!!!! IT'S FIRE FIRE FIRE");
-            return false;
         }
     }
     return true;
@@ -2153,16 +2169,36 @@ Bot.prototype.update = function () {
             if (ent !== this && ent.name !== "Ugly" && ent.name !== "Bot" && ent.name !== "Bomberman"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld) {
                 //     console.log("ent name: "+ent.name);
-                if (ent.name !== "Bomb" || this.insideBomb == null) {
+                if (ent.name !== "Bomb" /*|| this.insideBomb == null*/) {
                     this.passTop = this.collideTop(ent);
                     this.passBottom = this.collideBottom(ent);
                     this.passRight = this.collideRight(ent);
                     this.passLeft = this.collideLeft(ent);
-                } else if (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y) {
+                } else if (this.insideBomb == null || (ent.x != this.insideBomb.x || ent.y != this.insideBomb.y)) {
                     this.passTop = this.collideTop(ent);
                     this.passBottom = this.collideBottom(ent);
                     this.passRight = this.collideRight(ent);
                     this.passLeft = this.collideLeft(ent);
+                    if (this.canKick && ent.name === "Bomb"
+                        && this.passTop && this.game.chars['ArrowUp']) {
+                        ent.moveTop = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        ent.moveBot = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passRight && this.game.chars['ArrowRight']) {
+                        ent.moveRight = true;
+                        ent.isMoving = true;
+                    }
+                    else if (this.canKick && ent.name === "Bomb"
+                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        ent.moveLeft = true;
+                        ent.isMoving = true;
+                    }
                 }
             }
         }
