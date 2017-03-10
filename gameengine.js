@@ -24,7 +24,8 @@ function GameEngine() {
     this.surfaceHeight = null;
     this.typeOfGame = 1;
     this.chars = ['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft',
-        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft','KeyV','KeyB','KeyN', 'KeyM'];
+        'KeyA', 'KeyW', 'KeyD', 'KeyS', 'ControlRight', 'Space', 'ControlLeft', 'ShiftLeft'
+        ,'KeyV','KeyB','KeyN', 'KeyM', 'AltRight'];
 
     this.p1BombLvl = null;
     this.p1SpeedLvl = null;
@@ -111,7 +112,7 @@ GameEngine.prototype.startInput = function () {
         that.chars[e.code] = true;
         e.preventDefault();
         //console.log(e);
-        // console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
+        console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
