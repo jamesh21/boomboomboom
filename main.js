@@ -341,7 +341,7 @@ Ugly.prototype.update = function () {
         Entity.call(bomb, this.game, x, y);
     }
 
-    if (this.insideBomb != null) {
+    if (!this.isJump && this.insideBomb != null) {
         if (!this.collide(this.insideBomb) || this.insideBomb.removeFromWorld) {
             this.insideBomb = null;
         }
@@ -437,6 +437,7 @@ Ugly.prototype.update = function () {
 
         this.y = this.jumpBeginY - height;
         if (this.elapsedTime > 1.5) {
+            this.y = this.jumpBeginY;
             this.isJump = false;
             this.jumpBeginY = null;
             this.elapsedTime = 0;
@@ -625,7 +626,7 @@ Bomberman.prototype.update = function () {
         Entity.call(bomb, this.game, x, y);
     }
 
-    if (this.insideBomb != null) {
+    if (!this.isJump && this.insideBomb != null) {
         // console.log(this.insideBomb);
         // console.log("BOMB CENTER X: "+this.insideBomb.center.x);
         // console.log("AM I COLLIDING!!!!!!!!!!!!! "+this.collide(this.insideBomb));
@@ -801,6 +802,7 @@ Bomberman.prototype.update = function () {
 
         this.y = this.jumpBeginY - height;
         if (this.elapsedTime > 1.5) {
+            this.y = this.jumpBeginY;
             this.isJump = false;
             this.jumpBeginY = null;
             this.elapsedTime = 0;
