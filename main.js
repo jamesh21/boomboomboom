@@ -637,10 +637,10 @@ Bomberman.prototype.update = function () {
     //     console.log("what is my insideBomb x and y? {" + this.insideBomb.x + ", " + this.insideBomb.y + "}");
     //     console.log("So what is my position x and y? {" + this.position.x + ", " + this.position.y + "}");
 
-    if (this.game.chars['AltRight'] && !this.isJump && this.throwbombCooldown === 0) {
+    if ((/*this.game.chars['Space']||*/this.game.chars['AltRight']) && !this.isJump && this.throwbombCooldown === 0) {
         if (this.insideBomb !== null && (this.insideBomb.x === this.position.x * 50
             && this.insideBomb.y === this.position.y * 50)) {
-            this.throwbombCooldown = 0.75;
+            this.throwbombCooldown = 0.8;
             console.log("WELCOME HERE what is my insideBomb x and y? {" + this.insideBomb.x + ", " + this.insideBomb.y + "}");
             for (var i = 0; i < this.game.bombs.length; i++) {
                 var entB = this.game.bombs[i];
@@ -653,6 +653,49 @@ Bomberman.prototype.update = function () {
                     entB.flyBot = this.faceBot;
                     entB.flyLeft = this.faceLeft;
                     entB.flyRight = this.faceRight;
+                    // var addLength = 0;
+                    if (this.faceRight) {
+                        var check = 22 - this.position.x - 3;
+                        console.log("My check"+check);
+                        for (var j = 0; j < check; j++) {
+                            var moveToNext = false;
+                            console.log("CheckLoop start");
+                            for (var k = 0; k < this.game.entities.length; k++) {
+                                console.log("CheckLoop during");
+                                var entG = this.game.entities[k];
+                                // console.log("What is it? " + entG.name);
+                                // console.log("entG x ? {" + entG.x + "}");
+                                // console.log("entG y? "+entG.y+ " and my y? "+ (this.position.y*50));
+                                // console.log("this.position.x*50 = "+ (this.position.x*50));
+                                // console.log("entB.addlength+200 = "+(entB.addLength+200));
+                                console.log("entG.y = "+entG.y + " and this.position.y*50= "+(this.position.y * 50));
+                                console.log("entG.x = "+entG.x + " and this.position.x*50= "+(this.position.x * 50));
+                                if (entG !== entB && !entG.removeFromWorld &&
+                                    (entG.name === "Destroyable"
+                                    || entG.name === "Wall"
+                                    || entG.name === "Bomb")&& entG.y === this.position.y * 50) {
+                                    console.log("What is it? " + entG.name);
+                                    console.log("entG x ? {" + entG.x + "}");
+                                    console.log("entG y? "+entG.y+ " and my y? "+ (this.position.y*50));
+                                    console.log("this.position.x*50 = "+ (this.position.x*50));
+                                    console.log("entB.addlength+200 = "+(entB.addLength+200));
+                                    if (entG.x === (this.position.x * 50) + entB.addLength+200) {
+
+                                        moveToNext = true;
+                                        entB.addLength += 50;
+                                        console.log("CheckLoop during break");
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!moveToNext) {
+                                console.log("CheckLoop start break");
+                                break;
+                            }
+                        }
+                        // totalLength += addLength;
+                    }
+                    break;
                 }
             }
         }
@@ -1052,6 +1095,7 @@ function Bomb(game, spritesheet, owner) {
     this.flyBot = false;
     this.flyLeft = false;
     this.flyRight = false;
+    this.addLength = 0;
 }
 
 Bomb.prototype = new Entity();
@@ -1162,50 +1206,50 @@ Bomb.prototype.update = function () {
         // this.throwBeginX = this.x;
         // this.throwBeginY = this.y;
         this.elapsedTime += this.game.clockTick;
-        var throwDistance = this.elapsedTime / 0.5;
+        var throwDistance = this.elapsedTime / 0.8;
         if (this.flyRight) {
             var totalHeight = 100; // it is y at this moment
-            var totalLength = 200; // it is x at this moment
+            var totalLength = 200 + this.addLength; // it is x at this moment
             /*var addLength = 0;
-            var check = 22-this.position.x-3;
-            for (var i = 0; i < check; i++) {
-                var moveToNext = false;
-                console.log("CheckLoop start");
-                for (var j =0; j <this.game.entities.length; j++) {
-                    console.log("CheckLoop during");
-                    var ent = this.game.entities[j];
-                    if (!ent.removeFromWorld &&
-                        (ent.name==="Destroyable"
-                        || ent.name==="Wall"
-                        || ent.name ==="Bomb")) {
-                        if (ent.x === this.x+addLength) {
-                            moveToNext = true;
-                            addLength += 50;
-                            console.log("CheckLoop during break");
-                            break;
-                        }
-                    }
-                }
-                if (!moveToNext) {
-                    console.log("CheckLoop start break");
-                    break;
-                }
-            }
-            totalLength += addLength;*/
+             var check = 22-this.position.x-3;
+             for (var i = 0; i < check; i++) {
+             var moveToNext = false;
+             console.log("CheckLoop start");
+             for (var j =0; j <this.game.entities.length; j++) {
+             console.log("CheckLoop during");
+             var ent = this.game.entities[j];
+             if (!ent.removeFromWorld &&
+             (ent.name==="Destroyable"
+             || ent.name==="Wall"
+             || ent.name ==="Bomb")) {
+             if (ent.x === this.x+addLength) {
+             moveToNext = true;
+             addLength += 50;
+             console.log("CheckLoop during break");
+             break;
+             }
+             }
+             }
+             if (!moveToNext) {
+             console.log("CheckLoop start break");
+             break;
+             }
+             }
+             totalLength += addLength;*/
             if (throwDistance > 0.5) {
                 throwDistance = 1 - throwDistance;
             }
             // console.log("throwDistance? " + throwDistance);
             var height = totalHeight * (-4 * (throwDistance * throwDistance - throwDistance));
             // var length = totalLength * (-4 * (throwDistance * throwDistance - throwDistance));
-            var length = totalLength * (this.elapsedTime / 0.5);
+            var length = totalLength * (this.elapsedTime / 0.8);
             // console.log("Height? " + height);
             // console.log("Length? " + length);
             this.y = this.throwBeginY - height;
             this.x = this.throwBeginX + length;
             // console.log("my bomb x,y? {" + this.x + ", " + this.y + "}");
         }
-        if (this.elapsedTime > 0.5) {
+        if (this.elapsedTime > 0.8) {
             // this.isJump = false;
             // this.jumpBeginY = null;
             this.flying = false;
