@@ -212,6 +212,7 @@ GameEngine.prototype.update = function () {
                 var gameoverMsg = document.getElementById('game-over');
                 gameoverMsg.style.display = "block";
                 gameoverMsg.innerHTML = "You Lose!!!!!";
+                document.getElementById("restart_button").style.display="block";
                 this.clockTick = 0;
                 break;
             }
@@ -222,6 +223,7 @@ GameEngine.prototype.update = function () {
                 var gameoverMsg = document.getElementById('game-over');
                 gameoverMsg.style.display = "block";
                 gameoverMsg.innerHTML = "A.I. Wins!!!!!";
+                document.getElementById("restart_button").style.display="block";
                 this.clockTick = 0;
                 break;
             }
@@ -235,6 +237,7 @@ GameEngine.prototype.update = function () {
         // gameoverMsg.movingTargetY = this.ctx.y/2;
         if (this.players_bots[0].name === "Bomberman" || this.players_bots[0].name === "Ugly") {
             gameoverMsg.innerHTML = "You Win!!!!!";
+            document.getElementById("restart_button").style.display="block";
         }
         //document.getElementById('game-over').style.display = "block";
 

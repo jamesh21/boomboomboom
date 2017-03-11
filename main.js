@@ -2411,14 +2411,9 @@ function startSinglePlayerGame() {
     gameEngine.typeOfGame = 1;
     initiateGUI();
     gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
-    // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0));
-    // gameEngine.typeOfGame = 1;
-    // initiateGUI();
-    console.log("Single Player Game");
 
 }
 function startTwoPlayerGame() {
@@ -2429,11 +2424,6 @@ function startTwoPlayerGame() {
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
-    //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    // gameEngine.typeOfGame = 2;
-    // initiateGUI();
-    console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
 function initiateGUI () {
@@ -2452,6 +2442,7 @@ function initiateGUI () {
         gameEngine.p2SpeedLvl = p2SpeedLvl;
     }
 }
+
 
 // Sound Manager Object
 function SoundManager() {
