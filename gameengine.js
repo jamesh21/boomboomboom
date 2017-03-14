@@ -41,11 +41,9 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceHeight = this.ctx.canvas.height;
     this.timer = new Timer();
     this.startInput();
-    console.log('game initialized');
 }
 
 GameEngine.prototype.start = function () {
-    console.log("starting game");
     var that = this;
     (function gameLoop() {
         that.loop();
@@ -61,7 +59,6 @@ GameEngine.prototype.addOffLimitPlacement = function (x, y) {
 }
 
 GameEngine.prototype.startInput = function () {
-    console.log('Starting input');
 
     var getXandY = function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
@@ -77,53 +74,26 @@ GameEngine.prototype.startInput = function () {
 
     var that = this;
 
-    // event listeners are added here
-
-    // this.ctx.canvas.addEventListener("click", function (e) {
-    //     that.click = getXandY(e);
-    //     console.log(e);
-    //     console.log("Left Click Event - X,Y " + e.clientX + ", " + e.clientY);
-    // }, false);
-
-    //this.ctx.canvas.addEventListener("click", mouseClicked, false);
 
     this.ctx.canvas.addEventListener("contextmenu", function (e) {
         that.click = getXandY(e);
-        //console.log(e);
-        // console.log("Right Click Event - X,Y " + e.clientX + ", " + e.clientY);
         e.preventDefault();
     }, false);
 
-    // this.ctx.canvas.addEventListener("mousemove", function (e) {
-    //     //console.log(e);
-    //     that.mouse = getXandY(e);
-    // }, false);
 
-    //this.ctx.canvas.addEventListener("mousemove", mouseMoved, false);
 
     this.ctx.canvas.addEventListener("mousewheel", function (e) {
-        //console.log(e);
         that.wheel = e;
-        //console.log("Click Event - X,Y " + e.clientX + ", " + e.clientY + " Delta " + e.deltaY);
     }, false);
 
     this.ctx.canvas.addEventListener("keydown", function (e) {
         that.chars[e.code] = true;
         e.preventDefault();
-        //console.log(e);
-        // console.log("Key Down Event - Char " + e.code + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keypress", function (e) {
-        // if (e.code === "KeyD") that.d = true;\
-        // if (e.code === 'KeyV') {
-        //     that.chars[e.code] = false;
-        // } else {
         that.chars[e.code] = true;
-        // }
         e.preventDefault();
-        //console.log(e);
-        // console.log("Key Pressed Event - Char " + e.charCode + " Code " + e.keyCode);
     }, false);
 
     this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -136,7 +106,6 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.addEntity = function (entity) {
-    console.log('added entity');
     this.entities.push(entity);
     if (entity.name === "Wall") this.walls.push(entity);
     if (entity.name === "Bomb") this.bombs.push(entity);
@@ -242,7 +211,6 @@ GameEngine.prototype.update = function () {
 }
 
 GameEngine.prototype.checkPlayers = function () {
-    console.log("Im in here");
     if (this.players_bots.length === 2 && ((this.players_bots[0].name === "Bot" &&
         this.players_bots[1].name === "Bot") || this.players_bots[0].name === "Bot" &&
         this.players_bots[1].name === "Bot")) {

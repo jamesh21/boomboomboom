@@ -12,67 +12,76 @@ function distance(a, b) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-function loadClick() {
-    console.log("HELLO LOAD");
+
+var socket = io.connect("http://76.28.150.193:8888");
+
+socket.on("load", function (data) {
+    gameEngine.entities = [];
+    gameEngine.destroyable = [];
+    gameEngine.walls = [];
+    gameEngine.bombs = [];
+    gameEngine.flames = [];
+    gameEngine.players_bots = [];
+    gameEngine.offLimitPlacement = [];
+    gameEngine.items = [];
+    var savedEntities = data.entities;
+    for (var i = 0; i < savedEntities.length; i++) {
+        var x = savedEntities[i].x;
+        var y = savedEntities[i].y;
+        var s = savedEntities[i].s;
+        var state = savedEntities[i].state;
+        var cooldown = savedEntities[i].cooldown;
+        var preState = savedEntities[i].preState;
+        var cell = new Cell(gameEngine, x, y, s);
+        cell.state = state;
+        cell.cooldown = cooldown;
+        cell.preState = preState;
+        //gameEngine.entities.push(cell);
+        gameEngine.addEntity(cell);
+    }
+    console.log(data.x);
+});
+
+// socket.emit("save", { studentname: "Yau Kuen Tsang", statename: "aState", x:5 });
+// socket.emit("load", { studentname: "Yau Kuen Tsang", statename: "aState" });
+//socket.emit("load", { studentname: "Yau Kuen Tsang", statename: "theState" });
+
+function SaveBot(x, y, s) {
+    this.x = x;
+    this.y = y;
+    this.state = s;
+    this.cooldown = 0;
+    this.preState = this.state;
 }
+
 function saveClick() {
-    console.log("HELLO SAVE");
+    var saveEntities = [];
+    for (var i = 0; i < gameEngine.entities.length; i++) {
+        var x = gameEngine.entities[i].x;
+        var y = gameEngine.entities[i].y;
+        var s = gameEngine.entities[i].s;
+        var state = gameEngine.entities[i].state;
+        var cooldown = gameEngine.entities[i].cooldown;
+        var preState = gameEngine.entities[i].preState;
+        var cell = new SaveCell(x, y, s);
+        cell.state = state;
+        cell.cooldown = cooldown;
+        cell.preState = preState;
+        saveEntities.push(cell);
+    }
+
+    socket.emit("save", { studentname: "Yau Kuen Tsang", statename: "aState", x:saveEntities});
 }
+function loadClick() {
+    socket.emit("load", { studentname: "Yau Kuen Tsang", statename: "aState" });
+}
+
+
 var mouseX = 0;
 var mouseY = 0;
 var gameStarted = false;
 
-// var firstPlayerButton = new Button(234, 452, 378, 428);
-//
-// var twoPlayerButton = new Button(600, 868, 378, 428);
-//
-// // When function is called, it checks if the click was within the button boundaires.
-// function mouseClicked(e) {
-//     mouseX = e.clientX;
-//     mouseY = e.clientY;
-//     var gui = document.getElementById('gui');
-//     var instruction = document.getElementById('instruction');
-//     var twopGui = document.getElementById('2p')
-//     if (firstPlayerButton.isClicked() && !gameStarted) {
-//         gameStarted = true;
-//         instruction.style.display="none";
-//         gui.style.display = "block";
-//         twopGui.style.display = "none";
-//         startSinglePlayerGame();
-//     } else if (twoPlayerButton.isClicked() && !gameStarted) {
-//         gameStarted = true;
-//         instruction.style.display="none";
-//         gui.style.display = "block";
-//         startTwoPlayerGame();
-//     }
-// }
-//
-// // This function is used for changing which state the mouse cursor should be in.
-// function mouseMoved(e) {
-//     if ((firstPlayerButton.xLeft <= e.clientX && e.clientX <= firstPlayerButton.xRight &&
-//         firstPlayerButton.yTop <= e.clientY && e.clientY <= firstPlayerButton.yBottom && !gameStarted) ||
-//         (twoPlayerButton.xLeft <= e.clientX && e.clientX <= twoPlayerButton.xRight &&
-//         twoPlayerButton.yTop <= e.clientY && e.clientY <= twoPlayerButton.yBottom && !gameStarted)) {
-//         document.documentElement.style.cursor = "url(./img/HeadCursor.png),auto";
-//     } else {
-//         document.documentElement.style.cursor = "auto";
-//     }
-// }
 
-// Button class which presents the buttons to start the game
-// function Button(leftX, rightX, topY, bottomY) {
-//     this.xLeft = leftX;
-//     this.xRight = rightX;
-//     this.yTop = topY;
-//     this.yBottom = bottomY;
-// }
-
-// Checking if the button was clicked on to begin the game.
-// Button.prototype.isClicked = function () {
-//     if (this.xLeft <= mouseX && mouseX <= this.xRight && this.yTop <= mouseY && mouseY <= this.yBottom) {
-//         return true;
-//     }
-// };
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop,
                    scale, startrow, reverse) {
@@ -98,15 +107,6 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, cx, cy, cxx, cyy) {
     var frame = this.currentFrame();
     var xindex = 0;
     var yindex = 0;
-    // this code is because in the beginning after i flipped the image,
-    // when the direction toward left, it seems like moon walk so
-    // i reverse the x index count. However, it looks totally same.
-    // so i comment it out and using old method......
-    // if (this.re) {
-    //     xindex = this.sheetWidth - 1 - (frame % this.sheetWidth);
-    // } else {
-    //     xindex = frame % this.sheetWidth;
-    // }
     xindex = frame % this.sheetWidth;
     if (this.startrow === 0) {
         yindex = Math.floor(frame / this.sheetWidth);
@@ -122,17 +122,6 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, cx, cy, cxx, cyy) {
         x, y,
         this.frameWidth * this.scale,
         this.frameHeight * this.scale);
-    // For Debugging Only
-    // ctx.strokeRect(x, y, this.frameWidth * this.scale,
-    //     this.frameHeight * this.scale);
-    // ctx.strokeRect(cx, cy, cxx, cyy);
-    // // ctx.strokeRect(this.cx, this.cy, this.cxx, this.cyy);
-    // ctx.beginPath();
-    // ctx.fillStyle = "Red";
-    // // ctx.arc(x+25,y+75,5,0,Math.PI*2,false);
-    // ctx.arc(cx + cxx / 2, cy + cyy / 2, 5, 0, Math.PI * 2, false);
-    // ctx.fill();
-    // ctx.closePath();
 }
 
 Animation.prototype.currentFrame = function () {
@@ -327,7 +316,6 @@ Ugly.prototype.update = function () {
     if (this.isConfused === -1 && this.debuffTimer === 0) {
         this.isConfused = 1;
     }
-    // TODO change the button to place bomb
     if (!this.isJump && this.cooldown === 0
         && this.game.chars['ShiftLeft'] && this.currentBombOnField < this.bombLvl) { //create new bomb
         this.cooldown = 0.25;
@@ -896,7 +884,6 @@ var dangerousStart = function (game) {
     // }
 }
 var dangerous1 = function (game) {
-    console.log("Starting Dangerous 1");
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -916,7 +903,7 @@ var dangerous1 = function (game) {
 
 }
 var dangerous2 = function (game) {
-    console.log("Starting Dangerous 2");
+
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -1149,11 +1136,6 @@ Flame.prototype.update = function () {
         if (ent !== this && ent.name !== "Flame" && ent.name !== "Dead"
             && ent.name !== "Background" && ent.name !== "BackgroundStar"
             && this.collide(ent)) {
-            // if (ent.name === "Wall" && ent.name !== "Background" && ent.name !== "star" && !ent.removeFromWorld) {
-            //     console.log("Hello I'm HERE!!!!!!!");
-            //     this.removeFromWorld = true;
-            //     this.stop = true;
-            // }
             if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
                 ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
                 && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
@@ -1380,13 +1362,6 @@ Wall.prototype.update = function () {
             }
         }
     }
-    // if (this.game.players_bots.length > 1 && this.dangerous) {
-    //     console.log("HELLO MAN");
-    //     dangerous(this.game);
-    // }
-    // if (this.x === 500 && this.y === 300 && this.dangerous) {
-    //     dangerous(this.game);
-    // }
 
     if (this.moveRight) {
         this.x += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
@@ -1503,7 +1478,6 @@ BombPowerup.prototype.update = function () {
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Bomb Lvl =" + ent.bombLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1553,7 +1527,6 @@ FlamePowerup.prototype.update = function () {
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Flame lvl =" + ent.flameLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1603,7 +1576,6 @@ SpeedPowerup.prototype.update = function () {
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Speed lvl =" + ent.speedLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1653,7 +1625,6 @@ SpeedPowerdown.prototype.update = function () {
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Speed lvl =" + ent.speedLvl);
                 }
                 if (!ent.isJump) {
                     this.removeFromWorld = true;
@@ -2336,62 +2307,62 @@ function buildMap() {
         }
     }
 
-    // Placing bomb powerup inside boxes
-    var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
-    for (var i = 0; i < 18; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasBombPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-
-    }
-
-    // Placing flame powerup inside boxes
-    for (var i = 0; i < 24; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing kick powerup inside boxes
-    for (var i = 0; i < 4; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasKickPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-
-    }
-
-    // Placing speed powerup inside boxes
-    for (var i = 0; i < 18; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing speed powerdown inside boxes
-    for (var i = 0; i < 5; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing confusion powerdown inside boxes
-    for (var i = 0; i < 10; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
+    // // Placing bomb powerup inside boxes
+    // var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
+    // for (var i = 0; i < 18; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasBombPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    //
+    // }
+    //
+    // // Placing flame powerup inside boxes
+    // for (var i = 0; i < 24; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing kick powerup inside boxes
+    // for (var i = 0; i < 4; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasKickPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    //
+    // }
+    //
+    // // Placing speed powerup inside boxes
+    // for (var i = 0; i < 18; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing speed powerdown inside boxes
+    // for (var i = 0; i < 5; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing confusion powerdown inside boxes
+    // for (var i = 0; i < 10; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
 }
 function startSinglePlayerGame() {
     buildMap();
@@ -2403,9 +2374,6 @@ function startSinglePlayerGame() {
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0));
-    // gameEngine.typeOfGame = 1;
-    // initiateGUI();
-    console.log("Single Player Game");
 
 }
 function startTwoPlayerGame() {
@@ -2416,11 +2384,6 @@ function startTwoPlayerGame() {
     gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"), 945, 540));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 950, 0));
     gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
-    //gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
-    // gameEngine.typeOfGame = 2;
-    // initiateGUI();
-    console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
 function initiateGUI () {

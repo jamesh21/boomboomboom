@@ -62,7 +62,10 @@
             color:white;
             padding-left:40px;
         }
-
+        .buttonStart {
+            position: absolute;
+            left:1100px;
+        }
         .buttonLoad {
             position: absolute;
             left:1150px;
@@ -73,7 +76,7 @@
         }
     </style>
 
-
+    <script type="text/javascript" src="http://76.28.150.193:8888/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
@@ -92,8 +95,9 @@
 
     <!--<div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>-->
 
-    <button class="buttonLoad" id="load_button" onclick="loadClick()">Load</button>
-    <button class="buttonSave" id="save_button" onclick="saveClick()">Save</button>
+    <button type="reset" class="buttonStart" id="start_button" onclick="startClick()">Start</button>
+    <button type="reset" class="buttonLoad" id="load_button" onclick="loadClick()">Load</button>
+    <button type="reset" class="buttonSave" id="save_button" onclick="saveClick()">Save</button>
 
     <div class="game-over" id="game-over"></div>
     <div class="end-game"  id ="end-game"></div>
