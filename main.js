@@ -103,7 +103,7 @@ function saveClick() {
         }
     }
 
-    socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities, am:AM});
+    socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities});
 }
 function loadClick() {
     socket.emit("load", { studentname: "James Ho", statename: "aState" });
@@ -1223,10 +1223,10 @@ function startSinglePlayerGame() {
     initiateGUI();
     // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0), "red");
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500), "blue");
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500), "green");
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0), "violet");
     // gameEngine.typeOfGame = 1;
     // initiateGUI();
 
