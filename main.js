@@ -2410,62 +2410,62 @@ function buildMap() {
         }
     }
 
-    // Placing bomb powerup inside boxes
-    var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
-    for (var i = 0; i < 18; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasBombPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-
-    }
-
-    // Placing flame powerup inside boxes
-    for (var i = 0; i < 24; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing kick powerup inside boxes
-    for (var i = 0; i < 4; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasKickPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-
-    }
-
-    // Placing speed powerup inside boxes
-    for (var i = 0; i < 18; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing speed powerdown inside boxes
-    for (var i = 0; i < 5; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
-
-    // Placing confusion powerdown inside boxes
-    for (var i = 0; i < 10; i++) {
-        var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
-        gameEngine.randomItemPlacement[position].hasPowerup = true;
-        gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
-        gameEngine.randomItemPlacement.splice(position, 1);
-        numberOfPossibleItemPlacement--;
-    }
+    // // Placing bomb powerup inside boxes
+    // var numberOfPossibleItemPlacement = gameEngine.randomItemPlacement.length;
+    // for (var i = 0; i < 18; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasBombPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    //
+    // }
+    //
+    // // Placing flame powerup inside boxes
+    // for (var i = 0; i < 24; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasFlamePowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing kick powerup inside boxes
+    // for (var i = 0; i < 4; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasKickPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    //
+    // }
+    //
+    // // Placing speed powerup inside boxes
+    // for (var i = 0; i < 18; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasSpeedPowerup = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing speed powerdown inside boxes
+    // for (var i = 0; i < 5; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasSpeedPowerdown = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
+    //
+    // // Placing confusion powerdown inside boxes
+    // for (var i = 0; i < 10; i++) {
+    //     var position = Math.floor((Math.random() * numberOfPossibleItemPlacement));
+    //     gameEngine.randomItemPlacement[position].hasPowerup = true;
+    //     gameEngine.randomItemPlacement[position].hasConfusionPowerdown = true;
+    //     gameEngine.randomItemPlacement.splice(position, 1);
+    //     numberOfPossibleItemPlacement--;
+    // }
 }
 function startSinglePlayerGame() {
     buildMap();
