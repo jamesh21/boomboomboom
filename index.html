@@ -62,9 +62,21 @@
             color:white;
             padding-left:40px;
         }
+        .buttonStart {
+            position: absolute;
+            left:1100px;
+        }
+        .buttonLoad {
+            position: absolute;
+            left:1150px;
+        }
+        .buttonSave {
+            position: absolute;
+            left:1200px
+        }
     </style>
 
-
+    <script type="text/javascript" src="http://76.28.150.193:8888/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="./gameengine.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
@@ -83,41 +95,45 @@
 
     <!--<div class="game-over" id="game-over">GAME OVER<p><span onclick="game.restart()">Restart</span></p></div>-->
 
-    <div class="game-over" id="game-over"></div>
-    <div class="end-game"  id ="end-game"></div>
+    <button type="reset" class="buttonStart" id="start_button" onclick="startClick()">Start</button>
+    <button type="reset" class="buttonLoad" id="load_button" onclick="loadClick()">Load</button>
+    <button type="reset" class="buttonSave" id="save_button" onclick="saveClick()">Save</button>
 
-    <div class="gui" id="gui">
-        <h3>Player:<IMG src = "./img/HeadCursor.png"></h3>
+    <!--<div class="game-over" id="game-over"></div>-->
+    <!--<div class="end-game"  id ="end-game"></div>-->
 
-        <div style="float: left"><img src="./img/BombPowerup.png"></div>
-        <div id="p1_bombUp" class="wordPositioning" > x 0</div>
-        <br clear="left"/>
+    <!--<div class="gui" id="gui">-->
+        <!--<h3>Player:<IMG src = "./img/HeadCursor.png"></h3>-->
 
-        <div style="float: left"><img src="./img/SpeedPowerup.png"></div>
-        <div id="p1_speedUp" class="wordPositioning" > x 0</div>
-        <br clear="left"/>
+        <!--<div style="float: left"><img src="./img/BombPowerup.png"></div>-->
+        <!--<div id="p1_bombUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
 
-        <div style="float: left"><img src="./img/FlamePowerup.png"></div>
-        <div id="p1_flameUp" class="wordPositioning" > x 0</div>
-        <br clear="left"/>
+        <!--<div style="float: left"><img src="./img/SpeedPowerup.png"></div>-->
+        <!--<div id="p1_speedUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
 
-        <div id = "2p">
-            <h3>Player:<IMG src = "./img/UglyCursor.png"></h3>
+        <!--<div style="float: left"><img src="./img/FlamePowerup.png"></div>-->
+        <!--<div id="p1_flameUp" class="wordPositioning" > x 0</div>-->
+        <!--<br clear="left"/>-->
 
-            <div style="float: left"><img src="./img/BombPowerup.png"></div>
-            <div id="p2_bombUp" class="wordPositioning" > x 0</div>
-            <br clear="left"/>
+        <!--<div id = "2p">-->
+            <!--<h3>Player:<IMG src = "./img/UglyCursor.png"></h3>-->
 
-            <div style="float: left"><img src="./img/SpeedPowerup.png"></div>
-            <div id="p2_speedUp" class="wordPositioning" > x 0</div>
-            <br clear="left"/>
+            <!--<div style="float: left"><img src="./img/BombPowerup.png"></div>-->
+            <!--<div id="p2_bombUp" class="wordPositioning" > x 0</div>-->
+            <!--<br clear="left"/>-->
 
-            <div style="float: left"><img src="./img/FlamePowerup.png"></div>
-            <div id="p2_flameUp" class="wordPositioning" > x 0</div>
-            <br clear="left"/>
-        </div>
+            <!--<div style="float: left"><img src="./img/SpeedPowerup.png"></div>-->
+            <!--<div id="p2_speedUp" class="wordPositioning" > x 0</div>-->
+            <!--<br clear="left"/>-->
 
-    </div>
+            <!--<div style="float: left"><img src="./img/FlamePowerup.png"></div>-->
+            <!--<div id="p2_flameUp" class="wordPositioning" > x 0</div>-->
+            <!--<br clear="left"/>-->
+        <!--</div>-->
+
+    <!--</div>-->
 
     <!--<div class="gui">-->
         <!--<h3>Player:<IMG src = "./img/Ugly.png"></h3>-->
@@ -139,68 +155,33 @@
 
 
 
-    <div class="instruction" id="instruction">
-        <h1><center>Instructions</center></h1>
+    <!--<div class="instruction" id="instruction">-->
+        <!--<h1><center>Instructions</center></h1>-->
 
-        <ul style = "list-style-type:disc">
+        <!--<ul style = "list-style-type:disc">-->
 
-            <li>1P Movement: UP, DOWN RIGHT, LEFT ARROW KEYS</li>
-            <li>1P Bomb: SPACE KEY</li>
-            <li>HIDDEN SKILL: RIGHT CTRL</li>
-            <br>
-            <li>2P Movement: A, W, S, D KEYS</li>
-            <li>2P Bomb: LEFT SHIFT</li>
-            <li>HIDDEN SKILL: LEFT CTRL</li>
-        </ul>
-
-
-        <h1><center>Items</center></h1>
-            <ul style = "list-style-type:disc">
-                <li><IMG src="./img/BombPowerup.png">   Bomb Powerup: Increase number of bombs carried.</li>
-                <li><IMG src="./img/SpeedPowerup.png">   Speed Powerup: Increase movement speed</li>
-                <li><IMG src="./img/FlamePowerup.png">   Flame Powerup: Increase range of flames after bomb explosion</li>
-                <li><IMG src="./img/KickPowerup.png">   Kick: Gains the ability to kick bombs</li>
-                <li><IMG src="./img/SpeedPowerdown.png">   Speed Powerdown: Decrease movement speed</li>
-                <li><IMG src="./img/ConfusionPowerdown.png">   Confusion: Movement impaired all movement keys reversed</li>
-            </ul>
-
-    </div>
+            <!--<li>1P Movement: UP, DOWN RIGHT, LEFT ARROW KEYS</li>-->
+            <!--<li>1P Bomb: SPACE KEY</li>-->
+            <!--<li>HIDDEN SKILL: RIGHT CTRL</li>-->
+            <!--<br>-->
+            <!--<li>2P Movement: A, W, S, D KEYS</li>-->
+            <!--<li>2P Bomb: LEFT SHIFT</li>-->
+            <!--<li>HIDDEN SKILL: LEFT CTRL</li>-->
+        <!--</ul>-->
 
 
+        <!--<h1><center>Items</center></h1>-->
+            <!--<ul style = "list-style-type:disc">-->
+                <!--<li><IMG src="./img/BombPowerup.png">   Bomb Powerup: Increase number of bombs carried.</li>-->
+                <!--<li><IMG src="./img/SpeedPowerup.png">   Speed Powerup: Increase movement speed</li>-->
+                <!--<li><IMG src="./img/FlamePowerup.png">   Flame Powerup: Increase range of flames after bomb explosion</li>-->
+                <!--<li><IMG src="./img/KickPowerup.png">   Kick: Gains the ability to kick bombs</li>-->
+                <!--<li><IMG src="./img/SpeedPowerdown.png">   Speed Powerdown: Decrease movement speed</li>-->
+                <!--<li><IMG src="./img/ConfusionPowerdown.png">   Confusion: Movement impaired all movement keys reversed</li>-->
+            <!--</ul>-->
 
+    <!--</div>-->
 
-
-    <audio id="backgroundMenuAudio">
-        <source src="./sound/MenuBackgroundSound.mp3" type="audio/mpeg" />
-    </audio>
-
-    <audio id="backgroundGameAudio">
-        <source src="./sound/GameBackgroundSound.mp3" type="audio/mpeg" />
-    </audio>
-
-    <audio id="explosion">
-        <source src="./sound/explosion.mp3" type="audio/mpeg" />
-    </audio>
-
-    <audio id="speedUp">
-        <source src="./sound/speedup.wav" type="audio/wav" />
-    </audio>
-
-    <audio id="bombUp">
-        <source src="./sound/bombup.wav" type="audio/wav" />
-    </audio>
-
-    <audio id="fireUp">
-        <source src="./sound/fireup.wav" type="audio/wav" />
-    </audio>
-
-    <audio id="countDown">
-        <source src="./sound/countdown.mp3"type="audio/mpeg"/>
-    </audio>
-
-    <audio id="suddenDeath">
-        <source src="./sound/suddendeath.mp3" type="audio/mpeg"/>
-    </audio>
 
 
 </body>

@@ -5,12 +5,148 @@ const MAX_FLAME = 10;
 
 var AM = new AssetManager();
 var gameEngine = new GameEngine();
-var soundManager = new SoundManager();
 function distance(a, b) {
     var dx = a.center.x - b.center.x;
     var dy = a.center.y - b.center.y;
     return Math.sqrt(dx * dx + dy * dy);
 }
+
+var socket = io.connect("http://76.28.150.193:8888");
+//socket.emit("save", { studentname: "James Ho", statename: "aState", x:5 });
+//socket.emit("load", { studentname: "James Ho", statename: "aState" });
+//socket.emit("load", { studentname: "James Ho", statename: "theState" });
+
+window.onload = function () {
+
+    socket.on("connect", function () {
+        console.log("Socket connected.")
+    });
+    socket.on("disconnect", function () {
+        console.log("Socket disconnected.")
+    });
+    socket.on("reconnect", function () {
+        console.log("Socket reconnected.")
+    });
+
+};
+
+socket.on("load", function (data) {
+    clearGame();
+    var savedEntities = data.entities;
+    //var temp;
+    //var object;
+    for (var i = 0; i < savedEntities.length; i++) {
+        var temp = savedEntities[i];
+         if (temp.name === "Destroyable") {
+             //console.log("This is the AM " + AM);
+             //console.log("This is the GM " + gameEngine);
+             //console.log(AM.getAsset("./img/DestroyableBox.png"));
+           var object = new Destroyable(gameEngine, AM.getAsset("./img/DestroyableBox.png"), temp.x, temp.y);
+             gameEngine.addEntity(object);
+         }
+        // gameEngine.addEntity(object);
+    }
+    console.log(data);
+});
+function clearGame() {
+    // gameEngine.entities = [];
+    // gameEngine.destroyable = [];
+    // gameEngine.walls = [];
+    // gameEngine.bombs = [];
+    // gameEngine.flames = [];
+    // gameEngine.players_bots = [];
+    // gameEngine.offLimitPlacement = [];
+    // gameEngine.items = [];
+    for (var i = 0; i < gameEngine.destroyable.length; i++) {
+        var temp = gameEngine.destroyable[i];
+        temp.removeFromWorld = true;
+    }
+    for (var i = 0; i < gameEngine.bombs.length; i++) {
+        var temp = gameEngine.bombs[i];
+        temp.removeFromWorld = true;
+    }
+    for (var i = 0; i < gameEngine.flames.length; i++) {
+        var temp = gameEngine.flames[i];
+        temp.removeFromWorld = true;
+    }
+    for (var i = 0; i < gameEngine.players_bots.length; i++) {
+        var temp = gameEngine.players_bots[i];
+        temp.removeFromWorld = true;
+    }
+    AM.queueDownload("./img/MainMenu.png");
+    AM.queueDownload("./sound/MenuBackgroundSound.mp3");
+    AM.queueDownload("./img/farback.gif");
+    AM.queueDownload("./img/starfield.png");
+    AM.queueDownload("./img/bomberman.png");
+    AM.queueDownload("./img/bomberman_blue.png");
+    AM.queueDownload("./img/bomberman_cyan.png");
+    AM.queueDownload("./img/bomberman_green.png");
+    AM.queueDownload("./img/bomberman_red.png");
+    AM.queueDownload("./img/bomberman_violet.png");
+    AM.queueDownload("./img/ugly.png");
+    AM.queueDownload("./img/Bomb.png");
+    AM.queueDownload("./img/Flame.png");
+    AM.queueDownload("./img/DestoryableBox.png");
+    AM.queueDownload("./img/SolidBlock.png");
+    AM.queueDownload("./img/BombPowerup.png");
+    AM.queueDownload("./img/FlamePowerup.png");
+    AM.queueDownload("./img/SpeedPowerup.png");
+    AM.queueDownload("./img/SpeedPowerdown.png");
+    AM.queueDownload("./img/KickPowerup.png");
+    AM.queueDownload("./img/ConfusionPowerdown.png");
+    AM.queueDownload("./img/Dead.png");
+
+    var friction = 1;
+//This method call starts the game, using the function as a callback function for when all the resources are finished.
+    AM.downloadAll(function () {
+        var canvas = document.getElementById("gameWorld");
+        canvas.style.cursor = "point";
+        var ctx = canvas.getContext("2d");
+        gameEngine.init(ctx);
+        gameEngine.start();
+
+    });
+}
+
+function SaveBot(spritesheet, x, y) {
+    this.x = x;
+    this.y = y;
+    this.sprite = spritesheet;
+}
+
+function SaveBomb(){
+
+}
+
+// function SaveWall(x, y) {
+//     this.x = x;
+//     this.y = y;
+//     this.name = "Wall";
+// }
+
+function SaveDestroyable(x, y, name) {
+    this.x = x;
+    this.y = y;
+    this.name = name;
+}
+function saveClick() {
+    var saveEntities = [];
+    // var object;
+    // var temp;
+    for (var i = 0; i < gameEngine.entities.length; i++) {
+        var temp = gameEngine.entities[i];
+        if (temp.name === "Destroyable") {
+            var object = new SaveDestroyable(temp.x, temp.y, temp.name);
+            saveEntities.push(object);
+        }
+    }
+
+    socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities});
+}
+function loadClick() {
+    socket.emit("load", { studentname: "James Ho", statename: "aState" });
+}
+
 
 var mouseX = 0;
 var mouseY = 0;
@@ -855,7 +991,6 @@ Bomberman.prototype.updateGUI = function () {
 var dangerousTime = true;
 var dangerousStart = function (game) {
     // while (game.dangerous) {
-    soundManager.playSound(soundManager.suddenDeath);
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -890,7 +1025,6 @@ var dangerousStart = function (game) {
     // }
 }
 var dangerous1 = function (game) {
-    console.log("Starting Dangerous 1");
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -910,7 +1044,6 @@ var dangerous1 = function (game) {
 
 }
 var dangerous2 = function (game) {
-    console.log("Starting Dangerous 2");
     for (var i = 0; i < game.walls.length; i++) {
         var entW = game.walls[i];
         if (entW.x === 0 || entW.x === 1000 || entW.y === 0 || entW.y === 600) {
@@ -994,7 +1127,6 @@ Bomb.prototype.update = function () {
         this.ownerOfBomb.currentBombOnField--;
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
-        soundManager.playSound(soundManager.explosion);
         Entity.call(flame, this.game, this.x, this.y);
         var positions = this.printFlameHelper();
         for (var i = 0; i < positions.length; i++) {
@@ -1491,13 +1623,11 @@ BombPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar" && ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                soundManager.playSound(soundManager.bombUp);
                 if (ent.bombLvl < MAX_BOMB && !ent.isJump) {
                     ent.bombLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Bomb Lvl =" + ent.bombLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1541,13 +1671,11 @@ FlamePowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                soundManager.playSound(soundManager.fireUp);
                 if (ent.flameLvl < MAX_FLAME && !ent.isJump) {
                     ent.flameLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Flame lvl =" + ent.flameLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1591,13 +1719,11 @@ SpeedPowerup.prototype.update = function () {
         var ent = this.game.entities[i];
         if (ent !== this && ent.name !== "Background" && ent.name !== "BackgroundStar"&& ent.name !=="Dead" && this.collide(ent)) {
             if ((ent.name === "Bomberman" || ent.name === "Bot" || ent.name === "Ugly") && !ent.removeFromWorld) {
-                soundManager.playSound(soundManager.speedUp);
                 if (ent.speedLvl < MAX_SPEED && !ent.isJump) {
                     ent.speedLvl++;
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Speed lvl =" + ent.speedLvl);
                 }
                 if (!ent.isJump) {
                     // if (ent.name === "Bomberman" || ent.name === "Ugly") {
@@ -1647,7 +1773,6 @@ SpeedPowerdown.prototype.update = function () {
                     if (ent.name === "Bomberman" || ent.name === "Ugly") {
                         ent.updateGUI();
                     }
-                    console.log("Speed lvl =" + ent.speedLvl);
                 }
                 if (!ent.isJump) {
                     this.removeFromWorld = true;
@@ -1856,7 +1981,6 @@ Bot.prototype.getDirection = function () {
     }
     if (changeDirection) {
         var safePositions = [];
-        console.log("possible size: "+ possibles.length);
         for (var i = 0; i < possibles.length; i++) {
             var pos = possibles[i];
             if (this.isSafe(pos)) {
@@ -1907,7 +2031,6 @@ Bot.prototype.getDirection = function () {
             this.fireJump = true;
         }
 
-console.log("my count = "+this.dangerousCount);
         // random pick a cell
         // console.log("my possibles size: "+possibles.length);
         // console.log("What's my movingTarget then11111????" + this.movingTarget);
@@ -2320,8 +2443,7 @@ AM.downloadAll(function () {
     var ctx = canvas.getContext("2d");
     gameEngine.init(ctx);
     gameEngine.start();
-    soundManager.init();
-    soundManager.playSound(soundManager.menuBackgroundSound);
+
     //gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/MainMenu.png")));
     startSinglePlayerGame();
 
@@ -2329,8 +2451,6 @@ AM.downloadAll(function () {
 
 // Function for building the map, boxes and items of the game.
 function buildMap() {
-    soundManager.stopSound(soundManager.menuBackgroundSound);
-    soundManager.playSound(soundManager.gameBackgroundSound);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/farback.gif")));
     gameEngine.addEntity(new BackgroundStars(gameEngine, AM.getAsset("./img/starfield.png")));
     // Most Left and Most Right VERTICAL walls
@@ -2473,13 +2593,12 @@ function startSinglePlayerGame() {
     initiateGUI();
     // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500));
+    // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0));
     // gameEngine.typeOfGame = 1;
     // initiateGUI();
-    console.log("Single Player Game");
 
 }
 function startTwoPlayerGame() {
@@ -2494,7 +2613,6 @@ function startTwoPlayerGame() {
     // gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 50, 0));
     // gameEngine.typeOfGame = 2;
     // initiateGUI();
-    console.log(gameEngine.typeOfGame + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
 function initiateGUI () {
@@ -2514,40 +2632,5 @@ function initiateGUI () {
     }
 }
 
-// Sound Manager Object
-function SoundManager() {
-    this.menuBackgroundSound;
-    this.gameBackgroundSound;
-    this.explosion;
 
-};
 
-// Initializing the sound manager fields
-SoundManager.prototype.init = function () {
-    this.menuBackgroundSound = document.getElementById("backgroundMenuAudio");
-    this.menuBackgroundSound.loop = true;
-    this.gameBackgroundSound = document.getElementById("backgroundGameAudio");
-    this.gameBackgroundSound.loop = true;
-    this.explosion = document.getElementById("explosion");
-    this.explosion.playbackRate = 3;
-    this.speedUp = document.getElementById("speedUp");
-    this.speedUp.playbackRate = 2;
-    this.fireUp = document.getElementById("fireUp");
-    this.fireUp.playbackRate = 1;
-    this.fireUp.volume = 1;
-    this.bombUp = document.getElementById("bombUp");
-    this.bombUp.playbackRate = 1;
-    this.countDown = document.getElementById("countDown");
-    this.suddenDeath = document.getElementById("suddenDeath")
-    this.suddenDeath.loop = true;
-}
-
-// Playing the sound
-SoundManager.prototype.playSound = function (sound) {
-    sound.play();
-};
-
-// Pausing the sound
-SoundManager.prototype.stopSound = function (sound) {
-    sound.pause();
-}

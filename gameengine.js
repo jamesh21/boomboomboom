@@ -41,11 +41,10 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceHeight = this.ctx.canvas.height;
     this.timer = new Timer();
     this.startInput();
-    console.log('game initialized');
+
 }
 
 GameEngine.prototype.start = function () {
-    console.log("starting game");
     var that = this;
     (function gameLoop() {
         that.loop();
@@ -61,7 +60,6 @@ GameEngine.prototype.addOffLimitPlacement = function (x, y) {
 }
 
 GameEngine.prototype.startInput = function () {
-    console.log('Starting input');
 
     var getXandY = function (e) {
         var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
@@ -136,7 +134,6 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.addEntity = function (entity) {
-    console.log('added entity');
     this.entities.push(entity);
     if (entity.name === "Wall") this.walls.push(entity);
     if (entity.name === "Bomb") this.bombs.push(entity);
@@ -242,7 +239,6 @@ GameEngine.prototype.update = function () {
 }
 
 GameEngine.prototype.checkPlayers = function () {
-    console.log("Im in here");
     if (this.players_bots.length === 2 && ((this.players_bots[0].name === "Bot" &&
         this.players_bots[1].name === "Bot") || this.players_bots[0].name === "Bot" &&
         this.players_bots[1].name === "Bot")) {
