@@ -33,11 +33,42 @@ window.onload = function () {
 socket.on("load", function (data) {
     clearGame();
     var savedEntities = data.entities;
-    // AM.downloadAll(console.log("DIUDIUDIU"));
+    var temp;
+    var object;
     for (var i = 0; i < savedEntities.length; i++) {
-        var temp = savedEntities[i];
+        temp = savedEntities[i];
         if (temp.name === "Destroyable") {
-            var object = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), temp.x, temp.y);
+            object = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), temp.x, temp.y);
+        } else if (temp.name === "Bot") {
+            if (temp.color === "red") {
+                object = new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), temp.x, temp.y, temp.color);
+            } else if (temp.color === "violet") {
+                object = new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), temp.x, temp.y, temp.color);
+            } else if (temp.color === "blue") {
+                object = new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), temp.x, temp.y, temp.color);
+            } else {
+                object = new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), temp.x, temp.y, temp.color);
+            }
+            object.cooldown = temp.cooldown;
+            object.jumpCooldown = temp.jumpCooldown;
+            object.currentBombOnField = temp.currentBombOnField;
+            object.isJump = temp.isJump;
+            object.passTop = temp.passTop;
+            object.passRight = temp.passRight;
+            object.passBottom = temp.passBottom;
+            object.passLeft = temp.passLeft;
+            object.insideBomb = temp.insideBomb;
+            object.movingTarget = temp.movingTarget;
+            object.movingTargetX = temp.movingTargetX;
+            object.movingTargetY = temp.movingTargetY;
+            object.directionX = temp.directionX;
+            object.directionY = temp.directionY;
+            object.stopAnime = temp.stopAnime;
+            object.elapsedTime = temp.elapsedTime;
+            object.jumpBeginY = temp.jumpBeginY;
+            object.fireJump = temp.fireJump
+            object.dangerousCount = temp.dangerousCount;
+
         }
         gameEngine.addEntity(object);
     }
@@ -64,16 +95,36 @@ function clearGame() {
     //     var temp = gameEngine.flames[i];
     //     temp.removeFromWorld = true;
     // }
-    // for (var i = 0; i < gameEngine.players_bots.length; i++) {
-    //     var temp = gameEngine.players_bots[i];
-    //     temp.removeFromWorld = true;
-    // }
+    for (var i = 0; i < gameEngine.players_bots.length; i++) {
+        var temp = gameEngine.players_bots[i];
+        temp.removeFromWorld = true;
+    }
 }
 
-function SaveBot(spritesheet, x, y) {
+function SaveBot(x, y, color) {
+    this.color = color;
+    this.cooldown = 0;
+    this.jumpCooldown = 0;
+    this.currentBombOnField = 0;
+    this.isJump = false;
+    this.name = "Bot";
+    this.passTop = false;
+    this.passRight = false;
+    this.passBottom = false;
+    this.passLeft = false;
     this.x = x;
     this.y = y;
-    this.sprite = spritesheet;
+    this.insideBomb = null;
+    this.movingTarget = null;
+    this.movingTargetX = null;
+    this.movingTargetY = null;
+    this.directionX = 0;
+    this.directionY = 0;
+    this.stopAnime = false;
+    this.elapsedTime = 0;
+    this.jumpBeginY = null;
+    this.fireJump = false;
+    this.dangerousCount = 0;
 }
 
 function SaveBomb(){
@@ -93,14 +144,35 @@ function SaveDestroyable(x, y, name) {
 }
 function saveClick() {
     var saveEntities = [];
-    // var object;
-    // var temp;
+    var object;
+    var temp;
     for (var i = 0; i < gameEngine.entities.length; i++) {
-        var temp = gameEngine.entities[i];
+        temp = gameEngine.entities[i];
         if (temp.name === "Destroyable") {
-            var object = new SaveDestroyable(temp.x, temp.y, temp.name);
-            saveEntities.push(object);
+            object = new SaveDestroyable(temp.x, temp.y, temp.name);
+        } else if(temp.name === "Bot") {
+            object = new SaveBot(temp.x, temp.y, temp.color);
+            object.cooldown = temp.cooldown;
+            object.jumpCooldown = temp.jumpCooldown;
+            object.currentBombOnField = temp.currentBombOnField;
+            object.isJump = temp.isJump;
+            object.passTop = temp.passTop;
+            object.passRight = temp.passRight;
+            object.passBottom = temp.passBottom;
+            object.passLeft = temp.passLeft;
+            object.insideBomb = temp.insideBomb;
+            object.movingTarget = temp.movingTarget;
+            object.movingTargetX = temp.movingTargetX;
+            object.movingTargetY = temp.movingTargetY;
+            object.directionX = temp.directionX;
+            object.directionY = temp.directionY;
+            object.stopAnime = temp.stopAnime;
+            object.elapsedTime = temp.elapsedTime;
+            object.jumpBeginY = temp.jumpBeginY;
+            object.fireJump = temp.fireJump
+            object.dangerousCount = temp.dangerousCount;
         }
+        saveEntities.push(object);
     }
 
     socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities});
@@ -1223,10 +1295,10 @@ function startSinglePlayerGame() {
     initiateGUI();
     // gameEngine.addEntity(new Bomberman(gameEngine, AM.getAsset("./img/bomberman.png"), 50, 0));
     // gameEngine.addEntity(new Ugly(gameEngine, AM.getAsset("./img/ugly.png"),945, 540));
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0), "red");
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500), "blue");
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500), "green");
-    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0), "violet");
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), 50, 0, "red"));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_blue.png"), 50, 500, "blue"));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_green.png"), 950, 500, "green"));
+    gameEngine.addEntity(new Bot(gameEngine, AM.getAsset("./img/bomberman_violet.png"), 950, 0, "violet"));
     // gameEngine.typeOfGame = 1;
     // initiateGUI();
 
