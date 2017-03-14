@@ -1834,6 +1834,14 @@ Bot.prototype.nearPlayer = function () {
             }
         }
     }
+    for (var j = 0; j < this.game.players_bots.length; j++) {
+        var entP = this.game.players_bots[j];
+        if (entP.position.x === this.position.x && entP.position.y === this.position.y
+            && (entP.name === "Bomberman" || entP.name === "Ugly" || entP.name === "Bot") && entP !== this) {
+            // console.log("NEAR-NEAR-NEAR-NEAR-NEAR-NEAR");
+            return true;
+        }
+    }
     return false;
 }
 
