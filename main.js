@@ -39,6 +39,7 @@ socket.on("load", function (data) {
         temp = savedEntities[i];
         if (temp.name === "Destroyable") {
             object = new Destroyable(gameEngine, AM.getAsset("./img/DestoryableBox.png"), temp.x, temp.y);
+            gameEngine.addEntity(object);
         } else if (temp.name === "Bot") {
             if (temp.color === "red") {
                 object = new Bot(gameEngine, AM.getAsset("./img/bomberman_red.png"), temp.x, temp.y, temp.color);
@@ -68,19 +69,25 @@ socket.on("load", function (data) {
             object.jumpBeginY = temp.jumpBeginY;
             object.fireJump = temp.fireJump
             object.dangerousCount = temp.dangerousCount;
+            gameEngine.addEntity(object);
+        } else if (temp.name === "Bomb") {
+            object = new Bomb(gameEngine, AM.getAsset("./img/Bomb.png"), null);
+            // object.animation.elapsedTime = 0;
+            object.x = temp.x;
+            object.y = temp.y;
+            object.animation.elapsedTime = temp.elapsedTime;
+            gameEngine.addEntity(object);
+            Entity.call(object, gameEngine, object.x, object.y);
+        } else if (temp.name === "Flame") {
+            object = new Flame(gameEngine, AM.getAsset("./img/Flame.png"));
+            object.x = temp.x;
+            object.y = temp.y;
+            // object.animation.elapsedTime = 0;
+            object.animation.elapsedTime = temp.elapsedTime;
+            gameEngine.addEntity(object);
+            Entity.call(object, gameEngine, object.x, object.y);
+        }
 
-        } //else if (temp.name === "Bomb") {
-        //     object = new Bomb(gameEngine, AM.getAsset("./img/Bomb.png"), null);
-        //     object.animation.elapsedTime = 0;
-        //     object.x = temp.x;
-        //     object.y = temp.y;
-        // } else if (temp.name === "Flame") {
-        //     object = new Flame(gameEngine, AM.getAsset("./img/Flame.png"));
-        //     object.x = temp.x;
-        //     object.y = temp.y;
-        //     object.animation.elapsedTime = 0;
-        // }
-        gameEngine.addEntity(object);
     }
 });
 
@@ -137,12 +144,18 @@ function SaveBot(x, y, color) {
     this.dangerousCount = 0;
 }
 
-function SaveBomb(x, y){
+function SaveBomb(x, y) {
     this.name = "Bomb";
+    this.x = x;
+    this.y = y;
+    this.elapsedTime = 0;
 }
 
 function SaveFlame(x, y) {
     this.name = "Flame";
+    this.x = x;
+    this.y = y;
+    this.elapsedTime = 0;
 }
 
 // function SaveWall(x, y) {
@@ -165,7 +178,7 @@ function saveClick() {
         if (temp.name === "Destroyable") {
             object = new SaveDestroyable(temp.x, temp.y, temp.name);
             saveEntities.push(object);
-        } else if(temp.name === "Bot") {
+        } else if (temp.name === "Bot") {
             object = new SaveBot(temp.x, temp.y, temp.color);
             object.cooldown = temp.cooldown;
             object.jumpCooldown = temp.jumpCooldown;
@@ -187,20 +200,22 @@ function saveClick() {
             object.fireJump = temp.fireJump
             object.dangerousCount = temp.dangerousCount;
             saveEntities.push(object);
-        } //else if (temp.name === "Bomb") {
-        //     object = new SaveBomb(temp.x, temp.y);
-        //     saveEntities.push(object);
-        // } else if (temp.name === "Flame") {
-        //     object = new SaveFlame(temp.x, temp.y);
-        //     saveEntities.push(object);
-        // }
+        } else if (temp.name === "Bomb") {
+            object = new SaveBomb(temp.x, temp.y);
+            object.elapsedTime = temp.animation.elapsedTime;
+            saveEntities.push(object);
+        } else if (temp.name === "Flame") {
+            object = new SaveFlame(temp.x, temp.y);
+            object.elapsedTime = temp.animation.elapsedTime;
+            saveEntities.push(object);
+        }
 
     }
 
-    socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities});
+    socket.emit("save", {studentname: "James Ho", statename: "aState", entities: saveEntities});
 }
 function loadClick() {
-    socket.emit("load", { studentname: "James Ho", statename: "aState" });
+    socket.emit("load", {studentname: "James Ho", statename: "aState"});
 }
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop,
@@ -299,7 +314,6 @@ BackgroundStars.prototype.update = function () {
 };
 
 
-
 function Bomb(game, spritesheet, owner) {
     //Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale)
     this.sprite = spritesheet;
@@ -342,8 +356,9 @@ Bomb.prototype.update = function () {
     if (this.animation.isDone()) {
         this.removeFromWorld = true;
 
-
-        this.ownerOfBomb.currentBombOnField--;
+        if (this.ownerOfBomb !== null) {
+            this.ownerOfBomb.currentBombOnField--;
+        }
         var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
         this.game.addEntity(flame);
         Entity.call(flame, this.game, this.x, this.y);
@@ -366,7 +381,7 @@ Bomb.prototype.update = function () {
         for (var i = 0; i < this.game.entities.length; i++) {
             var ent = this.game.entities[i];
             if (ent !== this && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name !== "KickPowerup"
-                    && ent.name !== "Dead"
+                && ent.name !== "Dead"
                 && ent.name !== "FlamePowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown"
                 && ent.name !== "Background" && ent.name !== "BackgroundStar" && !ent.removeFromWorld && !this.removeFromWorld) {
                 if (this.moveRight && (ent.position.y === this.position.y)
@@ -398,13 +413,13 @@ Bomb.prototype.update = function () {
     }
 
     if (this.moveRight) {
-        this.x += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x += (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveLeft) {
-        this.x -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x -= (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveTop) {
-        this.y -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y -= (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveBot) {
-        this.y += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y += (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
 
     Entity.prototype.update.call(this);
@@ -500,8 +515,8 @@ Flame.prototype.update = function () {
             //     this.stop = true;
             // }
             if (/*ent.name !== "Bomberman" &&*/ /*ent.name !== "Bot" &&*/
-                ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
-                && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
+            ent.name !== "Wall" && ent.name !== "Background" && !ent.removeFromWorld && ent.name !== "FlamePowerup"
+            && ent.name !== "SpeedPowerup" && ent.name !== "BombPowerup" && ent.name != "SpeedPowerdown" && ent.name != "ConfusionPowerdown" && ent.name != "KickPowerup") {
                 if (ent.name === "Destroyable" && ent.hasPowerup) {
                     if (ent.hasSpeedPowerup) {
                         var speedUp = new SpeedPowerup(this.game, AM.getAsset("./img/SpeedPowerup.png"), ent.x, ent.y);
@@ -527,7 +542,9 @@ Flame.prototype.update = function () {
                 // This is for when the flame kills another bomb, which will right away blow the bomb that was hit
                 // I wanna make a helper function for this, so we dont have to use this code two times!!!!!!!!!!!!!!!!
                 if (ent.name === "Bomb") {
-                    ent.ownerOfBomb.currentBombOnField--;
+                    if (ent.ownerOfBomb !== null) {
+                        ent.ownerOfBomb.currentBombOnField--;
+                    }
                     var positions = ent.printFlameHelper();
                     for (var i = 0; i < positions.length; i++) {
                         var pos = positions[i];
@@ -540,9 +557,9 @@ Flame.prototype.update = function () {
                     if (ent.isJump) {
                         continue;
                     } else {
-                        var dead = new Dead(this.game, AM.getAsset("./img/Dead.png"),ent.center.x-64, ent.center.y-64);
+                        var dead = new Dead(this.game, AM.getAsset("./img/Dead.png"), ent.center.x - 64, ent.center.y - 64);
                         this.game.addEntity(dead);
-                        Entity.call(dead, this.game, ent.center.x-64, ent.center.y-64);
+                        Entity.call(dead, this.game, ent.center.x - 64, ent.center.y - 64);
                         ent.removeFromWorld = true;
                         continue;
                     }
@@ -677,13 +694,13 @@ Wall.prototype.update = function () {
     }
 
     if (this.moveRight) {
-        this.x += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x += (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveLeft) {
-        this.x -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x -= (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveTop) {
-        this.y -= (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y -= (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     } else if (this.moveBot) {
-        this.y += (5+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y += (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
 };
 
@@ -721,7 +738,6 @@ Destroyable.prototype.draw = function () {
 
 Destroyable.prototype.update = function () {
 };
-
 
 
 function Bot(game, spritesheet, x, y, color) {
@@ -853,14 +869,14 @@ Bot.prototype.getDirection = function () {
         if (safePositions.length > 0) {
             this.dangerousCount = 0;
             resultDirections = safePositions;
-        } else if ((possibles.length > 1|| this.dangerousCount>9) && !this.isJump) {
-            if (this.dangerousCount>9) {
+        } else if ((possibles.length > 1 || this.dangerousCount > 9) && !this.isJump) {
+            if (this.dangerousCount > 9) {
                 this.fireJump = true;
             } else {
                 this.dangerousCount++;
                 resultDirections = possibles;
             }
-        } else if ((possibles.length < 2 || this.dangerousCount>9) && !this.isJump){
+        } else if ((possibles.length < 2 || this.dangerousCount > 9) && !this.isJump) {
             this.fireJump = true;
         }
 
@@ -983,7 +999,7 @@ Bot.prototype.collideLeft = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x += (this.speedLvl + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -995,7 +1011,7 @@ Bot.prototype.collideRight = function (other) {
         || ((this.cy <= other.cy + other.cyy) && (this.cy + this.cyy >= other.cy + other.cyy))
         || ((this.cy >= other.cy) && (this.cy + this.cyy <= other.cy + other.cyy)));
     if (temp) {
-        this.x -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.x -= (this.speedLvl + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -1006,7 +1022,7 @@ Bot.prototype.collideTop = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y += (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y += (this.speedLvl + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -1017,7 +1033,7 @@ Bot.prototype.collideBottom = function (other) {
         || ((this.cx <= other.cx + other.cxx) && (this.cx + this.cxx >= other.cx + other.cxx))
         || ((this.cx >= other.cx) && (this.cx + this.cxx <= other.cx + other.cxx)));
     if (temp) {
-        this.y -= (this.speedLvl+1) * EACH_LEVEL_SPEED * this.game.clockTick;
+        this.y -= (this.speedLvl + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
     return temp;
 };
@@ -1327,7 +1343,7 @@ function startSinglePlayerGame() {
 
 }
 
-function initiateGUI () {
+function initiateGUI() {
     var p1BombLvl = document.getElementById("p1_bombUp");
     var p1SpeedLvl = document.getElementById("p1_speedUp");
     var p1FlameLvl = document.getElementById("p1_flameUp");
