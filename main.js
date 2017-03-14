@@ -2180,22 +2180,22 @@ Bot.prototype.update = function () {
                     this.passRight = this.collideRight(ent);
                     this.passLeft = this.collideLeft(ent);
                     if (this.canKick && ent.name === "Bomb"
-                        && this.passTop && this.game.chars['ArrowUp']) {
+                        && this.passTop && this.directionY === -1) {
                         ent.moveTop = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passBottom && this.game.chars['ArrowDown']) {
+                        && this.passBottom && this.directionY === 1) {
                         ent.moveBot = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passRight && this.game.chars['ArrowRight']) {
+                        && this.passRight && this.directionX === 1) {
                         ent.moveRight = true;
                         ent.isMoving = true;
                     }
                     else if (this.canKick && ent.name === "Bomb"
-                        && this.passLeft && this.game.chars['ArrowLeft']) {
+                        && this.passLeft && this.directionX === -1) {
                         ent.moveLeft = true;
                         ent.isMoving = true;
                     }
