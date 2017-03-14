@@ -51,13 +51,13 @@ socket.on("load", function (data) {
             }
             object.cooldown = temp.cooldown;
             object.jumpCooldown = temp.jumpCooldown;
-            object.currentBombOnField = temp.currentBombOnField;
+            object.currentBombOnField = 0;
             object.isJump = temp.isJump;
             object.passTop = temp.passTop;
             object.passRight = temp.passRight;
             object.passBottom = temp.passBottom;
             object.passLeft = temp.passLeft;
-            object.insideBomb = temp.insideBomb;
+            //object.insideBomb = temp.insideBomb;
             object.movingTarget = temp.movingTarget;
             object.movingTargetX = temp.movingTargetX;
             object.movingTargetY = temp.movingTargetY;
@@ -69,7 +69,17 @@ socket.on("load", function (data) {
             object.fireJump = temp.fireJump
             object.dangerousCount = temp.dangerousCount;
 
-        }
+        } //else if (temp.name === "Bomb") {
+        //     object = new Bomb(gameEngine, AM.getAsset("./img/Bomb.png"), null);
+        //     object.animation.elapsedTime = 0;
+        //     object.x = temp.x;
+        //     object.y = temp.y;
+        // } else if (temp.name === "Flame") {
+        //     object = new Flame(gameEngine, AM.getAsset("./img/Flame.png"));
+        //     object.x = temp.x;
+        //     object.y = temp.y;
+        //     object.animation.elapsedTime = 0;
+        // }
         gameEngine.addEntity(object);
     }
 });
@@ -87,14 +97,14 @@ function clearGame() {
         var temp = gameEngine.destroyable[i];
         temp.removeFromWorld = true;
     }
-    // for (var i = 0; i < gameEngine.bombs.length; i++) {
-    //     var temp = gameEngine.bombs[i];
-    //     temp.removeFromWorld = true;
-    // }
-    // for (var i = 0; i < gameEngine.flames.length; i++) {
-    //     var temp = gameEngine.flames[i];
-    //     temp.removeFromWorld = true;
-    // }
+    for (var i = 0; i < gameEngine.bombs.length; i++) {
+        var temp = gameEngine.bombs[i];
+        temp.removeFromWorld = true;
+    }
+    for (var i = 0; i < gameEngine.flames.length; i++) {
+        var temp = gameEngine.flames[i];
+        temp.removeFromWorld = true;
+    }
     for (var i = 0; i < gameEngine.players_bots.length; i++) {
         var temp = gameEngine.players_bots[i];
         temp.removeFromWorld = true;
@@ -114,7 +124,7 @@ function SaveBot(x, y, color) {
     this.passLeft = false;
     this.x = x;
     this.y = y;
-    this.insideBomb = null;
+    //this.insideBomb = null;
     this.movingTarget = null;
     this.movingTargetX = null;
     this.movingTargetY = null;
@@ -127,8 +137,12 @@ function SaveBot(x, y, color) {
     this.dangerousCount = 0;
 }
 
-function SaveBomb(){
+function SaveBomb(x, y){
+    this.name = "Bomb";
+}
 
+function SaveFlame(x, y) {
+    this.name = "Flame";
 }
 
 // function SaveWall(x, y) {
@@ -150,6 +164,7 @@ function saveClick() {
         temp = gameEngine.entities[i];
         if (temp.name === "Destroyable") {
             object = new SaveDestroyable(temp.x, temp.y, temp.name);
+            saveEntities.push(object);
         } else if(temp.name === "Bot") {
             object = new SaveBot(temp.x, temp.y, temp.color);
             object.cooldown = temp.cooldown;
@@ -160,7 +175,7 @@ function saveClick() {
             object.passRight = temp.passRight;
             object.passBottom = temp.passBottom;
             object.passLeft = temp.passLeft;
-            object.insideBomb = temp.insideBomb;
+            //object.insideBomb = temp.insideBomb;
             object.movingTarget = temp.movingTarget;
             object.movingTargetX = temp.movingTargetX;
             object.movingTargetY = temp.movingTargetY;
@@ -171,8 +186,15 @@ function saveClick() {
             object.jumpBeginY = temp.jumpBeginY;
             object.fireJump = temp.fireJump
             object.dangerousCount = temp.dangerousCount;
-        }
-        saveEntities.push(object);
+            saveEntities.push(object);
+        } //else if (temp.name === "Bomb") {
+        //     object = new SaveBomb(temp.x, temp.y);
+        //     saveEntities.push(object);
+        // } else if (temp.name === "Flame") {
+        //     object = new SaveFlame(temp.x, temp.y);
+        //     saveEntities.push(object);
+        // }
+
     }
 
     socket.emit("save", { studentname: "James Ho", statename: "aState", entities:saveEntities});
@@ -287,7 +309,8 @@ function Bomb(game, spritesheet, owner) {
     //                   LEFT   ,  RIGHT,   UP  ,  BOTTOM
     this.firePosition = [[-1, 0], [1, 0], [0, 1], [0, -1]];
     this.ctx = game.ctx;
-    this.currentLvl = owner.flameLvl;
+    //this.currentLvl = owner.flameLvl;
+    this.currentLvl = 10;
     this.name = "Bomb";
     this.ownerOfBomb = owner;
     this.isMoving = false;
