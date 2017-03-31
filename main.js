@@ -641,64 +641,55 @@ Bomberman.prototype.update = function () {
         if (this.insideBomb !== null && (this.insideBomb.x === this.position.x * 50
             && this.insideBomb.y === this.position.y * 50)) {
             this.throwbombCooldown = 0.8;
-            console.log("WELCOME HERE what is my insideBomb x and y? {" + this.insideBomb.x + ", " + this.insideBomb.y + "}");
-            for (var i = 0; i < this.game.bombs.length; i++) {
-                var entB = this.game.bombs[i];
-                if (this.insideBomb.x === entB.x
-                    && this.insideBomb.y === entB.y) {
-                    entB.throwBeginX = entB.x;
-                    entB.throwBeginY = entB.y;
-                    entB.flying = true;
-                    entB.flyTop = this.faceTop;
-                    entB.flyBot = this.faceBot;
-                    entB.flyLeft = this.faceLeft;
-                    entB.flyRight = this.faceRight;
-                    // var addLength = 0;
+            this.insideBomb.throwBeginX = this.insideBomb.x;
+            this.insideBomb.throwBeginY = this.insideBomb.y;
+            this.insideBomb.flyTop = this.faceTop;
+            this.insideBomb.flyBot = this.faceBot;
+            this.insideBomb.flyLeft = this.faceLeft;
+            this.insideBomb.flyRight = this.faceRight;
+            this.insideBomb.flying = true;
+
+            // console.log("WELCOME HERE what is my insideBomb x and y? {" + this.insideBomb.x + ", " + this.insideBomb.y + "}");
+            // for (var i = 0; i < this.game.bombs.length; i++) {
+            //     var entB = this.game.bombs[i];
+            //     if (this.insideBomb.x === entB.x
+            //         && this.insideBomb.y === entB.y) {
+            //         entB.throwBeginX = entB.x;
+            //         entB.throwBeginY = entB.y;
+            //         entB.flying = true;
+            //         entB.flyTop = this.faceTop;
+            //         entB.flyBot = this.faceBot;
+            //         entB.flyLeft = this.faceLeft;
+            //         entB.flyRight = this.faceRight;
+            //         // var addLength = 0;
                     if (this.faceRight) {
                         var check = 22 - this.position.x - 3;
-                        console.log("My check" + check);
                         for (var j = 0; j < check; j++) {
                             var moveToNext = false;
-                            console.log("CheckLoop start");
                             for (var k = 0; k < this.game.entities.length; k++) {
-                                console.log("CheckLoop during");
                                 var entG = this.game.entities[k];
-                                // console.log("What is it? " + entG.name);
-                                // console.log("entG x ? {" + entG.x + "}");
-                                // console.log("entG y? "+entG.y+ " and my y? "+ (this.position.y*50));
-                                // console.log("this.position.x*50 = "+ (this.position.x*50));
-                                // console.log("entB.addlength+200 = "+(entB.addLength+200));
-                                console.log("entG.y = " + entG.y + " and this.position.y*50= " + (this.position.y * 50));
-                                console.log("entG.x = " + entG.x + " and this.position.x*50= " + (this.position.x * 50));
                                 if (entG !== entB && !entG.removeFromWorld &&
                                     (entG.name === "Destroyable"
                                     || entG.name === "Wall"
                                     || entG.name === "Bomb") && entG.y === this.position.y * 50) {
-                                    console.log("What is it? " + entG.name);
-                                    console.log("entG x ? {" + entG.x + "}");
-                                    console.log("entG y? " + entG.y + " and my y? " + (this.position.y * 50));
-                                    console.log("this.position.x*50 = " + (this.position.x * 50));
-                                    console.log("entB.addlength+200 = " + (entB.addLength + 200));
                                     if (entG.x === (this.position.x * 50) + entB.addLength + 200) {
 
                                         moveToNext = true;
                                         entB.addLength += 50;
                                         entB.bounce += 1;
-                                        console.log("CheckLoop during break");
                                         break;
                                     }
                                 }
                             }
                             if (!moveToNext) {
-                                console.log("CheckLoop start break");
                                 break;
                             }
                         }
                         // totalLength += addLength;
                     }
-                    break;
-                }
-            }
+            //         break;
+            //     }
+            // }
         }
         // this.insideBomb.flying = true;
         // this.insideBomb = null;
@@ -1204,7 +1195,9 @@ Bomb.prototype.update = function () {
     } else if (this.moveBot) {
         this.y += (5 + 1) * EACH_LEVEL_SPEED * this.game.clockTick;
     }
-    console.log("My addLength: "+this.addLength/*+" my bounce: "+ this.bounce*/);
+    // console.log("My addLength: "+this.addLength/*+" my bounce: "+ this.bounce*/);
+    // console.log("throw x,y:"+ this.throwBeginX+", "+this.throwBeginY);
+    // console.log("Where am I? " + this.x + "," + this.y);
     if (this.flying) {
         // console.log("flying? " + this.flying);
         // this.throwBeginX = this.x;
@@ -1262,7 +1255,7 @@ Bomb.prototype.update = function () {
             this.elapsedTime = 0;
             this.throwBeginX = this.x;
             this.throwBeginY = this.y;
-            if (this.bounce>0){
+            if (this.bounce > 0) {
                 this.canBounce = true;
             }
         }
@@ -1296,32 +1289,32 @@ Bomb.prototype.update = function () {
     }
     if (this.canBounce && this.bounce > 0) {
         // while (this.bounce > 0) {
-            this.flying = true;
-            this.elapsedTime += this.game.clockTick;
-            var throwDistance = this.elapsedTime / 0.6;
-            if (this.flyRight) {
-                var totalHeight = 50; // it is y at this moment
-                var totalLength = 50 /*+ this.addLength*/;
-                if (throwDistance > 0.5) {
-                    throwDistance = 1 - throwDistance;
-                }
-                var height = totalHeight * (-4 * (throwDistance * throwDistance - throwDistance));
-                var length = totalLength * (this.elapsedTime / 0.6);
-                this.y = this.throwBeginY - height;
-                this.x = this.throwBeginX + length;
-                // console.log("my bomb x,y? {" + this.x + ", " + this.y + "}");
+        this.flying = true;
+        this.elapsedTime += this.game.clockTick;
+        var throwDistance = this.elapsedTime / 0.5;
+        if (this.flyRight) {
+            var totalHeight = 50; // it is y at this moment
+            var totalLength = 50 /*+ this.addLength*/;
+            if (throwDistance > 0.5) {
+                throwDistance = 1 - throwDistance;
             }
-            if (this.elapsedTime > 0.6) {
-                // this.isJump = false;
-                // this.jumpBeginY = null;
-                this.flying = false;
-                this.x = this.position.x * 50;
-                this.y = this.position.y * 50;
-                this.elapsedTime = 0;
-                this.throwBeginX = this.x;
-                this.throwBeginY = this.y;
-                this.bounce--;
-            }
+            var height = totalHeight * (-4 * (throwDistance * throwDistance - throwDistance));
+            var length = totalLength * (this.elapsedTime / 0.5);
+            this.y = this.throwBeginY - height;
+            this.x = this.throwBeginX + length;
+            // console.log("my bomb x,y? {" + this.x + ", " + this.y + "}");
+        }
+        if (this.elapsedTime > 0.5) {
+            // this.isJump = false;
+            // this.jumpBeginY = null;
+            this.flying = false;
+            this.x = this.position.x * 50;
+            this.y = this.position.y * 50;
+            this.elapsedTime = 0;
+            this.throwBeginX = this.x;
+            this.throwBeginY = this.y;
+            this.bounce--;
+        }
 
         // }
     }
@@ -1330,7 +1323,7 @@ Bomb.prototype.update = function () {
 }
 
 Bomb.prototype.draw = function () {
-    if (this.animation.elapsedTime > 3 && this.flying) {
+    if (this.flying) {
         this.animation.drawFrame(0, this.ctx, this.x, this.y);
     } else {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
@@ -1449,7 +1442,7 @@ Flame.prototype.update = function () {
 
                 // This is for when the flame kills another bomb, which will right away blow the bomb that was hit
                 // I wanna make a helper function for this, so we dont have to use this code two times!!!!!!!!!!!!!!!!
-                if (ent.name === "Bomb" && !ent.flying) {
+                if (ent.name === "Bomb" && !ent.flying && ent.bounce === 0) {
                     ent.ownerOfBomb.currentBombOnField--;
                     // var flame = new Flame(this.game, AM.getAsset("./img/Flame.png"));
                     // this.game.addEntity(flame);
