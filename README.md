@@ -1,5 +1,4 @@
-# boomboomboom
-Remake of the classic Bomberman game
+# boomboomboom (Remake of the classic Bomberman game)
 https://yaukuen.github.io/boomboomboom/
 
 Current Features:
